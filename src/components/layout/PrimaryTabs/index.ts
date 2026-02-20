@@ -1,0 +1,1 @@
+export { PrimaryTabs } from "./PrimaryTabs";

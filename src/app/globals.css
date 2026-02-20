@@ -1,26 +1,226 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   Design system: CSS custom properties (single source of truth).
+   Change these to update spacing, sizes, and styles across the entire app.
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Base unit: 4px. All spacing is a multiple of 4. */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* Typography scale (rem-based for accessibility). */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+
+  /* Line heights (design system: body 1.5x, headings 1.1–1.2x). */
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Border radius. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions (200–300ms per UI rules). */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-index scale. */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 40;
+  --z-modal: 50;
+  --z-toast: 100;
 }
+
+/* ==========================================================================
+   Theme: Light (default)
+   ========================================================================== */
+
+:root,
+[data-theme="light"] {
+  --color-page-bg: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-border: #E2E8F0;
+  --color-text: #0F172A;
+  --color-text-muted: #475569;
+  --color-text-disabled: #94A3B8;
+  --color-primary: #0EA5E9;
+  --color-primary-hover: #0284C7;
+  --color-primary-muted: #E0F2FE;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-info: #3B82F6;
+}
+
+/* ==========================================================================
+   Theme: Dark
+   ========================================================================== */
+
+[data-theme="dark"] {
+  --color-page-bg: #0F172A;
+  --color-surface: #1E293B;
+  --color-border: #334155;
+  --color-text: #F8FAFC;
+  --color-text-muted: #94A3B8;
+  --color-text-disabled: #64748B;
+  --color-primary: #38BDF8;
+  --color-primary-hover: #0EA5E9;
+  --color-primary-muted: #0C4A6E;
+  --color-success: #4ADE80;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+  --color-info: #60A5FA;
+}
+
+/* ==========================================================================
+   Theme: Trading (high-contrast, terminal-style)
+   ========================================================================== */
+
+[data-theme="trading"] {
+  --color-page-bg: #0A0E14;
+  --color-surface: #0D1117;
+  --color-border: #21262D;
+  --color-text: #E6EDF3;
+  --color-text-muted: #8B949E;
+  --color-text-disabled: #484F58;
+  --color-primary: #58A6FF;
+  --color-primary-hover: #79B8FF;
+  --color-primary-muted: #1F3A5F;
+  --color-success: #3FB950;
+  --color-warning: #D29922;
+  --color-danger: #F85149;
+  --color-info: #58A6FF;
+}
+
+/* ==========================================================================
+   Tailwind @theme: map CSS vars to utilities (no raw hex in components).
+   ========================================================================== */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Colors from design tokens (theme-specific via data-theme). */
+  --color-background: var(--color-page-bg);
+  --color-foreground: var(--color-text);
+  --color-muted: var(--color-text-muted);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-surface: var(--color-surface);
+  --color-border: var(--color-border);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+
+  /* Font families (injected by layout; fallbacks for SSR). */
+  --font-sans: var(--font-sans-fallback, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-mono-fallback, ui-monospace, monospace);
+
+  /* Spacing from design system (4px grid). */
+  --spacing-1: var(--space-1);
+  --spacing-2: var(--space-2);
+  --spacing-3: var(--space-3);
+  --spacing-4: var(--space-4);
+  --spacing-6: var(--space-6);
+  --spacing-8: var(--space-8);
+  --spacing-12: var(--space-12);
+
+  /* Radius. */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-full: var(--radius-full);
+
+  /* Animation. */
+  --animate-duration-fast: var(--duration-fast);
+  --animate-duration-normal: var(--duration-normal);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ==========================================================================
+   Font classes: switchable via Redux (data-font attribute).
+   ========================================================================== */
+
+[data-font="inter"] {
+  --font-sans-fallback: var(--font-inter, "Inter", ui-sans-serif, system-ui, sans-serif);
+}
+
+[data-font="geist"] {
+  --font-sans-fallback: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+[data-font="jetbrains-mono"] {
+  --font-sans-fallback: var(--font-jetbrains-mono, ui-monospace, monospace);
+}
+
+/* ==========================================================================
+   Size: small, compact, normal (scale via root font-size for rem-based spacing/type).
+   ========================================================================== */
+
+html[data-size="small"] {
+  font-size: 14px;
+}
+
+html[data-size="compact"] {
+  font-size: 15px;
+}
+
+html[data-size="normal"] {
+  font-size: 16px;
+}
+
+/* ==========================================================================
+   Base styles
+   ========================================================================== */
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-page-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  min-height: 100dvh;
+}
+
+/* Focus ring for accessibility (WCAG). */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Reduce motion when user prefers it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
