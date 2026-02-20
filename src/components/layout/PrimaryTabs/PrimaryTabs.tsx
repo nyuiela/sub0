@@ -26,8 +26,8 @@ export function PrimaryTabs() {
               aria-current={activeTab === tabId ? "page" : undefined}
               className={
                 activeTab === tabId
-                  ? `${tabButtonBase} bg-[var(--color-primary-muted)] text-[var(--color-primary)]`
-                  : `${tabButtonBase} text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]`
+                  ? `${tabButtonBase} cursor-pointer bg-[var(--color-primary-muted)] text-[var(--color-primary)]`
+                  : `${tabButtonBase} cursor-pointer text-[var(--color-text-muted)] hover:bg-[var(--color-surface)] hover:text-[var(--color-text)]`
               }
             >
               {PRIMARY_TAB_LABELS[tabId]}

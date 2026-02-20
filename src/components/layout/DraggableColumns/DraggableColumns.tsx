@@ -107,7 +107,7 @@ export function DraggableColumns() {
         <button
           type="button"
           onClick={() => dispatch(resetColumnOrder())}
-          className="text-xs font-medium text-[var(--color-text-muted)] underline hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+          className="cursor-pointer text-xs font-medium text-[var(--color-text-muted)] underline hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
         >
           Reset column order
         </button>

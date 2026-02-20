@@ -19,7 +19,7 @@ export function FilterBar() {
         <button
           key={item.id}
           type="button"
-          className="rounded-full border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+          className="cursor-pointer rounded-full border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
         >
           {item.label}
         </button>

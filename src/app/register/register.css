@@ -1,0 +1,78 @@
+/* Register flow: cyberpunk-minimalism, glassmorphism, neon accents */
+
+.register-page {
+  --reg-bg: #0c0c0f;
+  --reg-surface: rgba(20, 20, 28, 0.7);
+  --reg-border: rgba(139, 92, 246, 0.25);
+  --reg-neon-violet: #a78bfa;
+  --reg-neon-blue: #38bdf8;
+  --reg-text: #f1f5f9;
+  --reg-muted: #94a3b8;
+  --reg-success: #4ade80;
+  background-color: var(--reg-bg);
+  min-height: 100dvh;
+  color: var(--reg-text);
+}
+
+.register-glass {
+  background: var(--reg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--reg-border);
+  border-radius: var(--radius-lg);
+}
+
+.register-progress {
+  height: 3px;
+  background: rgba(139, 92, 246, 0.2);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.register-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--reg-neon-violet), var(--reg-neon-blue));
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal) var(--ease-default);
+}
+
+.register-btn-primary {
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--reg-neon-violet), #7c3aed);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: box-shadow var(--duration-normal), transform var(--duration-fast);
+}
+
+.register-btn-primary:hover {
+  box-shadow: 0 0 24px rgba(167, 139, 250, 0.4);
+  transform: translateY(-1px);
+}
+
+.register-btn-primary:focus-visible {
+  outline: 2px solid var(--reg-neon-blue);
+  outline-offset: 2px;
+}
+
+.register-terminal {
+  font-family: var(--font-mono-fallback, ui-monospace, monospace);
+  font-size: var(--text-sm);
+  color: var(--reg-muted);
+}
+
+.register-card-interactive {
+  cursor: pointer;
+  transition: border-color var(--duration-normal), box-shadow var(--duration-normal);
+}
+
+.register-card-interactive:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+.register-card-interactive[data-selected="true"] {
+  border-color: var(--reg-neon-violet);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.25);
+}

@@ -12,7 +12,7 @@ export function AccountBar() {
     >
       <button
         type="button"
-        className="rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-white transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] active:scale-[0.98]"
+        className="cursor-pointer rounded-md bg-[var(--color-primary)] px-3 py-2 text-sm font-medium text-white transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] active:scale-[0.98]"
       >
         Deposit
       </button>
@@ -24,7 +24,7 @@ export function AccountBar() {
         onClick={() => setAutoOn((prev) => !prev)}
         aria-pressed={autoOn}
         aria-label="Toggle auto trading"
-        className="rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+        className="cursor-pointer rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors duration-[var(--duration-normal)] hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
       >
         Auto
       </button>
@@ -34,7 +34,7 @@ export function AccountBar() {
       <button
         type="button"
         aria-label="Profile or menu"
-        className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+        className="cursor-pointer rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] p-2 text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-primary-muted)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
       >
         <span aria-hidden className="text-sm font-medium">U</span>
       </button>
