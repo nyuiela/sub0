@@ -4,6 +4,7 @@ import type {
   MarketListParams,
   OrderBookSnapshot,
   TradeExecutedPayload,
+  MarketStatsUpdatedPayload,
 } from "@/types/market.types";
 import * as marketsApi from "@/lib/api/markets";
 
@@ -144,6 +145,16 @@ const marketsSlice = createSlice({
         };
       }
     },
+    setMarketVolumeFromStats: (state, action: { payload: MarketStatsUpdatedPayload }) => {
+      const { marketId, volume } = action.payload;
+      if (state.selectedMarket?.id === marketId) {
+        state.selectedMarket = { ...state.selectedMarket, volume };
+      }
+      const idx = state.list.findIndex((m) => m.id === marketId);
+      if (idx >= 0) {
+        state.list[idx] = { ...state.list[idx], volume };
+      }
+    },
     clearSelectedMarket: (state) => {
       state.selectedMarket = null;
     },
@@ -220,7 +231,16 @@ const marketsSlice = createSlice({
 export const {
   setOrderBookForMarket,
   applyTradeToMarket,
+  setMarketVolumeFromStats,
   clearSelectedMarket,
   clearMarketsError,
 } = marketsSlice.actions;
+
+export function selectOrderBookByMarketId(
+  state: { markets: MarketsSliceState },
+  marketId: string
+): OrderBookSnapshot | undefined {
+  return state.markets.orderBookByMarketId[marketId];
+}
+
 export default marketsSlice.reducer;

@@ -5,8 +5,13 @@ import { useAppDispatch } from "@/store/hooks";
 import {
   setOrderBookForMarket,
   applyTradeToMarket,
+  setMarketVolumeFromStats,
 } from "@/store/slices/marketsSlice";
-import type { OrderBookUpdatePayload, TradeExecutedPayload } from "@/types/market.types";
+import type {
+  OrderBookUpdatePayload,
+  TradeExecutedPayload,
+  MarketStatsUpdatedPayload,
+} from "@/types/market.types";
 import { marketRoom } from "@/types/market.types";
 import { getMarketWebSocketUrl } from "./marketWsUrl";
 import { marketWebSocketService } from "./marketWebSocketService";
@@ -82,6 +87,11 @@ export function useMarketWebSocket(options: UseMarketWebSocketOptions): void {
           const p = message.payload as TradeExecutedPayload;
           if (p?.marketId && p?.executedAt != null) {
             dispatch(applyTradeToMarket(p));
+          }
+        } else if (message.type === "MARKET_STATS_UPDATED") {
+          const p = message.payload as MarketStatsUpdatedPayload;
+          if (p?.marketId != null && typeof p.volume === "string") {
+            dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
           }
         }
       },

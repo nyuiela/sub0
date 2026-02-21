@@ -76,10 +76,15 @@ class WebSocketService {
 
   private handleMessage(event: MessageEvent): void {
     try {
-      const data = JSON.parse(event.data as string) as WebSocketMessage;
+      const data = JSON.parse(event.data as string) as Record<string, unknown>;
+      const type = (data.type as string) ?? "unknown";
+      if (type === "PING") {
+        this.send({ type: "PONG" });
+        return;
+      }
       const message: WebSocketMessage = {
-        type: data.type ?? "unknown",
-        payload: data.payload ?? data,
+        type,
+        payload: (data.payload ?? data) as unknown,
         timestamp: typeof data.timestamp === "number" ? data.timestamp : Date.now(),
       };
       this.onMessage?.(message);

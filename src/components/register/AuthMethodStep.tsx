@@ -27,7 +27,7 @@ export function AuthMethodStep({ value, onChange, onNext }: AuthMethodStepProps)
       className="flex flex-col items-center justify-center gap-8 px-4 py-12"
       aria-label="Choose authentication method"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         How do you want to sign in?
       </h2>
       <ul className="grid w-full max-w-lg gap-4 sm:grid-cols-3">
@@ -42,8 +42,8 @@ export function AuthMethodStep({ value, onChange, onNext }: AuthMethodStepProps)
               aria-pressed={value === method}
               aria-label={`Select ${LABELS[method]}`}
             >
-              <span className="font-medium text-[var(--reg-text)]">{LABELS[method]}</span>
-              <p className="mt-2 text-sm text-[var(--reg-muted)]">
+              <span className="font-medium text-(--reg-text)">{LABELS[method]}</span>
+              <p className="mt-2 text-sm text-(--reg-muted)">
                 {DESCRIPTIONS[method]}
               </p>
             </button>

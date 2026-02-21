@@ -42,10 +42,10 @@ export function RegisterSubmit({ payload, onSuccess }: RegisterSubmitProps) {
       className="flex flex-col items-center justify-center gap-8 px-4 py-12"
       aria-label="Complete registration"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         Complete registration
       </h2>
-      <p className="text-center text-sm text-[var(--reg-muted)]">
+      <p className="text-center text-sm text-(--reg-muted)">
         Submit to create your account and agent. You must be signed in with your wallet.
       </p>
       <button

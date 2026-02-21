@@ -24,7 +24,7 @@ export function SizeSwitcher() {
               type="button"
               onClick={() => dispatch(setSize(id))}
               aria-pressed={sizeId === id}
-              className="cursor-pointer rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text)] transition-[background-color,transform] duration-[var(--duration-normal)] hover:bg-[var(--color-primary-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-[background-color,transform] duration-200 hover:bg-primary-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
               style={{
                 boxShadow: sizeId === id ? "0 0 0 2px var(--color-primary)" : undefined,
               }}

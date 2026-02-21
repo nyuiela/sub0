@@ -22,11 +22,11 @@ export function WebSocketStatusIndicator() {
 
   return (
     <section
-      className="flex flex-col gap-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+      className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-3"
       aria-live="polite"
       aria-label="WebSocket connection status"
     >
-      <p className="flex items-center gap-2 text-sm text-[var(--color-text-muted)]">
+      <p className="flex items-center gap-2 text-sm text-muted">
         <span
           className="h-2 w-2 shrink-0 rounded-full"
           style={{
@@ -42,10 +42,10 @@ export function WebSocketStatusIndicator() {
         {STATUS_LABELS[status]}
       </p>
       {lastError && (
-        <p className="text-xs text-[var(--color-danger)]">{lastError}</p>
+        <p className="text-xs text-danger">{lastError}</p>
       )}
       {lastMessage && (
-        <p className="max-w-[200px] truncate text-xs text-[var(--color-text-muted)]">
+        <p className="max-w-[200px] truncate text-xs text-muted">
           Last: {lastMessage.type}
         </p>
       )}

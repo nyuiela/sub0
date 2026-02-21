@@ -64,7 +64,7 @@ export function ColumnResizeHandle({
       aria-orientation="vertical"
       aria-label="Resize column"
       onMouseDown={handleMouseDown}
-      className="flex shrink-0 cursor-col-resize items-stretch justify-center bg-transparent transition-colors hover:bg-[var(--color-primary-muted)]"
+      className="flex shrink-0 cursor-col-resize items-stretch justify-center bg-transparent transition-colors hover:bg-primary-muted"
       style={{
         width: HANDLE_WIDTH_PX,
         minWidth: HANDLE_WIDTH_PX,

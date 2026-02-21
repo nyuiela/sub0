@@ -20,7 +20,7 @@ export function MissionSelect({ value, onChange, onNext }: MissionSelectProps) {
       className="flex flex-col items-center justify-center gap-10 px-4 py-12"
       aria-label="Select primary mission"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         What is your primary mission?
       </h2>
       <ul className="grid w-full max-w-2xl gap-4 sm:grid-cols-3">
@@ -41,7 +41,7 @@ export function MissionSelect({ value, onChange, onNext }: MissionSelectProps) {
               >
                 {id === "market-analysis" ? "📊" : id === "autonomous-trading" ? "🤖" : "📈"}
               </span>
-              <span className="font-medium text-[var(--reg-text)]">{label}</span>
+              <span className="font-medium text-(--reg-text)">{label}</span>
             </button>
           </li>
         ))}

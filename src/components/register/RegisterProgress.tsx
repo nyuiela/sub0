@@ -17,13 +17,13 @@ export function RegisterProgress({
   const showBack = step > 0 && onBack != null;
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-[var(--z-sticky)] px-4 pt-4">
+    <header className="fixed left-0 right-0 top-0 z-40 px-4 pt-4">
       <div className="mx-auto flex max-w-xl items-center gap-3">
         {showBack && (
           <button
             type="button"
             onClick={onBack}
-            className="cursor-pointer text-sm font-medium text-[var(--reg-muted)] transition-colors hover:text-[var(--reg-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--reg-neon-violet)]"
+            className="cursor-pointer text-sm font-medium text-(--reg-muted) transition-colors hover:text-(--reg-text) focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--reg-neon-violet)"
             aria-label="Go back"
           >
             Back

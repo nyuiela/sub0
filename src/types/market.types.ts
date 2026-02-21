@@ -119,6 +119,12 @@ export interface TradeExecutedPayload {
   agentId?: string;
 }
 
+/** WebSocket: MARKET_STATS_UPDATED payload (volume after trades or API create/update) */
+export interface MarketStatsUpdatedPayload {
+  marketId: string;
+  volume: string;
+}
+
 export const WS_ROOM_PREFIX = "market:";
 
 export function marketRoom(marketId: string): string {

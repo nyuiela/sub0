@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setColumnOrder, resetColumnOrder } from "@/store/slices/layoutSlice";
 import type { ColumnSizePrefs } from "@/types/layout.types";
+import { MiniMarketsContainer } from "@/components/market";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 
 const COLUMN_LABELS: Record<string, string> = {
@@ -104,17 +105,17 @@ export function DraggableColumns() {
       aria-label="Dashboard columns. Drag column headers to reorder; drag edges to resize."
     >
       <div className="mb-2 flex justify-end">
-        <button
+        {/* <button
           type="button"
           onClick={() => dispatch(resetColumnOrder())}
-          className="cursor-pointer text-xs font-medium text-[var(--color-text-muted)] underline hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+          className="cursor-pointer text-xs font-medium text-muted underline hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Reset column order
-        </button>
+        </button> */}
       </div>
       <div
         ref={containerRef}
-        className="grid h-full gap-0 flex-1 min-h-0"
+        className="grid gap-0 flex-1 min-h-0 overflow-hidden grid-rows-1"
         style={{ gridTemplateColumns }}
       >
         {columnOrder.flatMap((columnId, i) => {
@@ -128,8 +129,8 @@ export function DraggableColumns() {
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, columnId)}
               aria-label={`Column ${COLUMN_LABELS[columnId] ?? columnId}. Drag to reorder.`}
-              className={`flex min-w-0 flex-col rounded-lg border-2 border-[var(--color-border)] bg-[var(--color-surface)] transition-shadow duration-[var(--duration-normal)] ${dropTargetId === columnId
-                ? "ring-2 ring-[var(--color-primary)]"
+              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border-2 border-border transition-shadow duration-200 bg-surface ${dropTargetId === columnId
+                ? "ring-2 ring-primary"
                 : ""
                 } ${draggedId === columnId ? "opacity-60" : ""}`}
               style={{
@@ -137,23 +138,27 @@ export function DraggableColumns() {
               }}
             >
               <header
-                className="flex cursor-grab active:cursor-grabbing items-center gap-2 border-b border-[var(--color-border)] px-4 py-3"
+                className="flex cursor-grab active:cursor-grabbing items-center gap-2 border-b border-border px-4 py-3"
                 style={{ touchAction: "none" }}
               >
                 <span
-                  className="text-[var(--color-text-disabled)]"
+                  className="text-disabled"
                   aria-hidden
                 >
                   ⋮⋮
                 </span>
-                <h3 className="text-sm font-semibold text-[var(--color-text)]">
+                <h3 className="text-sm font-semibold text-foreground">
                   {COLUMN_LABELS[columnId] ?? columnId}
                 </h3>
               </header>
-              <div className="flex-1 overflow-auto p-4">
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  Column content slot. Replace with market list or trade panel.
-                </p>
+              <div className="flex-1 overflow-auto p-2 min-h-0">
+                {columnId === "new" ? (
+                  <MiniMarketsContainer />
+                ) : (
+                  <p className="text-xs text-muted">
+                    Column content slot. Replace with market list or trade panel.
+                  </p>
+                )}
               </div>
             </section>
           );

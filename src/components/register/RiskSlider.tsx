@@ -21,11 +21,11 @@ export function RiskSlider({ value, onChange, onNext }: RiskSliderProps) {
       className="flex flex-col items-center justify-center gap-8 px-4 py-12"
       aria-label="Agent risk tolerance"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         Agent Persona Calibration
       </h2>
-      <p className="text-center text-sm text-[var(--reg-muted)]">
-        Risk Tolerance: <strong className="text-[var(--reg-text)]">{label}</strong>
+      <p className="text-center text-sm text-(--reg-muted)">
+        Risk Tolerance: <strong className="text-(--reg-text)">{label}</strong>
       </p>
       <div className="w-full max-w-md">
         <label className="sr-only">Risk tolerance from Safe to Degens Only</label>
@@ -36,12 +36,12 @@ export function RiskSlider({ value, onChange, onNext }: RiskSliderProps) {
           step={0.01}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="h-2 w-full appearance-none rounded-full bg-[var(--reg-surface)] accent-[var(--reg-neon-violet)]"
+          className="h-2 w-full appearance-none rounded-full bg-(--reg-surface) accent-(--reg-neon-violet)"
           style={{
             background: `linear-gradient(to right, var(--reg-neon-violet) 0%, var(--reg-neon-violet) ${value * 100}%, rgba(139,92,246,0.2) ${value * 100}%, rgba(139,92,246,0.2) 100%)`,
           }}
         />
-        <div className="mt-2 flex justify-between text-xs text-[var(--reg-muted)]">
+        <div className="mt-2 flex justify-between text-xs text-(--reg-muted)">
           <span>Safe</span>
           <span>Degens Only</span>
         </div>

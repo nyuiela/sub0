@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { ConnectButton } from "thirdweb/react";
+import { useAppSelector } from "@/store/hooks";
 import { thirdwebClient } from "@/lib/thirdweb/client";
+import { getConnectTheme } from "@/lib/thirdweb/connect-theme";
 import {
   generatePayload,
   isLoggedIn as checkLoggedIn,
@@ -14,8 +16,15 @@ export interface ConnectWalletStepProps {
   onNext: () => void;
 }
 
+const connectBtnClass =
+  "!rounded-lg !bg-primary !px-8 !py-4 !text-lg !font-semibold !text-white !shadow-sm !transition-opacity hover:!opacity-90 focus-visible:!outline focus-visible:!outline-2 focus-visible:!outline-offset-2 focus-visible:!outline-primary disabled:!opacity-50 disabled:!cursor-not-allowed";
+
+const signInBtnClass =
+  "!rounded-lg !bg-primary !px-6 !py-3 !text-sm !font-medium !text-white !transition-opacity hover:!opacity-90 disabled:!opacity-50 disabled:!cursor-not-allowed";
+
 export function ConnectWalletStep({ onNext }: ConnectWalletStepProps) {
   const [error, setError] = useState<string | null>(null);
+  const themeId = useAppSelector((state) => state.theme.themeId);
 
   const handleContinue = async () => {
     setError(null);
@@ -33,10 +42,10 @@ export function ConnectWalletStep({ onNext }: ConnectWalletStepProps) {
         className="flex flex-col items-center justify-center gap-6 px-4 py-12"
         aria-label="Connect wallet"
       >
-        <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+        <h2 className="text-center text-xl font-semibold text-foreground sm:text-2xl">
           Connect your wallet
         </h2>
-        <p className="text-center text-sm text-[var(--reg-muted)]">
+        <p className="text-center text-sm text-muted">
           Set NEXT_PUBLIC_THIRDWEB_CLIENT_ID in your environment to enable sign-in.
         </p>
       </section>
@@ -49,20 +58,20 @@ export function ConnectWalletStep({ onNext }: ConnectWalletStepProps) {
       aria-label="Connect wallet to sign in"
     >
       <header className="text-center">
-        <h2 className="text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+        <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
           Connect your wallet
         </h2>
-        <p className="mt-2 text-sm text-[var(--reg-muted)]">
+        <p className="mt-2 text-sm text-muted">
           Sign in with your Web3 wallet to continue registration.
         </p>
       </header>
-      <div className="register-glass flex flex-col items-center gap-6 rounded-xl px-8 py-10">
+      <div className="flex flex-col items-center gap-6 rounded-xl border border-border bg-surface px-8 py-10 shadow-sm">
         <ConnectButton
           client={thirdwebClient}
+          theme={getConnectTheme(themeId)}
           connectButton={{
             label: "Connect wallet",
-            className:
-              "register-btn-primary cursor-pointer px-8 py-4 text-lg disabled:opacity-50 disabled:cursor-not-allowed",
+            className: connectBtnClass,
           }}
           connectModal={{
             title: "Connect wallet",
@@ -71,10 +80,8 @@ export function ConnectWalletStep({ onNext }: ConnectWalletStepProps) {
           }}
           signInButton={{
             label: "Sign in",
-            className:
-              "register-btn-primary cursor-pointer px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed",
+            className: signInBtnClass,
           }}
-          theme="dark"
           auth={{
             isLoggedIn: async () => checkLoggedIn(),
             doLogin: async (params) => {
@@ -95,13 +102,13 @@ export function ConnectWalletStep({ onNext }: ConnectWalletStepProps) {
         <button
           type="button"
           onClick={handleContinue}
-          className="register-btn-primary cursor-pointer px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Continue
         </button>
       </div>
       {error && (
-        <p className="text-center text-sm text-red-400" role="alert">
+        <p className="text-center text-sm text-danger" role="alert">
           {error}
         </p>
       )}

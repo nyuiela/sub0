@@ -69,7 +69,7 @@ export function AgentStep({
       className="flex flex-col items-center justify-center gap-8 px-4 py-12"
       aria-label="Create or select agent"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         Create agent or use a template
       </h2>
       <ul className="grid w-full max-w-md gap-4 sm:grid-cols-2">
@@ -81,10 +81,10 @@ export function AgentStep({
             className="register-glass register-card-interactive cursor-pointer w-full p-6 text-left"
             aria-pressed={choice === "create"}
           >
-            <span className="font-medium text-[var(--reg-text)]">
+            <span className="font-medium text-(--reg-text)">
               Create new agent
             </span>
-            <p className="mt-2 text-sm text-[var(--reg-muted)]">
+            <p className="mt-2 text-sm text-(--reg-muted)">
               Name and optional persona (no keys required).
             </p>
           </button>
@@ -97,10 +97,10 @@ export function AgentStep({
             className="register-glass register-card-interactive cursor-pointer w-full p-6 text-left"
             aria-pressed={choice === "template"}
           >
-            <span className="font-medium text-[var(--reg-text)]">
+            <span className="font-medium text-(--reg-text)">
               From template
             </span>
-            <p className="mt-2 text-sm text-[var(--reg-muted)]">
+            <p className="mt-2 text-sm text-(--reg-muted)">
               Template ID and name; optional persona.
             </p>
           </button>
@@ -109,7 +109,7 @@ export function AgentStep({
       {choice === "create" && (
         <div className="flex w-full max-w-md flex-col gap-4">
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-[var(--reg-muted)]">
+            <span className="text-sm text-(--reg-muted)">
               Agent name (required)
             </span>
             <input
@@ -117,11 +117,11 @@ export function AgentStep({
               value={createName}
               onChange={(e) => setCreateName(e.target.value)}
               placeholder="My Agent"
-              className="register-glass rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none"
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-[var(--reg-muted)]">
+            <span className="text-sm text-(--reg-muted)">
               Persona (optional, max {PERSONA_MAX_LENGTH} characters)
             </span>
             <textarea
@@ -130,9 +130,9 @@ export function AgentStep({
               placeholder="Describe your agent's behavior and style..."
               rows={4}
               maxLength={PERSONA_MAX_LENGTH}
-              className="register-glass rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none resize-y"
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none resize-y"
             />
-            <span className="text-xs text-[var(--reg-muted)]">
+            <span className="text-xs text-(--reg-muted)">
               {createPersona.length} / {PERSONA_MAX_LENGTH}
             </span>
           </label>
@@ -141,7 +141,7 @@ export function AgentStep({
       {choice === "template" && (
         <div className="flex w-full max-w-md flex-col gap-4">
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-[var(--reg-muted)]">
+            <span className="text-sm text-(--reg-muted)">
               Template ID (required)
             </span>
             <input
@@ -149,11 +149,11 @@ export function AgentStep({
               value={templateId}
               onChange={(e) => setTemplateId(e.target.value)}
               placeholder="template-id"
-              className="register-glass rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none"
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-[var(--reg-muted)]">
+            <span className="text-sm text-(--reg-muted)">
               Agent name (required)
             </span>
             <input
@@ -161,11 +161,11 @@ export function AgentStep({
               value={templateName}
               onChange={(e) => setTemplateName(e.target.value)}
               placeholder="My Agent"
-              className="register-glass rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none"
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none"
             />
           </label>
           <label className="flex flex-col gap-2">
-            <span className="text-sm text-[var(--reg-muted)]">
+            <span className="text-sm text-(--reg-muted)">
               Persona (optional, max {PERSONA_MAX_LENGTH} characters)
             </span>
             <textarea
@@ -174,9 +174,9 @@ export function AgentStep({
               placeholder="Override or add persona..."
               rows={4}
               maxLength={PERSONA_MAX_LENGTH}
-              className="register-glass rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none resize-y"
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none resize-y"
             />
-            <span className="text-xs text-[var(--reg-muted)]">
+            <span className="text-xs text-(--reg-muted)">
               {templatePersona.length} / {PERSONA_MAX_LENGTH}
             </span>
           </label>

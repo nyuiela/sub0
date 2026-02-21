@@ -46,10 +46,10 @@ export function UsernameStep({ value, onChange, onNext }: UsernameStepProps) {
       className="flex flex-col items-center justify-center gap-8 px-4 py-12"
       aria-label="Choose username"
     >
-      <h2 className="text-center text-xl font-semibold text-[var(--reg-text)] sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold text-(--reg-text) sm:text-2xl">
         Choose your username
       </h2>
-      <p className="text-center text-sm text-[var(--reg-muted)]">
+      <p className="text-center text-sm text-(--reg-muted)">
         2–32 characters, letters, numbers, underscore, hyphen.
       </p>
       <label className="flex w-full max-w-sm flex-col gap-2">
@@ -64,11 +64,11 @@ export function UsernameStep({ value, onChange, onNext }: UsernameStepProps) {
           onBlur={handleBlur}
           placeholder="username"
           autoComplete="username"
-          className="register-glass w-full rounded-lg border border-[var(--reg-border)] bg-transparent px-4 py-3 text-[var(--reg-text)] placeholder:text-[var(--reg-muted)] focus:border-[var(--reg-neon-violet)] focus:outline-none focus:ring-2 focus:ring-[var(--reg-neon-violet)]/30"
+          className="register-glass w-full rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) placeholder:text-(--reg-muted) focus:border-(--reg-neon-violet) focus:outline-none focus:ring-2 focus:ring-(--reg-neon-violet)/30"
           aria-invalid={touched && (status === "invalid" || status === "taken")}
           aria-describedby="username-hint"
         />
-        <span id="username-hint" className="min-h-[1.5em] text-xs text-[var(--reg-muted)]">
+        <span id="username-hint" className="min-h-[1.5em] text-xs text-(--reg-muted)">
           {status === "checking" && "Checking..."}
           {status === "available" && "Username is available."}
           {status === "taken" && "Username is taken or invalid."}
@@ -79,7 +79,7 @@ export function UsernameStep({ value, onChange, onNext }: UsernameStepProps) {
         type="button"
         onClick={handleCheck}
         disabled={status === "checking"}
-        className="cursor-pointer text-sm text-[var(--reg-neon-blue)] underline disabled:opacity-50 disabled:cursor-not-allowed"
+        className="cursor-pointer text-sm text-(--reg-neon-blue) underline disabled:opacity-50 disabled:cursor-not-allowed"
       >
         Check availability
       </button>
