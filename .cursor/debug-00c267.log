@@ -1,59 +1,621 @@
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662118033,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662118043,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662123733,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662123734,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662123746,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662123747,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662125753,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662125793,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662128764,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662128813,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662131284,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662131285,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662131292,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662131292,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662131376,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662131377,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662131395,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662131395,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662133293,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662133380,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662133399,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662133402,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662136366,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662136415,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662137776,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:7537a82e-3971-4c84-b06c-a587a79bb2cd","market:ebcf92d1-e113-430d-9567-add6565a59a2","market:d424f2b1-742b-4696-b8b4-4178d5305ef2","market:5fcbdfaf-f916-4529-8f67-d6d9be3b58de","market:feb5a4ef-48b5-48df-b9dc-8a616c42e5b7"],"willReturnEarly":false},"timestamp":1771662137778,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662137778,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662138385,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:81dbaf99-28a6-4c50-a684-22159e2aef0d","market:922e4d4a-be3c-4ef5-9000-07c45be975b3","market:9369766d-48c1-4260-829d-cb76c2f98ed6","market:e233d93a-c99b-4d9a-a003-d1b62b563ab5","market:37f32d36-30f7-411a-94b0-b562f01dcf5b"],"willReturnEarly":false},"timestamp":1771662138385,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662138386,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662138388,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:81dbaf99-28a6-4c50-a684-22159e2aef0d","market:922e4d4a-be3c-4ef5-9000-07c45be975b3","market:9369766d-48c1-4260-829d-cb76c2f98ed6","market:e233d93a-c99b-4d9a-a003-d1b62b563ab5","market:37f32d36-30f7-411a-94b0-b562f01dcf5b"],"willReturnEarly":false},"timestamp":1771662138388,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662138388,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662138832,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:81dbaf99-28a6-4c50-a684-22159e2aef0d","market:922e4d4a-be3c-4ef5-9000-07c45be975b3","market:9369766d-48c1-4260-829d-cb76c2f98ed6","market:e233d93a-c99b-4d9a-a003-d1b62b563ab5","market:37f32d36-30f7-411a-94b0-b562f01dcf5b"],"willReturnEarly":false},"timestamp":1771662138832,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662138833,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662138834,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:7537a82e-3971-4c84-b06c-a587a79bb2cd","market:ebcf92d1-e113-430d-9567-add6565a59a2","market:d424f2b1-742b-4696-b8b4-4178d5305ef2","market:5fcbdfaf-f916-4529-8f67-d6d9be3b58de","market:feb5a4ef-48b5-48df-b9dc-8a616c42e5b7"],"willReturnEarly":false},"timestamp":1771662138837,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662138839,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662140407,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662140935,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662141080,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662141082,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662141579,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:81dbaf99-28a6-4c50-a684-22159e2aef0d","market:922e4d4a-be3c-4ef5-9000-07c45be975b3","market:9369766d-48c1-4260-829d-cb76c2f98ed6","market:e233d93a-c99b-4d9a-a003-d1b62b563ab5","market:37f32d36-30f7-411a-94b0-b562f01dcf5b"],"willReturnEarly":false},"timestamp":1771662141579,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662141579,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662141575,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:7537a82e-3971-4c84-b06c-a587a79bb2cd","market:ebcf92d1-e113-430d-9567-add6565a59a2","market:d424f2b1-742b-4696-b8b4-4178d5305ef2","market:5fcbdfaf-f916-4529-8f67-d6d9be3b58de","market:feb5a4ef-48b5-48df-b9dc-8a616c42e5b7"],"willReturnEarly":false},"timestamp":1771662141575,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662141576,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662142863,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:7537a82e-3971-4c84-b06c-a587a79bb2cd","market:ebcf92d1-e113-430d-9567-add6565a59a2","market:d424f2b1-742b-4696-b8b4-4178d5305ef2","market:5fcbdfaf-f916-4529-8f67-d6d9be3b58de","market:feb5a4ef-48b5-48df-b9dc-8a616c42e5b7"],"willReturnEarly":false},"timestamp":1771662142863,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662142864,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWsUrl.ts:getMarketWebSocketUrl","message":"Market WS URL resolved","data":{"url":"ws://localhost:4000/ws","hasEnvWs":false,"hasBackend":true},"timestamp":1771662142871,"hypothesisId":"H1"}
-{"sessionId":"00c267","location":"useMarketSocket.ts:effect","message":"useMarketSocket effect ran","data":{"enabled":true,"wsUrl":"ws://localhost:4000/ws","roomsCount":25,"rooms":["market:81dbaf99-28a6-4c50-a684-22159e2aef0d","market:922e4d4a-be3c-4ef5-9000-07c45be975b3","market:9369766d-48c1-4260-829d-cb76c2f98ed6","market:e233d93a-c99b-4d9a-a003-d1b62b563ab5","market:37f32d36-30f7-411a-94b0-b562f01dcf5b"],"willReturnEarly":false},"timestamp":1771662142871,"hypothesisId":"H5"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662142871,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662143414,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662144879,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662145019,"hypothesisId":"H2"}
-{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662146422,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662857128,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662857129,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662857213,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662857213,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662857233,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662857234,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662857469,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662857469,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662857603,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662858471,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662858472,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662859312,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662861032,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662861033,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662865223,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662866361,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662866525,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662866526,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662866689,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662866690,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662867425,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662867427,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662867499,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662867500,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662867508,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662867540,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662867541,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662867596,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662871159,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662872354,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662872354,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662875536,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662875536,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662881812,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662881878,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662881926,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662881928,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662884557,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662884558,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662887543,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662888821,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662888822,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662890381,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662890383,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662890509,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662890510,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662890510,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662890513,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662893925,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771662893926,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662893927,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662893937,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662893937,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662895044,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662895045,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662896695,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662897691,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662899660,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662899661,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662899908,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662899909,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662904692,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662904693,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662904715,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662904826,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662904826,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662905185,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662905185,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662905240,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662905240,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662913984,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662913985,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771662913985,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662913993,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662913993,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662915994,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662918437,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662918438,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662918473,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662918474,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662920526,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662920527,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662920567,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662920568,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662920584,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662920584,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662921440,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662921474,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662923787,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662923787,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662926421,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662926421,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662930538,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662932087,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662932087,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662933173,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662934799,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662934800,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662934926,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662934955,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662934956,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662942213,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662945721,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662945721,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662949988,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662951650,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662951650,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662965056,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662965093,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662965094,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662968503,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662971813,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662971814,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662981242,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662981243,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771662981242,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662981253,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662981253,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662983254,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662984584,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662984584,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662985700,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662985700,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662987585,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662988700,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662989879,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662989880,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662991072,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662991073,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662995193,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771662995259,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771662995259,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662996632,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771662997824,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663000238,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663000238,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663001165,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663001165,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663015427,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663016353,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663017221,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663017221,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663017445,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663017445,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663047222,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663047447,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663047515,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663047516,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663048693,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663048694,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663077517,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663078695,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663078775,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663078776,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663081272,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663081273,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663334792,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663334793,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663334793,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663334804,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663334805,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663334893,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663334893,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663336806,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663336894,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663336910,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663336910,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663336953,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663336954,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663341411,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663341454,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663341460,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663341460,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663341579,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663341580,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663351684,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663351804,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663351804,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663351805,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663351879,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663351880,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663374629,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663374760,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663374760,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663374761,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663374929,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663374930,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663404859,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663404914,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663404914,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663405030,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663405158,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663405159,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663435014,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663435176,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663435176,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663461315,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663461315,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663461316,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663461317,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663461317,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663461409,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663461410,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663463317,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663463405,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663463406,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663463410,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663463488,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663463488,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663467676,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663467676,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663467677,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663467688,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663467688,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663467723,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663467723,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663468345,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663468346,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663468346,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663468347,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663468347,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663468381,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663468381,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663469014,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663469015,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663469016,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663469026,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663469026,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663469127,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663469127,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663470214,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663470215,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663470215,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663470216,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663470216,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663470259,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663470259,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663470918,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663470918,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663470919,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663470920,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663470920,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663471015,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663471015,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663472921,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663473016,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663473046,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663473046,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663473097,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663473098,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663477642,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663477643,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663477738,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663477739,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663477740,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663477740,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663487962,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663487963,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663487984,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663487985,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663487999,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663487999,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663510844,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663510847,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663511139,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663511141,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663511142,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663511142,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663512491,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663512492,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663512492,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663512501,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663512502,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663512519,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663512519,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663514503,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663514509,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663514509,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663514521,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663514526,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663514526,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663517510,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663517578,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663517578,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663519027,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663519034,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663519034,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663524330,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663524341,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663524342,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663529161,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663529177,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663529177,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663539530,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663539606,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663539606,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663541235,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663541236,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663541285,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663541285,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663541359,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663541360,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663551960,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663552035,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663552036,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663569608,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663569653,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663569653,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663582037,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663582123,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663582123,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663599655,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663599696,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663599697,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663740052,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663740053,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663740053,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663740066,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663740066,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663742067,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663828525,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663828525,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663828526,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663828536,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663828536,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663830537,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663880090,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663880091,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663880100,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663880101,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663883092,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663883094,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663883094,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663883102,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663883106,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663883106,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663887596,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663889857,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663905154,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771663905154,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663905155,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771663905169,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771663905170,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771663907170,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664043878,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664043878,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664043888,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664043888,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664046879,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664046889,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664067000,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664067000,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664067013,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664067013,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664073751,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664073764,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664154612,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664154613,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664154613,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664154621,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664154621,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664156622,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664175723,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664175724,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664175724,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664175732,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664175732,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664177734,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664257440,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664257441,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664257442,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664257456,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664257456,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664259457,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664263052,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664263052,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664263062,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664263062,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664266053,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664266064,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664276605,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664276605,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664276615,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664276615,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664283356,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664283367,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664287724,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664287725,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664287725,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664287734,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664287735,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664289736,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664304377,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664304377,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664304389,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664304390,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664307379,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664307388,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664307389,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664307390,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664307400,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664307400,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664311890,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664314151,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664457441,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664457443,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664457442,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664457455,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664457455,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664459456,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664697466,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664697467,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664699476,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664699476,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664700469,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664702477,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664737008,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664737009,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664737010,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664737017,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664737017,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664739019,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664745781,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664745782,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664745793,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664745793,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664748782,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664748794,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664756546,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664756546,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664756556,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664756557,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664763297,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664763308,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664769299,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664769299,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664769311,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664769311,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664784487,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664784499,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664905620,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664905621,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664905622,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664905630,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664905630,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664907631,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664959129,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771664959130,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664959131,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771664959145,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771664959145,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771664961145,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665149634,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665149634,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665149645,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665149645,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665152642,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665152645,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665175872,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665175872,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665175883,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665175883,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665182623,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665182635,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665186099,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665186099,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665186112,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665186112,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665201288,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665201300,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665441352,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665441352,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665441568,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665441568,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665471353,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665471569,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665498115,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665498115,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665498127,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665498127,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665528117,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665528128,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665574228,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771665574229,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665574229,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665574239,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665574239,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665576240,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665622162,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665622162,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665622173,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665622174,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665625163,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665625174,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665658432,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665658432,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665658444,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665658444,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665665183,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665665196,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665695433,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771665695434,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665695434,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665695442,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665695442,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665697443,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665807302,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665807303,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665807313,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665807313,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665810303,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665810314,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665837740,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665837741,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665837751,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665837752,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665844493,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665844502,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665850077,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665850078,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771665850090,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771665850090,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665865266,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771665865278,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771666267383,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771666267384,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771666267396,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771666267396,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771666531104,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771666531118,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668372789,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668372790,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668372791,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668372792,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668372792,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668374820,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668409200,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668409200,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668409201,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668409209,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668409209,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668411210,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668444153,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668444154,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668444154,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668444162,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668444162,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668446163,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668524306,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668524306,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668524308,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668524308,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668527310,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668675071,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668675073,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668675072,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668675082,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668675082,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668677083,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668734909,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668734910,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668734909,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668734918,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668734918,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668736920,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668758657,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668758658,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668758659,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668758660,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668760660,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668761398,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668761398,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668761398,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668764399,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668764842,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668764845,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668764845,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668768114,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668768116,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668768116,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668770826,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668770827,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772287,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668772287,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772296,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668772296,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772308,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668772308,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772319,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668772319,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772331,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668772331,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668772847,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668773863,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668776789,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668776797,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668776809,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668777999,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778024,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668778025,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778035,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668778035,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778048,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778060,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668778060,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778072,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668778072,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668778669,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668778670,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668781017,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668782598,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668782598,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668785605,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668789400,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleClose","message":"Market WS closed before/open","data":{"code":1006,"reason":"","wasClean":false},"timestamp":1771668789400,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:handleError","message":"Market WS error","data":{},"timestamp":1771668789412,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668793248,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668793260,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668793334,"hypothesisId":"H6"}
+{"sessionId":"00c267","location":"marketWebSocketService.ts:open","message":"Market WS open() called","data":{"url":"ws://localhost:4000/ws"},"timestamp":1771668793857,"hypothesisId":"H2"}
+{"sessionId":"00c267","location":"useMarketSocket.ts:cleanup","message":"Client disconnect (refCount 0)","data":{},"timestamp":1771668795932,"hypothesisId":"H6"}

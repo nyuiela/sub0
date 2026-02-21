@@ -11,7 +11,7 @@ export const PRIMARY_TAB_IDS = [
 ] as const;
 export type PrimaryTabId = (typeof PRIMARY_TAB_IDS)[number];
 
-export const DEFAULT_COLUMN_IDS = ["new", "stretch", "migrated"] as const;
+export const DEFAULT_COLUMN_IDS = ["trades", "new", "positions", "news"] as const;
 export type ColumnId = (typeof DEFAULT_COLUMN_IDS)[number];
 
 export interface ColumnSizePrefs {

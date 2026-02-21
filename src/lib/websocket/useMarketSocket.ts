@@ -126,7 +126,6 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
   const throttleRef = useRef<ReturnType<typeof createThrottledDispatch> | null>(null);
   const optionsRef = useRef(options);
   const roomsRef = useRef<string[]>([]);
-  optionsRef.current = options;
 
   const ensureThrottle = useCallback(() => {
     if (throttleRef.current == null) {
@@ -135,39 +134,22 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     return throttleRef.current;
   }, [dispatch]);
 
+  const hasRoomsIntent =
+    enabled &&
+    (!!marketId || subscribeToList || (marketIdsOption != null && marketIdsOption.length > 0));
+
   useEffect(() => {
+    optionsRef.current = options;
     const wsUrl = getMarketWebSocketUrl();
     const roomsToSubscribe: string[] = [];
     if (marketId) roomsToSubscribe.push(marketRoom(marketId));
     const ids = marketIdsOption ?? [];
     for (const id of ids) roomsToSubscribe.push(marketRoom(id));
     if (subscribeToList) roomsToSubscribe.push(WS_ROOM_MARKETS);
-
-    // #region agent log
-    fetch("http://127.0.0.1:7915/ingest/3b911369-b723-45b4-9277-af4b4050e1fd", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "00c267" },
-      body: JSON.stringify({
-        sessionId: "00c267",
-        location: "useMarketSocket.ts:effect",
-        message: "useMarketSocket effect ran",
-        data: {
-          enabled,
-          wsUrl: wsUrl || "(empty)",
-          roomsCount: roomsToSubscribe.length,
-          rooms: roomsToSubscribe.slice(0, 5),
-          willReturnEarly: !enabled || !wsUrl || roomsToSubscribe.length === 0,
-        },
-        timestamp: Date.now(),
-        hypothesisId: "H5",
-      }),
-    }).catch(() => {});
-    // #endregion
-
-    if (!enabled || !wsUrl) return;
-    if (roomsToSubscribe.length === 0) return;
-
     roomsRef.current = roomsToSubscribe;
+
+    if (!enabled || !wsUrl || !hasRoomsIntent || roomsToSubscribe.length === 0) return;
+
     connectionRefCount += 1;
     const shouldConnect = connectionRefCount === 1;
 
@@ -189,20 +171,6 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
           optionsRef.current.onStatus?.(status as MarketSocketStatus);
           if (status === "open") {
             subscribedRoomsRef.current.clear();
-            // #region agent log
-            fetch("http://127.0.0.1:7915/ingest/3b911369-b723-45b4-9277-af4b4050e1fd", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "00c267" },
-              body: JSON.stringify({
-                sessionId: "00c267",
-                location: "useMarketSocket.ts:onStatus(open)",
-                message: "Market WS open, calling subscribeToRooms",
-                data: { rooms: roomsRef.current },
-                timestamp: Date.now(),
-                hypothesisId: "H2",
-              }),
-            }).catch(() => {});
-            // #endregion
             subscribeToRooms();
           }
         },
@@ -212,24 +180,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
 
           if (type === "ORDER_BOOK_UPDATE") {
             const p = payload as OrderBookUpdatePayload | undefined;
-            const valid = !!(p?.marketId && Array.isArray(p.bids) && Array.isArray(p.asks));
-            // #region agent log
-            if (!valid && p?.marketId) {
-              fetch("http://127.0.0.1:7915/ingest/3b911369-b723-45b4-9277-af4b4050e1fd", {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "00c267" },
-                body: JSON.stringify({
-                  sessionId: "00c267",
-                  location: "useMarketSocket.ts:ORDER_BOOK_UPDATE",
-                  message: "ORDER_BOOK_UPDATE payload invalid",
-                  data: { marketId: p?.marketId, hasBids: Array.isArray(p?.bids), hasAsks: Array.isArray(p?.asks) },
-                  timestamp: Date.now(),
-                  hypothesisId: "H4",
-                }),
-              }).catch(() => {});
-            }
-            // #endregion
-            if (valid) {
+            if (p?.marketId && Array.isArray(p.bids) && Array.isArray(p.asks)) {
               ensureThrottle().pushOrderBook({
                 marketId: p.marketId,
                 bids: p.bids,
@@ -247,31 +198,12 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
 
             if (reason === "created" || reason === "updated" || reason === "deleted") {
               void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
-              if (reason === "deleted") {
-                // Slice will remove from list when refetch returns; optional: clear selected if needed
-              }
               if (reason !== "deleted" && p.marketId) {
                 void dispatch(fetchMarketById(p.marketId));
               }
             } else if (reason === "stats" && typeof p.volume === "string") {
               dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
             }
-            // orderbook / position: no refetch; order book and trades already updated via WS
-          } else if (type !== "PING" && type !== "PONG") {
-            // #region agent log
-            fetch("http://127.0.0.1:7915/ingest/3b911369-b723-45b4-9277-af4b4050e1fd", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "00c267" },
-              body: JSON.stringify({
-                sessionId: "00c267",
-                location: "useMarketSocket.ts:onMessage",
-                message: "Unhandled message type",
-                data: { type },
-                timestamp: Date.now(),
-                hypothesisId: "H4",
-              }),
-            }).catch(() => {});
-            // #endregion
           }
         },
       });
@@ -280,12 +212,11 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     }
 
     return () => {
-      for (const room of roomsToSubscribe) {
-        if (subscribedRoomsRef.current.has(room)) {
-          marketWebSocketService.send({ type: "UNSUBSCRIBE", payload: { room } });
-          subscribedRoomsRef.current.delete(room);
-        }
+      const toUnsub = new Set(subscribedRoomsRef.current);
+      for (const room of toUnsub) {
+        marketWebSocketService.send({ type: "UNSUBSCRIBE", payload: { room } });
       }
+      subscribedRoomsRef.current.clear();
       connectionRefCount = Math.max(0, connectionRefCount - 1);
       if (connectionRefCount === 0) {
         throttleRef.current?.flush();
@@ -295,8 +226,9 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     };
   }, [
     enabled,
+    hasRoomsIntent,
     marketId ?? "",
-    marketIdsOption?.join(",") ?? "",
+    marketIdsOption?.length ?? 0,
     subscribeToList,
     reconnectMaxAttempts,
     reconnectIntervalMs,

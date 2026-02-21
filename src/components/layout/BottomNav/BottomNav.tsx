@@ -32,7 +32,7 @@ export function BottomNav() {
   return (
     <footer className="border-t border-border bg-surface">
       <nav
-        className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-center gap-2 px-4 py-3 sm:justify-start sm:gap-4 sm:px-6"
+        className="mx-auto flex w-full flex-wrap items-center justify-center gap-2 px-4 py-3 sm:justify-start sm:gap-4 sm:px-6"
         aria-label="Secondary navigation"
       >
         <span

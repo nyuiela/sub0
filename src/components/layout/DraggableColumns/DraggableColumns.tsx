@@ -8,9 +8,10 @@ import { MiniMarketsContainer } from "@/components/market";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 
 const COLUMN_LABELS: Record<string, string> = {
+  trades: "Trades",
   new: "New",
-  stretch: "Stretch",
-  migrated: "Migrated",
+  positions: "Positions",
+  news: "News",
 };
 
 const DEFAULT_PREFS: ColumnSizePrefs = {
@@ -104,15 +105,15 @@ export function DraggableColumns() {
       className="p-2 flex-1 flex flex-col min-h-0"
       aria-label="Dashboard columns. Drag column headers to reorder; drag edges to resize."
     >
-      <div className="mb-2 flex justify-end">
-        {/* <button
+      {/* <div className="mb-2 flex justify-end">
+        <button
           type="button"
           onClick={() => dispatch(resetColumnOrder())}
           className="cursor-pointer text-xs font-medium text-muted underline hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Reset column order
-        </button> */}
-      </div>
+        </button>
+      </div> */}
       <div
         ref={containerRef}
         className="grid gap-0 flex-1 min-h-0 overflow-hidden grid-rows-1"
