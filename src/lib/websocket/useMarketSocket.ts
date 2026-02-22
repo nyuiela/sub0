@@ -37,6 +37,8 @@ export interface UseMarketSocketOptions {
   reconnectIntervalMs?: number;
   /** Called when connection status changes. */
   onStatus?: (status: MarketSocketStatus) => void;
+  /** Called for each TRADE_EXECUTED (e.g. for chart real-time stitching). Batched by consumer. */
+  onTradeExecuted?: (payload: TradeExecutedPayload) => void;
 }
 
 type PendingOrderBook = { marketId: string; bids: OrderBookSnapshot["bids"]; asks: OrderBookSnapshot["asks"]; timestamp: number };
@@ -190,7 +192,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
             }
           } else if (type === "TRADE_EXECUTED") {
             const p = payload as TradeExecutedPayload | undefined;
-            if (p?.marketId && p?.executedAt != null) ensureThrottle().pushTrade(p);
+            if (p?.marketId && p?.executedAt != null) {
+              ensureThrottle().pushTrade(p);
+              optionsRef.current.onTradeExecuted?.(p);
+            }
           } else if (type === "MARKET_UPDATED") {
             const p = payload as MarketUpdatedPayload | undefined;
             if (!p?.marketId) return;

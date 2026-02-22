@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Market } from "@/types/market.types";
 
 const AVATAR_SIZE = 48;
@@ -102,11 +103,13 @@ export function MiniMarketCard({
 
       <section className="min-w-0 flex-1 flex flex-col gap-1.5" aria-label="Market info">
         <div className="flex items-center gap-1.5">
-          <h2
-            id={`market-name-${market.id}`}
-            className=" text-sm font-semibold text-foreground line-clamp-2 text-ellipsis"
-          >
-            {market.name}
+          <h2 id={`market-name-${market.id}`} className="text-sm font-semibold line-clamp-2 text-ellipsis">
+            <Link
+              href={`/market/${market.id}`}
+              className="text-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            >
+              {market.name}
+            </Link>
           </h2>
         </div>
         <p className="text-xs text-muted">

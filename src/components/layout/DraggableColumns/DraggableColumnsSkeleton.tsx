@@ -3,7 +3,7 @@
 import { MiniMarketCardSkeleton } from "@/components/market";
 
 const CARD_SKELETON_COUNT = 6;
-const COLUMN_IDS = ["new", "stretch", "migrated"];
+const COLUMN_IDS = ["new", "stretch", "migrated", "closed"];
 
 export function DraggableColumnsSkeleton() {
   return (

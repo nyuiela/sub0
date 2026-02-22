@@ -7,6 +7,8 @@ import type {
   MarketStatsUpdatedPayload,
 } from "@/types/market.types";
 import * as marketsApi from "@/lib/api/markets";
+import { submitOrder as submitOrderApi } from "@/lib/api/orders";
+import type { SubmitOrderBody, OrderResponseTrade } from "@/types/order.types";
 
 export interface MarketsSliceState {
   list: Market[];
@@ -18,6 +20,8 @@ export interface MarketsSliceState {
   loading: boolean;
   listLoading: boolean;
   detailLoading: boolean;
+  orderSubmitLoading: boolean;
+  lastOrderSuccess: string | null;
   error: string | null;
 }
 
@@ -31,6 +35,8 @@ const initialState: MarketsSliceState = {
   loading: false,
   listLoading: false,
   detailLoading: false,
+  orderSubmitLoading: false,
+  lastOrderSuccess: null,
   error: null,
 };
 
@@ -107,6 +113,34 @@ export const deleteMarketThunk = createAsyncThunk(
   }
 );
 
+function orderTradeToPayload(t: OrderResponseTrade): TradeExecutedPayload {
+  return {
+    marketId: t.marketId,
+    side: t.side === "BID" ? "long" : "short",
+    size: t.quantity,
+    price: t.price,
+    executedAt: new Date(t.executedAt).toISOString(),
+    userId: t.userId ?? undefined,
+    agentId: t.agentId ?? undefined,
+  };
+}
+
+export const submitOrder = createAsyncThunk(
+  "markets/submitOrder",
+  async (body: SubmitOrderBody, { dispatch, rejectWithValue }) => {
+    try {
+      const res = await submitOrderApi(body);
+      dispatch(setOrderBookForMarket(res.snapshot));
+      for (const t of res.trades) {
+        dispatch(applyTradeToMarket(orderTradeToPayload(t)));
+      }
+      return res;
+    } catch (e) {
+      return rejectWithValue(e instanceof Error ? e.message : "Order failed");
+    }
+  }
+);
+
 const marketsSlice = createSlice({
   name: "markets",
   initialState,
@@ -160,6 +194,9 @@ const marketsSlice = createSlice({
     },
     clearMarketsError: (state) => {
       state.error = null;
+    },
+    clearOrderSuccess: (state) => {
+      state.lastOrderSuccess = null;
     },
   },
   extraReducers: (builder) => {
@@ -224,6 +261,24 @@ const marketsSlice = createSlice({
         state.list = state.list.filter((m) => m.id !== id);
         if (state.selectedMarket?.id === id) state.selectedMarket = null;
         state.total = Math.max(0, state.total - 1);
+      })
+      .addCase(submitOrder.pending, (state) => {
+        state.orderSubmitLoading = true;
+        state.error = null;
+        state.lastOrderSuccess = null;
+      })
+      .addCase(submitOrder.fulfilled, (state, action) => {
+        state.orderSubmitLoading = false;
+        const trades = action.payload.trades?.length ?? 0;
+        state.lastOrderSuccess =
+          trades > 0
+            ? `Order filled. ${trades} trade${trades > 1 ? "s" : ""} executed.`
+            : "Order placed.";
+      })
+      .addCase(submitOrder.rejected, (state, action) => {
+        state.orderSubmitLoading = false;
+        state.lastOrderSuccess = null;
+        state.error = action.payload as string;
       });
   },
 });
@@ -234,6 +289,7 @@ export const {
   setMarketVolumeFromStats,
   clearSelectedMarket,
   clearMarketsError,
+  clearOrderSuccess,
 } = marketsSlice.actions;
 
 export function selectOrderBookByMarketId(
