@@ -8,7 +8,7 @@ import type {
 } from "@/types/market.types";
 import * as marketsApi from "@/lib/api/markets";
 import { submitOrder as submitOrderApi } from "@/lib/api/orders";
-import type { SubmitOrderBody, OrderResponseTrade } from "@/types/order.types";
+import type { SubmitOrderBody, OrderResponseTrade, OrderResponseSnapshot } from "@/types/order.types";
 
 export interface MarketsSliceState {
   list: Market[];
@@ -145,18 +145,27 @@ const marketsSlice = createSlice({
   name: "markets",
   initialState,
   reducers: {
-    setOrderBookForMarket: (state, action: { payload: OrderBookSnapshot }) => {
-      const { marketId, bids, asks, timestamp } = action.payload;
-      state.orderBookByMarketId[marketId] = { marketId, bids, asks, timestamp };
+    setOrderBookForMarket: (state, action: { payload: OrderBookSnapshot | OrderResponseSnapshot }) => {
+      const payload = action.payload;
+      const { marketId, bids, asks, timestamp } = payload;
+      const outcomeIndex = "outcomeIndex" in payload ? payload.outcomeIndex : 0;
+      const key = `${marketId}-${outcomeIndex}`;
+      state.orderBookByMarketId[key] = {
+        marketId,
+        outcomeIndex,
+        bids,
+        asks,
+        timestamp,
+      };
       const sel = state.selectedMarket;
       if (sel?.id === marketId) {
-        state.selectedMarket = { ...sel, orderBookSnapshot: action.payload };
+        state.selectedMarket = { ...sel, orderBookSnapshot: state.orderBookByMarketId[key] };
       }
       const idx = state.list.findIndex((m) => m.id === marketId);
       if (idx >= 0) {
         state.list[idx] = {
           ...state.list[idx],
-          orderBookSnapshot: action.payload,
+          orderBookSnapshot: state.orderBookByMarketId[key],
         };
       }
     },
@@ -294,9 +303,11 @@ export const {
 
 export function selectOrderBookByMarketId(
   state: { markets: MarketsSliceState },
-  marketId: string
+  marketId: string,
+  outcomeIndex: number = 0
 ): OrderBookSnapshot | undefined {
-  return state.markets.orderBookByMarketId[marketId];
+  const key = `${marketId}-${outcomeIndex}`;
+  return state.markets.orderBookByMarketId[key] ?? state.markets.orderBookByMarketId[marketId];
 }
 
 export default marketsSlice.reducer;

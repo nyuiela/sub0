@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import type { MarketPricesResponse } from "@/types/prices.types";
 
 export type MarketLeftTabId = "assets" | "history" | "orders";
 
 export interface MarketLeftColumnProps {
   marketId: string;
+  /** LMSR prices; shown in Assets tab when available. */
+  marketPrices?: MarketPricesResponse | null;
   className?: string;
 }
 
@@ -15,13 +18,14 @@ const TABS: { id: MarketLeftTabId; label: string }[] = [
   { id: "orders", label: "Orders" },
 ];
 
-export function MarketLeftColumn({ marketId, className = "" }: MarketLeftColumnProps) {
+export function MarketLeftColumn({ marketId, marketPrices, className = "" }: MarketLeftColumnProps) {
   const [activeTab, setActiveTab] = useState<MarketLeftTabId>("assets");
 
   return (
     <aside
       className={`flex min-h-0 flex-col rounded-sm border border-border bg-surface ${className}`}
       aria-label="Market sidebar"
+      data-market-id={marketId}
     >
       <nav role="tablist" className="flex border-b border-border">
         {TABS.map(({ id, label }) => {
@@ -53,9 +57,27 @@ export function MarketLeftColumn({ marketId, className = "" }: MarketLeftColumnP
           hidden={activeTab !== "assets"}
         >
           {activeTab === "assets" && (
-            <p className="text-sm text-muted-foreground">
-              Asset list for this market. Connect to API when available.
-            </p>
+            <>
+              {marketPrices?.options != null && marketPrices.options.length > 0 ? (
+                <ul className="space-y-2 text-sm" aria-label="Outcome prices">
+                  {marketPrices.options.map((o) => (
+                    <li
+                      key={o.outcomeIndex}
+                      className="flex justify-between gap-2 rounded border border-border bg-muted/30 px-2 py-1.5"
+                    >
+                      <span className="font-medium text-foreground">{o.label}</span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {Number(o.instantPrice).toFixed(4)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Asset list for this market. Connect to API when available.
+                </p>
+              )}
+            </>
           )}
         </div>
         <div

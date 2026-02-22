@@ -8,6 +8,7 @@ import {
   clearOrderSuccess,
   selectOrderBookByMarketId,
 } from "@/store/slices/marketsSlice";
+import type { MarketPricesResponse } from "@/types/prices.types";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
@@ -24,6 +25,8 @@ export interface MarketTradePanelProps {
   marketStatus?: string;
   /** Outcome labels for this prediction market, e.g. ["Yes", "No"]. Used for Buy/Sell button labels. */
   outcomes?: unknown[];
+  /** LMSR prices; used for reference price and bounds when order book is empty. */
+  marketPrices?: MarketPricesResponse | null;
   /** Available balance (e.g. USDC) for display and % flash buttons. When not provided, shows "--". */
   availableBalance?: number;
   className?: string;
@@ -42,11 +45,12 @@ export function MarketTradePanel({
   marketId,
   marketStatus = "OPEN",
   outcomes: outcomesProp = [],
+  marketPrices,
   availableBalance = 0,
   className = "",
 }: MarketTradePanelProps) {
   const dispatch = useAppDispatch();
-  const orderBook = useAppSelector((state) => selectOrderBookByMarketId(state, marketId));
+  const orderBook = useAppSelector((state) => selectOrderBookByMarketId(state, marketId, 0));
   const { orderSubmitLoading, error, lastOrderSuccess } = useAppSelector((state) => state.markets);
   const outcomesList = Array.isArray(outcomesProp) ? outcomesProp : [];
   const [yesLabel, noLabel] = parseOutcomeLabels(outcomesList);
@@ -62,9 +66,13 @@ export function MarketTradePanel({
   const hasBalance = availableBalance > 0;
   const bestAsk = orderBook?.asks?.[0]?.price;
   const bestBid = orderBook?.bids?.[0]?.price;
-  const referencePrice = bestAsk ?? bestBid ?? "1";
+  const priceFromApi = marketPrices?.options?.[0]?.instantPrice;
+  const referencePrice = bestAsk ?? bestBid ?? priceFromApi ?? "1";
   const bidNum = bestBid != null ? Number(bestBid) : NaN;
   const askNum = bestAsk != null ? Number(bestAsk) : NaN;
+  const outcomePriceNums = (marketPrices?.options ?? [])
+    .map((o) => Number(o.instantPrice))
+    .filter((n) => Number.isFinite(n));
   let priceMin = 0.01;
   let priceMax = 0.99;
   if (Number.isFinite(bidNum) && Number.isFinite(askNum)) {
@@ -76,6 +84,11 @@ export function MarketTradePanel({
   } else if (Number.isFinite(bidNum)) {
     priceMin = Math.max(0.001, bidNum * 0.95);
     priceMax = Math.min(0.99, bidNum * 1.1);
+  } else if (outcomePriceNums.length > 0) {
+    const lo = Math.min(...outcomePriceNums);
+    const hi = Math.max(...outcomePriceNums);
+    priceMin = Math.max(0.001, lo * 0.9);
+    priceMax = Math.min(0.99, hi * 1.1);
   }
   const priceNum = (() => {
     const n = Number(price);
@@ -92,21 +105,19 @@ export function MarketTradePanel({
 
 
   const handleSubmit = useCallback(
-    (side: "BID" | "ASK", outcome: "yes" | "no") => {
+    (side: "BID" | "ASK", outcomeIndex: number) => {
       const quantity = amount.trim();
       if (!quantity || Number(quantity) <= 0) return;
       if (needsPrice) {
         const p = price.trim();
         if (!p || Number(p) <= 0) return;
-        const priceNum = Number(p);
-        const sendPrice =
-          outcome === "no" ? (1 - priceNum).toFixed(6) : p;
         dispatch(
           submitOrder({
             marketId,
+            outcomeIndex,
             side,
             type: orderType === "ioc" ? "IOC" : "LIMIT",
-            price: sendPrice,
+            price: p,
             quantity,
           })
         );
@@ -114,6 +125,7 @@ export function MarketTradePanel({
         dispatch(
           submitOrder({
             marketId,
+            outcomeIndex,
             side,
             type: "MARKET",
             quantity,
@@ -145,7 +157,7 @@ export function MarketTradePanel({
 
   return (
     <section
-      className={`flex flex-col gap-4 rounded-sm border border-border bg-surface p-4 ${className}`}
+      className={`flex flex-col gap-4 rounded-sm border border-border p-4 bg-surface ${className}`}
       aria-label="Trade and order book"
     >
       <header className="flex flex-col gap-1 border-b border-border pb-3">
@@ -173,11 +185,10 @@ export function MarketTradePanel({
                 aria-selected={isActive}
                 aria-controls={`panel-${id}`}
                 id={`tab-${id}`}
-                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+                  }`}
                 onClick={() => {
                   setOrderType(id);
                   if ((id === "limit" || id === "ioc") && !price.trim()) {
@@ -273,7 +284,7 @@ export function MarketTradePanel({
                 type="button"
                 className="rounded-lg bg-green-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
-                onClick={() => handleSubmit("BID", "yes")}
+                onClick={() => handleSubmit("BID", 0)}
                 aria-label={`Buy ${yesLabel}`}
               >
                 Buy {yesLabel}
@@ -282,7 +293,7 @@ export function MarketTradePanel({
                 type="button"
                 className="rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
-                onClick={() => handleSubmit("ASK", "yes")}
+                onClick={() => handleSubmit("ASK", 0)}
                 aria-label={`Sell ${yesLabel}`}
               >
                 Sell {yesLabel}
@@ -296,7 +307,7 @@ export function MarketTradePanel({
                 type="button"
                 className="rounded-lg bg-green-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
-                onClick={() => handleSubmit("ASK", "no")}
+                onClick={() => handleSubmit("BID", 1)}
                 aria-label={`Buy ${noLabel}`}
               >
                 Buy {noLabel}
@@ -305,7 +316,7 @@ export function MarketTradePanel({
                 type="button"
                 className="rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
-                onClick={() => handleSubmit("BID", "no")}
+                onClick={() => handleSubmit("ASK", 1)}
                 aria-label={`Sell ${noLabel}`}
               >
                 Sell {noLabel}

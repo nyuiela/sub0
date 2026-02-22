@@ -10,11 +10,14 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const interval = searchParams.get("interval") ?? "1m";
   const limit = searchParams.get("limit") ?? "100";
+  const outcomeIndex = searchParams.get("outcomeIndex");
   const base = getBackendBase();
   if (!base) {
     return NextResponse.json<CandlesResponse>({ data: [] });
   }
-  const url = `${base}/api/markets/${id}/candles?interval=${interval}&limit=${limit}`;
+  const qs = new URLSearchParams({ interval, limit });
+  if (outcomeIndex != null && outcomeIndex !== "") qs.set("outcomeIndex", outcomeIndex);
+  const url = `${base}/api/markets/${id}/candles?${qs.toString()}`;
   const res = await fetch(url, { credentials: "include" });
   if (res.status === 404 || !res.ok) {
     return NextResponse.json<CandlesResponse>({ data: [] });

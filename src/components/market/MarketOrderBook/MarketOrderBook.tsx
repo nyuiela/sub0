@@ -10,6 +10,8 @@ const BID_ASK_MAX_ROWS = 12;
 
 export interface MarketOrderBookProps {
   marketId: string;
+  /** Outcome index (e.g. 0 = Yes, 1 = No). Default 0. */
+  outcomeIndex?: number;
   /** Max rows per side (bids / asks). Default 12. */
   maxRows?: number;
   className?: string;
@@ -73,13 +75,14 @@ function OrderBookSide({
  */
 export function MarketOrderBook({
   marketId,
+  outcomeIndex = 0,
   maxRows = BID_ASK_MAX_ROWS,
   className = "",
 }: MarketOrderBookProps) {
   useMarketSocket({ marketId, enabled: Boolean(marketId) });
 
   const snapshot = useAppSelector((state) =>
-    selectOrderBookByMarketId(state, marketId)
+    selectOrderBookByMarketId(state, marketId, outcomeIndex)
   );
 
   const bids = snapshot?.bids ?? [];
@@ -88,7 +91,7 @@ export function MarketOrderBook({
   return (
     <article
       className={`rounded-md border border-border bg-surface p-3 ${className}`}
-      aria-label={`Order book for market ${marketId}`}
+      aria-label={`Order book for market ${marketId}, outcome ${outcomeIndex}`}
     >
       <header className="mb-2 border-b border-border pb-2">
         <h3 className="text-sm font-medium text-foreground">Order book</h3>

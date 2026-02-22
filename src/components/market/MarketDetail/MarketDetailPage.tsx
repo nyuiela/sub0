@@ -6,13 +6,16 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarketById } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import { getActivities, getMarketHolders, getMarketTraders } from "@/lib/api/activities";
+import { getMarketPrices } from "@/lib/api/prices";
 import type { ActivityItem, MarketHolderItem, MarketTraderItem } from "@/types/activity.types";
+import type { MarketPricesResponse } from "@/types/prices.types";
 import { MarketLeftColumn } from "./MarketLeftColumn";
 import { TradingChart } from "./TradingChart";
 import { MarketDetailTabs } from "./MarketDetailTabs";
 import { MarketTradePanel } from "./MarketTradePanel";
 import { MarketInfoPanel } from "./MarketInfoPanel";
 import { MarketOrderBook } from "../MarketOrderBook";
+import Image from "next/image";
 
 export interface MarketDetailPageProps {
   marketId: string;
@@ -33,6 +36,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [holders, setHolders] = useState<MarketHolderItem[]>([]);
   const [traders, setTraders] = useState<MarketTraderItem[]>([]);
+  const [marketPrices, setMarketPrices] = useState<MarketPricesResponse | null>(null);
 
   useMarketSocket({ marketId, enabled: Boolean(marketId) });
 
@@ -51,6 +55,9 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     getMarketTraders(marketId)
       .then((res) => setTraders(res.data))
       .catch(() => setTraders([]));
+    getMarketPrices(marketId)
+      .then(setMarketPrices)
+      .catch(() => setMarketPrices(null));
   }, [marketId]);
 
   useEffect(() => {
@@ -111,9 +118,9 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
       <header className="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
         <div className="flex items-center gap-3">
           {market.imageUrl != null ? (
-            <img
+            <Image
               src={market.imageUrl}
-              alt=""
+              alt="alt"
               className="h-10 w-10 rounded-full object-cover"
               width={40}
               height={40}
@@ -139,12 +146,16 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
       </header>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
-        <div className="flex min-h-0 flex-col lg:min-h-[400px]">
-          <MarketLeftColumn marketId={marketId} className="min-h-0 flex-1" />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto lg:min-h-[400px]">
+          <MarketLeftColumn marketId={marketId} marketPrices={marketPrices} className="min-h-0 flex-1" />
         </div>
 
-        <div className="flex min-h-0 flex-col gap-1">
-          <TradingChart marketId={marketId} className="min-h-[280px] shrink-0" />
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">
+          <TradingChart
+            marketId={marketId}
+            marketPrices={marketPrices}
+            className="shrink-0"
+          />
           <MarketDetailTabs
             marketId={marketId}
             holdersCount={holdersCount}
@@ -155,15 +166,16 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
           />
         </div>
 
-        <div className="flex min-h-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col flex-1 overflow-auto">
           <MarketTradePanel
             marketId={marketId}
             marketStatus={market.status}
             outcomes={market.outcomes}
-            className="h-full flex-1"
+            marketPrices={marketPrices}
+            className=""
           />
           <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
-          <MarketInfoPanel market={market} className="shrink-0" />
+          <MarketInfoPanel market={market} marketPrices={marketPrices} className="shrink-0" />
         </div>
       </div>
     </main>

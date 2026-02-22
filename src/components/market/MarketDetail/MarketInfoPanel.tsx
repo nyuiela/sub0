@@ -1,9 +1,12 @@
 "use client";
 
 import type { Market } from "@/types/market.types";
+import type { MarketPricesResponse } from "@/types/prices.types";
 
 export interface MarketInfoPanelProps {
   market: Market;
+  /** LMSR prices; used for liquidity parameter and outcome prices. */
+  marketPrices?: MarketPricesResponse | null;
   className?: string;
 }
 
@@ -12,9 +15,10 @@ function truncate(str: string, len: number): string {
   return `${str.slice(0, len)}...`;
 }
 
-export function MarketInfoPanel({ market, className = "" }: MarketInfoPanelProps) {
+export function MarketInfoPanel({ market, marketPrices, className = "" }: MarketInfoPanelProps) {
   const volume = market.totalVolume ?? market.volume ?? "0";
-  const liquidity = market.liquidity ?? null;
+  const liquidity =
+    marketPrices?.liquidityParameter ?? market.liquidity ?? null;
   const confidence = market.confidence ?? null;
 
   return (
@@ -31,8 +35,20 @@ export function MarketInfoPanel({ market, className = "" }: MarketInfoPanelProps
           </div>
           {liquidity != null && (
             <div className="flex justify-between gap-2">
-              <dt className="text-muted-foreground">Liquidity</dt>
+              <dt className="text-muted-foreground">Liquidity (b)</dt>
               <dd className="tabular-nums text-foreground">{liquidity}</dd>
+            </div>
+          )}
+          {marketPrices?.options != null && marketPrices.options.length > 0 && (
+            <div className="flex flex-col gap-1">
+              <dt className="text-muted-foreground">Outcome prices</dt>
+              <dd className="flex flex-wrap gap-x-3 gap-y-1">
+                {marketPrices.options.map((o) => (
+                  <span key={o.outcomeIndex} className="tabular-nums text-foreground">
+                    {o.label}: {Number(o.instantPrice).toFixed(4)}
+                  </span>
+                ))}
+              </dd>
             </div>
           )}
           {confidence != null && (

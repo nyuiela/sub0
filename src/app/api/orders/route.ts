@@ -6,6 +6,9 @@ function validateBody(body: unknown): body is SubmitOrderBody {
   if (body == null || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
   if (typeof b.marketId !== "string" || !b.marketId) return false;
+  const outcomeIdx = b.outcomeIndex;
+  if (typeof outcomeIdx !== "number" || !Number.isInteger(outcomeIdx) || outcomeIdx < 0)
+    return false;
   if (b.side !== "BID" && b.side !== "ASK") return false;
   if (b.type !== "LIMIT" && b.type !== "MARKET" && b.type !== "IOC") return false;
   if (b.quantity == null || (typeof b.quantity !== "string" && typeof b.quantity !== "number"))
@@ -35,7 +38,7 @@ export async function POST(request: Request) {
 
   if (!validateBody(body)) {
     return NextResponse.json<OrderErrorResponse>(
-      { error: "Validation failed", details: "marketId, side, type, quantity required; price required for LIMIT" },
+      { error: "Validation failed", details: "marketId, outcomeIndex, side, type, quantity required; price required for LIMIT" },
       { status: 400 }
     );
   }

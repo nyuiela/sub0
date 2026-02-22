@@ -7,6 +7,8 @@ export type OrderType = "LIMIT" | "MARKET" | "IOC";
 
 export interface SubmitOrderBody {
   marketId: string;
+  /** Index of the listed option (e.g. 0 = Yes, 1 = No). */
+  outcomeIndex: number;
   side: OrderSide;
   type: OrderType;
   price?: string | number;
@@ -18,6 +20,7 @@ export interface SubmitOrderBody {
 export interface OrderResponseTrade {
   id: string;
   marketId: string;
+  outcomeIndex: number;
   price: string;
   quantity: string;
   makerOrderId: string;
@@ -36,6 +39,7 @@ export interface OrderBookLevelPayload {
 
 export interface OrderResponseSnapshot {
   marketId: string;
+  outcomeIndex: number;
   bids: OrderBookLevelPayload[];
   asks: OrderBookLevelPayload[];
   timestamp: number;

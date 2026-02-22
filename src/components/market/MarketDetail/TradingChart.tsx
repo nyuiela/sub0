@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef, useCallback, useLayoutEffect, useState } from "react";
+import { useRef, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import {
   createChart,
   CandlestickSeries,
+  ColorType,
+  LineStyle,
   type IChartApi,
   type ISeriesApi,
   type UTCTimestamp,
@@ -11,8 +13,10 @@ import {
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import type { TradeExecutedPayload } from "@/lib/websocket/websocket-types";
 import type { OHLCV } from "@/types/chart.types";
+import type { MarketPricesResponse } from "@/types/prices.types";
 
 const CANDLE_INTERVAL_SEC = 60;
+const OUTCOME_LINE_COLORS = ["#22C55E", "#3B82F6", "#A855F7", "#F59E0B"];
 const PLACEHOLDER_CANDLES_COUNT = 100;
 const PLACEHOLDER_BASE_PRICE = 0.5;
 const PLACEHOLDER_VOLATILITY = 0.02;
@@ -58,16 +62,21 @@ function parsePrice(value: string): number {
 
 export interface TradingChartProps {
   marketId: string;
+  /** LMSR prices for all outcomes; used for caption and horizontal price lines. */
+  marketPrices?: MarketPricesResponse | null;
   className?: string;
 }
 
-export function TradingChart({ marketId, className = "" }: TradingChartProps) {
+export function TradingChart({ marketId, marketPrices, className = "" }: TradingChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const priceLinesRef = useRef<ReturnType<ISeriesApi<"Candlestick">["createPriceLine"]>[]>([]);
   const [lastClose, setLastClose] = useState<number | null>(null);
   const [isPlaceholder, setIsPlaceholder] = useState(false);
   const setLastCloseRef = useRef(setLastClose);
-  setLastCloseRef.current = setLastClose;
+  useEffect(() => {
+    setLastCloseRef.current = setLastClose;
+  }, [setLastClose]);
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const lastCandleRef = useRef<{ time: number; open: number; high: number; low: number; close: number } | null>(null);
   const batchRef = useRef<TradeExecutedPayload[]>([]);
@@ -149,13 +158,16 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
     onTradeExecuted,
   });
 
+  const candleSeriesLabel =
+    marketPrices?.options?.[0]?.label ?? "Price";
+
   useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container || !marketId) return;
 
     const chart = createChart(container, {
       layout: {
-        background: { type: "solid", color: CHART_BG },
+        background: { type: ColorType.Solid, color: CHART_BG },
         textColor: "#94a3b8",
       },
       grid: {
@@ -165,8 +177,6 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
       rightPriceScale: {
         borderColor: GRID_COLOR,
         scaleMargins: { top: 0.1, bottom: 0.2 },
-        precision: PRICE_PRECISION,
-        minMove: 10 ** -PRICE_PRECISION,
       },
       timeScale: {
         borderColor: GRID_COLOR,
@@ -186,6 +196,11 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
       borderDownColor: DOWN_COLOR,
       wickUpColor: UP_COLOR,
       wickDownColor: DOWN_COLOR,
+      priceFormat: {
+        type: "price",
+        precision: PRICE_PRECISION,
+        minMove: 10 ** -PRICE_PRECISION,
+      },
     });
 
     chartRef.current = chart;
@@ -202,7 +217,8 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
     requestAnimationFrame(applySize);
 
     let cancelled = false;
-    fetch(`/api/markets/${marketId}/candles?interval=1m&limit=100`)
+    const candlesUrl = `/api/markets/${marketId}/candles?interval=1m&limit=100&outcomeIndex=0`;
+    fetch(candlesUrl)
       .then((res) => (res.ok ? res.json() : { data: [] }))
       .then((body: { data?: OHLCV[] }) => {
         if (cancelled || !seriesRef.current) return;
@@ -267,6 +283,36 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
     };
   }, [marketId]);
 
+  useLayoutEffect(() => {
+    const series = seriesRef.current;
+    if (!series) return;
+    series.applyOptions({ title: marketPrices?.options?.[0]?.label ?? "Price" });
+    priceLinesRef.current.forEach((line) => series.removePriceLine(line));
+    priceLinesRef.current = [];
+    const options = marketPrices?.options ?? [];
+    options.forEach((opt, i) => {
+      const p = Number(opt.instantPrice);
+      if (!Number.isFinite(p)) return;
+      const color = OUTCOME_LINE_COLORS[i % OUTCOME_LINE_COLORS.length];
+      const line = series.createPriceLine({
+        price: p,
+        color,
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: opt.label,
+      });
+      priceLinesRef.current.push(line);
+    });
+    return () => {
+      priceLinesRef.current.forEach((line) => series.removePriceLine(line));
+      priceLinesRef.current = [];
+    };
+  }, [marketPrices]);
+
+  const outcomePriceParts =
+    marketPrices?.options?.map((o) => `${o.label}: ${Number(o.instantPrice).toFixed(4)}`) ?? [];
+
   return (
     <figure className={`flex w-full flex-col ${className}`.trim()}>
       <section
@@ -276,17 +322,25 @@ export function TradingChart({ marketId, className = "" }: TradingChartProps) {
         style={{ minHeight: 280, height: 280 }}
       />
       <figcaption className="mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2 text-xs text-muted-foreground">
-        <span>
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {lastClose != null && (
             <>
-              Last: <span className="tabular-nums font-medium text-foreground">{lastClose.toFixed(4)}</span>
+              <span>
+                Last ({candleSeriesLabel}):{" "}
+                <span className="tabular-nums font-medium text-foreground">{lastClose.toFixed(4)}</span>
+              </span>
               {isPlaceholder && (
-                <span className="ml-2 rounded bg-muted px-1.5 py-0.5">Placeholder (no history)</span>
+                <span className="rounded bg-muted px-1.5 py-0.5">Placeholder (no history)</span>
               )}
             </>
           )}
+          {outcomePriceParts.length > 0 && (
+            <span className="tabular-nums">
+              {outcomePriceParts.join(" | ")}
+            </span>
+          )}
         </span>
-        <span>1m candles</span>
+        <span>1m candles ({candleSeriesLabel})</span>
       </figcaption>
     </figure>
   );

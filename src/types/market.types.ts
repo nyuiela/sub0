@@ -53,6 +53,8 @@ export interface OrderBookLevel {
 
 export interface OrderBookSnapshot {
   marketId: string;
+  /** Index of the outcome (e.g. 0 = Yes, 1 = No). Omitted for legacy single-book responses. */
+  outcomeIndex?: number;
   bids: OrderBookLevel[];
   asks: OrderBookLevel[];
   timestamp: number;
