@@ -11,6 +11,9 @@ importers:
       '@reduxjs/toolkit':
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.3)(redux@5.0.1))(react@19.2.3)
+      d3-hierarchy:
+        specifier: ^3.1.2
+        version: 3.1.2
       lightweight-charts:
         specifier: ^5.1.0
         version: 5.1.0
@@ -26,6 +29,12 @@ importers:
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.2.14)(react@19.2.3)(redux@5.0.1)
+      scichart:
+        specifier: ^5.0.178
+        version: 5.0.178
+      scichart-react:
+        specifier: ^1.0.0
+        version: 1.0.0(react@19.2.3)(scichart@5.0.178)
       thirdweb:
         specifier: ^5.118.2
         version: 5.118.2(@hey-api/openapi-ts@0.92.4(typescript@5.9.3))(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(@tanstack/query-core@5.81.5)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(immer@11.1.4)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.3))(utf-8-validate@5.0.10)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))
@@ -33,6 +42,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.2.0
+      '@types/d3-hierarchy':
+        specifier: ^3.1.7
+        version: 3.1.7
       '@types/node':
         specifier: ^20
         version: 20.19.33
@@ -1795,6 +1807,9 @@ packages:
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
 
+  '@types/d3-hierarchy@3.1.7':
+    resolution: {integrity: sha512-tJFtNoYBtRtkNysX1Xq4sxtjK8YgoWUNpIiUee0/jHGRwqvzYxkq0hGVbbOGSz+JgFxxRu4K8nb3YpG3CMARtg==}
+
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
@@ -2510,6 +2525,10 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  d3-hierarchy@3.1.2:
+    resolution: {integrity: sha512-FX/9frcub54beBdugHjDCdikxThEqjnR93Qt7PvQTOHxyiNCAlvMrHhclk3cD5VeAaq9fxmfRp+CnWw9rEMBuA==}
+    engines: {node: '>=12'}
 
   damerau-levenshtein@1.0.8:
     resolution: {integrity: sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==}
@@ -4130,6 +4149,15 @@ packages:
 
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
+
+  scichart-react@1.0.0:
+    resolution: {integrity: sha512-fadf70hDbK1W9lSgNV28ovc+3W75MBOwshZ2+Wdr0oTtpGnzIkEDfVCkutaHa4UylzzpcB2jrYeyawKk3iqq7w==}
+    peerDependencies:
+      react: '>=16.8.0'
+      scichart: '>=4.0.828'
+
+  scichart@5.0.178:
+    resolution: {integrity: sha512-4MMPUx41rhi7jrVLajF7EzemyB9x8nP4mjyojz6Bfszx0x2b7Rz5lj4kpU04zzvZcDhsGcF9iWbya3Y9mmw61A==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -7253,6 +7281,8 @@ snapshots:
     dependencies:
       '@types/node': 20.19.33
 
+  '@types/d3-hierarchy@3.1.7': {}
+
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 2.1.0
@@ -8629,6 +8659,8 @@ snapshots:
   crypt@0.0.2: {}
 
   csstype@3.2.3: {}
+
+  d3-hierarchy@3.1.2: {}
 
   damerau-levenshtein@1.0.8: {}
 
@@ -10418,6 +10450,13 @@ snapshots:
   safe-stable-stringify@2.5.0: {}
 
   scheduler@0.27.0: {}
+
+  scichart-react@1.0.0(react@19.2.3)(scichart@5.0.178):
+    dependencies:
+      react: 19.2.3
+      scichart: 5.0.178
+
+  scichart@5.0.178: {}
 
   semver@6.3.1: {}
 

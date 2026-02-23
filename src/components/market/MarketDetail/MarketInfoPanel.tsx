@@ -23,7 +23,7 @@ export function MarketInfoPanel({ market, marketPrices, className = "" }: Market
 
   return (
     <section
-      className={`flex min-h-0 flex-col gap-4 rounded-sm border border-border bg-surface p-4 ${className}`}
+      className={`flex min-h-0 flex-col gap-4 rounded-sm bg-surface p-4 ${className}`}
       aria-label="Token and strategy info"
     >
       <article aria-label="Token information">

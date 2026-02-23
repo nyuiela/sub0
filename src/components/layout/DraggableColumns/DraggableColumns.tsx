@@ -5,13 +5,17 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setColumnOrder, resetColumnOrder } from "@/store/slices/layoutSlice";
 import type { ColumnSizePrefs } from "@/types/layout.types";
 import { MiniMarketsContainer } from "@/components/market";
+import { NewsColumn } from "@/components/layout/NewsColumn";
+import { AgentsColumn } from "@/components/layout/AgentsColumn";
+import { PositionsColumn } from "@/components/layout/PositionsColumn";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 
 const COLUMN_LABELS: Record<string, string> = {
-  trades: "Trades",
-  new: "New",
+  agents: "Agents",
+  new: "Markets",
   positions: "Positions",
   news: "News",
+  trades: "Trades",
 };
 
 const DEFAULT_PREFS: ColumnSizePrefs = {
@@ -130,16 +134,13 @@ export function DraggableColumns() {
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, columnId)}
               aria-label={`Column ${COLUMN_LABELS[columnId] ?? columnId}. Drag to reorder.`}
-              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border-2 border-border transition-shadow duration-200 bg-surface ${dropTargetId === columnId
+              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-surface transition-shadow duration-200 ${dropTargetId === columnId
                 ? "ring-2 ring-primary"
                 : ""
                 } ${draggedId === columnId ? "opacity-60" : ""}`}
-              style={{
-                boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
-              }}
             >
               <header
-                className="flex cursor-grab active:cursor-grabbing items-center gap-2 border-b border-border px-4 py-3"
+                className="flex cursor-grab active:cursor-grabbing items-center gap-2 px-4 py-3"
                 style={{ touchAction: "none" }}
               >
                 <span
@@ -152,9 +153,15 @@ export function DraggableColumns() {
                   {COLUMN_LABELS[columnId] ?? columnId}
                 </h3>
               </header>
-              <div className="flex-1 overflow-auto p-2 min-h-0">
+              <div className="flex-1 overflow-auto p-1 min-h-0">
                 {columnId === "new" ? (
                   <MiniMarketsContainer />
+                ) : columnId === "news" ? (
+                  <NewsColumn />
+                ) : columnId === "agents" ? (
+                  <AgentsColumn />
+                ) : columnId === "positions" ? (
+                  <PositionsColumn />
                 ) : (
                   <p className="text-xs text-muted">
                     Column content slot. Replace with market list or trade panel.

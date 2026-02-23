@@ -51,7 +51,7 @@ export function MarketGraph({ marketId, className = "" }: MarketGraphProps) {
   return (
     <section
       ref={containerRef}
-      className={`relative overflow-hidden rounded-lg border border-border bg-surface ${className}`}
+      className={`relative overflow-hidden rounded-lg bg-surface ${className}`}
       aria-label="Market chart"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

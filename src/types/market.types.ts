@@ -43,6 +43,8 @@ export interface Market {
   orderBookSnapshot?: OrderBookSnapshot;
   positions?: unknown[];
   orders?: unknown[];
+  /** Outcome prices (0–1) when provided by list/detail API for card display. */
+  outcomePrices?: string[];
 }
 
 export interface OrderBookLevel {

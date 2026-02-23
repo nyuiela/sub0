@@ -39,10 +39,10 @@ export function MarketDetailTabs({
 
   return (
     <section
-      className={`flex min-h-0 flex-col overflow-hidden rounded-sm border border-border bg-surface ${className}`}
+      className={`flex min-h-0 flex-col overflow-hidden rounded-sm bg-surface ${className}`}
       aria-label="Market details"
     >
-      <nav role="tablist" className="flex border-b border-border">
+      <nav role="tablist" className="flex">
         {TABS.map(({ id, label }) => {
           const isActive = activeTab === id;
           const tabLabel = id === "holders" ? `Holders (${holdersCount})` : label;

@@ -8,7 +8,7 @@ export function SearchBar() {
         type="search"
         placeholder="Q Name / CA / Wallet"
         aria-label="Search by name, CA, or wallet"
-        className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-foreground placeholder:text-disabled focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary-muted "
+        className="w-full rounded-md bg-surface px-3 py-2 text-sm text-foreground placeholder:text-disabled focus:outline-none focus:ring-2 focus:ring-primary-muted"
       />
     </label>
   );

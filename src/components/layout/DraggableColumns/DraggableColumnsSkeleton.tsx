@@ -19,9 +19,9 @@ export function DraggableColumnsSkeleton() {
         {COLUMN_IDS.map((columnId, colIndex) => (
           <section
             key={columnId}
-            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg border-2 border-border bg-surface"
+            className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-surface"
           >
-            <header className="flex items-center gap-2 border-b border-border px-4 py-3">
+            <header className="flex items-center gap-2 px-4 py-3">
               <div className="h-4 w-4 animate-pulse rounded bg-border" />
               <div className="h-4 w-16 animate-pulse rounded bg-border" />
             </header>

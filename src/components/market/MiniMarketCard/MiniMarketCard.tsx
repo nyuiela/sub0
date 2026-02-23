@@ -78,7 +78,7 @@ export function MiniMarketCard({
 
   return (
     <article
-      className={`flex gap-3 rounded-md border border-border bg-surface p-3 ${className} mb-2`}
+      className={`flex gap-3 border-b border-border bg-surface p-3 ${className} mb-2`}
       aria-labelledby={`market-name-${market.id}`}
     >
       <figure className="shrink-0" aria-hidden>
@@ -106,30 +106,33 @@ export function MiniMarketCard({
           <h2 id={`market-name-${market.id}`} className="text-sm font-semibold line-clamp-2 text-ellipsis">
             <Link
               href={`/market/${market.id}`}
-              className="text-foreground transition-colors hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              className="text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               {market.name}
             </Link>
           </h2>
         </div>
-        <p className="text-xs text-muted">
+        <p className="text-xs text-success" aria-label="Time or countdown">
           {timeOrId}
         </p>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-          <span>Q {activeOrders}/{qDisplay}</span>
-          <span className="flex items-center gap-1">
-            <span aria-hidden>0</span>
-            <span aria-hidden>0</span>
-            <span aria-hidden>0</span>
-            <span>{market.uniqueStakersCount ?? 0}</span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+          <span className="text-muted" aria-label="Orders and trades">
+            <span className="text-foreground font-medium">Q</span> {activeOrders}<span className="text-muted">/</span>{qDisplay}
+          </span>
+          <span className="text-muted" aria-label="Holders">
+            <span className="text-foreground font-medium">H</span> {market.uniqueStakersCount ?? 0}
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" aria-label="Outcome percentages">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" aria-label="Outcome probabilities">
           {outcomes.length > 0
             ? outcomes.slice(0, 5).map((outcome, i) => {
               const isFirst = i === 0;
               const isSecond = i === 1;
-              const pct = isFirst ? "26.7%" : isSecond ? "6.7%" : "0%";
+              const raw = market.outcomePrices?.[i];
+              const pct =
+                raw != null && raw !== ""
+                  ? `${(Math.max(0, Math.min(1, Number(raw))) * 100).toFixed(1)}%`
+                  : "—";
               return (
                 <span
                   key={i}
@@ -137,7 +140,7 @@ export function MiniMarketCard({
                     ? "bg-success/20 text-success"
                     : isSecond
                       ? "bg-danger/20 text-danger"
-                      : "bg-border text-muted"
+                      : "bg-muted/50 text-muted"
                     }`}
                 >
                   {pct}
@@ -145,14 +148,15 @@ export function MiniMarketCard({
               );
             })
             : (
-              <span className="rounded bg-border px-1.5 py-0.5 text-[10px] text-muted">
-                0%
+              <span className="rounded bg-muted/50 px-1.5 py-0.5 text-[10px] text-muted">
+                —
               </span>
             )}
         </div>
         <p className="text-[10px] text-muted">
-          <span className="text-muted">{market.conditionId.slice(0, 4)}...{market.conditionId.slice(-4)}</span>
-          F ${Number(volume) > 0 ? (Number(volume) * 0.01).toFixed(3) : "0"} TX {market.totalTrades ?? 0}
+          <span className="text-muted">{market.conditionId.slice(0, 4)}…{market.conditionId.slice(-4)}</span>
+          <span className="text-success"> F </span>${Number(volume) > 0 ? (Number(volume) * 0.01).toFixed(3) : "0"}
+          <span className="text-info"> TX </span>{market.totalTrades ?? 0}
         </p>
       </section>
 
@@ -170,7 +174,7 @@ export function MiniMarketCard({
             type="button"
             onClick={() => onBuy?.(market)}
             disabled={market.status !== "OPEN"}
-            className="cursor-pointer rounded-lg bg-[#7C3AED] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7C3AED] disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={`Buy ${quickBuyAmount} on ${market.name}`}
           >
             {quickBuyAmount}
@@ -180,7 +184,7 @@ export function MiniMarketCard({
               type="button"
               onClick={() => onSell(market)}
               disabled={market.status !== "OPEN"}
-              className="cursor-pointer rounded-lg border border-border bg-transparent px-4 py-2 text-xs font-medium text-muted transition-colors hover:bg-border focus-visible:outline focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="cursor-pointer rounded-lg bg-danger px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={`Sell on ${market.name}`}
             >
               Sell

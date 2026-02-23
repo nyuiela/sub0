@@ -10,7 +10,8 @@ import { getMarketPrices } from "@/lib/api/prices";
 import type { ActivityItem, MarketHolderItem, MarketTraderItem } from "@/types/activity.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
 import { MarketLeftColumn } from "./MarketLeftColumn";
-import { TradingChart } from "./TradingChart";
+import { OutcomeProbabilityChart } from "./OutcomeProbabilityChart";
+import { OrderBookDepthChart } from "./OrderBookDepthChart";
 import { MarketDetailTabs } from "./MarketDetailTabs";
 import { MarketTradePanel } from "./MarketTradePanel";
 import { MarketInfoPanel } from "./MarketInfoPanel";
@@ -115,7 +116,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
+      <header className="mb-4 flex flex-wrap items-center justify-between gap-4 pb-4">
         <div className="flex items-center gap-3">
           {market.imageUrl != null ? (
             <Image
@@ -151,7 +152,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">
-          <TradingChart
+          <OutcomeProbabilityChart
             marketId={marketId}
             marketPrices={marketPrices}
             className="shrink-0"
@@ -174,6 +175,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
             marketPrices={marketPrices}
             className=""
           />
+          <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
           <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
           <MarketInfoPanel market={market} marketPrices={marketPrices} className="shrink-0" />
         </div>

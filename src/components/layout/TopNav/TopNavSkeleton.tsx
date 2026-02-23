@@ -3,7 +3,7 @@
 export function TopNavSkeleton() {
   return (
     <header
-      className="sticky top-0 z-40 border-b border-border bg-surface px-4"
+      className="sticky top-0 z-40 bg-surface px-4"
       aria-busy="true"
       aria-label="Loading navigation"
     >

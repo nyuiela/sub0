@@ -157,10 +157,10 @@ export function MarketTradePanel({
 
   return (
     <section
-      className={`flex flex-col gap-4 rounded-sm border border-border p-4 bg-surface ${className}`}
+      className={`flex flex-col gap-4 rounded-sm p-4 bg-surface ${className}`}
       aria-label="Trade and order book"
     >
-      <header className="flex flex-col gap-1 border-b border-border pb-3">
+      <header className="flex flex-col gap-1 pb-3">
         <p className="text-xs font-medium text-muted-foreground">Available balance</p>
         <p className="text-lg font-semibold tabular-nums text-foreground">
           {hasBalance ? `$${formatBalance(availableBalance)}` : "--"}
@@ -168,7 +168,7 @@ export function MarketTradePanel({
       </header>
 
       <div className="flex flex-col gap-3">
-        <nav role="tablist" aria-label="Order type" className="flex rounded-lg border border-border p-0.5">
+        <nav role="tablist" aria-label="Order type" className="flex rounded-lg p-0.5">
           {(
             [
               { id: "market" as const, label: "Market" },
@@ -245,7 +245,7 @@ export function MarketTradePanel({
             placeholder="0.00"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="mt-1 w-full rounded-lg bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             aria-label="Order amount"
           />
         </label>
@@ -256,7 +256,7 @@ export function MarketTradePanel({
             <button
               key={`pct-${pct}`}
               type="button"
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-md bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!hasBalance}
               onClick={() => setAmountFromPercent(pct)}
               aria-label={`${pct}% of balance`}
@@ -268,7 +268,7 @@ export function MarketTradePanel({
             <button
               key={`d-${d}`}
               type="button"
-              className="rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              className="rounded-md bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               onClick={() => setAmountFromNotional(d)}
               aria-label={`$${d} notional`}
             >
@@ -282,7 +282,7 @@ export function MarketTradePanel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                className="rounded-lg bg-green-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("BID", 0)}
                 aria-label={`Buy ${yesLabel}`}
@@ -291,7 +291,7 @@ export function MarketTradePanel({
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("ASK", 0)}
                 aria-label={`Sell ${yesLabel}`}
@@ -305,7 +305,7 @@ export function MarketTradePanel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                className="rounded-lg bg-green-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("BID", 1)}
                 aria-label={`Buy ${noLabel}`}
@@ -314,7 +314,7 @@ export function MarketTradePanel({
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-red-600 py-3 text-sm font-semibold text-white transition-opacity hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("ASK", 1)}
                 aria-label={`Sell ${noLabel}`}
@@ -326,11 +326,11 @@ export function MarketTradePanel({
         </div>
 
 
-        <details className="group rounded-lg border border-border bg-muted/30">
+        <details className="group rounded-lg bg-muted/30">
           <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-foreground">
             TP / SL (optional)
           </summary>
-          <div className="flex flex-col gap-2 border-t border-border p-3">
+          <div className="flex flex-col gap-2 p-3">
             <label className="block text-xs font-medium text-muted-foreground">
               Take profit
               <input
@@ -339,7 +339,7 @@ export function MarketTradePanel({
                 placeholder="Target price"
                 value={takeProfit}
                 onChange={(e) => setTakeProfit(e.target.value)}
-                className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none"
+                className="mt-1 w-full rounded bg-background px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 aria-label="Take profit price"
               />
             </label>
@@ -351,7 +351,7 @@ export function MarketTradePanel({
                 placeholder="Stop price"
                 value={stopLoss}
                 onChange={(e) => setStopLoss(e.target.value)}
-                className="mt-1 w-full rounded border border-border bg-background px-2 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none"
+                className="mt-1 w-full rounded bg-background px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                 aria-label="Stop loss price"
               />
             </label>
@@ -360,7 +360,7 @@ export function MarketTradePanel({
 
         {lastOrderSuccess != null && (
           <div
-            className="flex items-center justify-between gap-2 rounded-lg border border-green-600/50 bg-green-600/10 px-3 py-2 text-sm text-green-700 dark:text-green-400"
+            className="flex items-center justify-between gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success"
             role="status"
           >
             <span>{lastOrderSuccess}</span>
@@ -377,7 +377,7 @@ export function MarketTradePanel({
 
         {error != null && (
           <div
-            className="flex items-center justify-between gap-2 rounded-lg border border-red-600/50 bg-red-600/10 px-3 py-2 text-sm text-red-700 dark:text-red-400"
+            className="flex items-center justify-between gap-2 rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
             role="alert"
           >
             <span>{error}</span>

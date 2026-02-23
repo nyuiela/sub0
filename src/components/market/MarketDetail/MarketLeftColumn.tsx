@@ -23,11 +23,11 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
 
   return (
     <aside
-      className={`flex min-h-0 flex-col rounded-sm border border-border bg-surface ${className}`}
+      className={`flex min-h-0 flex-col rounded-sm bg-surface ${className}`}
       aria-label="Market sidebar"
       data-market-id={marketId}
     >
-      <nav role="tablist" className="flex border-b border-border">
+      <nav role="tablist" className="flex">
         {TABS.map(({ id, label }) => {
           const isActive = activeTab === id;
           return (
@@ -63,7 +63,7 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
                   {marketPrices.options.map((o) => (
                     <li
                       key={o.outcomeIndex}
-                      className="flex justify-between gap-2 rounded border border-border bg-muted/30 px-2 py-1.5"
+                      className="flex justify-between gap-2 rounded bg-muted/30 px-2 py-1.5"
                     >
                       <span className="font-medium text-foreground">{o.label}</span>
                       <span className="tabular-nums text-muted-foreground">

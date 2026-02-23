@@ -7,7 +7,7 @@ export interface MiniMarketCardSkeletonProps {
 export function MiniMarketCardSkeleton({ className = "" }: MiniMarketCardSkeletonProps) {
   return (
     <article
-      className={`flex gap-3 rounded-md border border-border bg-surface p-3 mb-2 ${className}`}
+      className={`flex gap-3 rounded-md border-b border-border bg-surface p-3 mb-2 ${className}`}
       aria-busy="true"
       aria-label="Loading market"
     >

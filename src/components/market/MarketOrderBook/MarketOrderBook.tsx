@@ -54,7 +54,7 @@ function OrderBookSide({
                 className="border-b border-border/50 hover:bg-muted/50"
               >
                 <td
-                  className={`py-1 pr-2 ${side === "bid" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  className={`py-1 pr-2 ${side === "bid" ? "text-success" : "text-danger"}`}
                 >
                   {level.price}
                 </td>
@@ -90,10 +90,10 @@ export function MarketOrderBook({
 
   return (
     <article
-      className={`rounded-md border border-border bg-surface p-3 ${className}`}
+      className={`rounded-md bg-surface p-3 ${className}`}
       aria-label={`Order book for market ${marketId}, outcome ${outcomeIndex}`}
     >
-      <header className="mb-2 border-b border-border pb-2">
+      <header className="mb-2 pb-2">
         <h3 className="text-sm font-medium text-foreground">Order book</h3>
       </header>
       <div className="grid grid-cols-2 gap-4">
