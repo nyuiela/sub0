@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import type { Market } from "@/types/market.types";
-
-const AVATAR_SIZE = 48;
+import Image from "next/image";
+const AVATAR_SIZE = 94;
 
 function formatMc(value: string | undefined): string {
   if (value == null || value === "") return "0";
@@ -83,7 +83,7 @@ export function MiniMarketCard({
     >
       <figure className="shrink-0" aria-hidden>
         {market.imageUrl ? (
-          <img
+          <Image
             src={market.imageUrl}
             alt=""
             width={AVATAR_SIZE}
@@ -93,7 +93,7 @@ export function MiniMarketCard({
           />
         ) : (
           <div
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-border text-sm font-semibold text-muted"
+            className="flex h-12 w-12 items-center justify-center rounded-sm bg-border text-sm font-semibold text-muted"
             style={{ minWidth: AVATAR_SIZE, minHeight: AVATAR_SIZE }}
           >
             {nameInitials(market.name)}

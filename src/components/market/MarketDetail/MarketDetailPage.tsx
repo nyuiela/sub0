@@ -116,35 +116,15 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-4 pb-4">
-        <div className="flex items-center gap-3">
-          {market.imageUrl != null ? (
-            <Image
-              src={market.imageUrl}
-              alt="alt"
-              className="h-10 w-10 rounded-full object-cover"
-              width={40}
-              height={40}
-            />
-          ) : (
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
-              {market.name.slice(0, 2).toUpperCase()}
-            </span>
-          )}
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">{market.name}</h1>
-            <p className="text-sm text-muted-foreground">
-              Vol {volumeFormatted} · Holders {holdersCount} · Trades {market.totalTrades ?? 0}
-            </p>
-          </div>
-        </div>
+      {/* <header className="mb-4 flex flex-wrap items-center justify-between gap-4 pb-4">
+
         <Link
           href="/"
           className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           Back to markets
         </Link>
-      </header>
+      </header> */}
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto lg:min-h-[400px]">
@@ -152,6 +132,27 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
         </div>
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">
+          <div className="flex items-center gap-3">
+            {market.imageUrl != null ? (
+              <Image
+                src={market.imageUrl}
+                alt="alt"
+                className="h-10 w-10 rounded-full object-cover"
+                width={40}
+                height={40}
+              />
+            ) : (
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
+                {market.name.slice(0, 2).toUpperCase()}
+              </span>
+            )}
+            <div>
+              <h1 className="text-lg font-semibold text-foreground">{market.name}</h1>
+              <p className="text-sm text-muted-foreground">
+                Vol {volumeFormatted} · Holders {holdersCount} · Trades {market.totalTrades ?? 0}
+              </p>
+            </div>
+          </div>
           <OutcomeProbabilityChart
             marketId={marketId}
             marketPrices={marketPrices}

@@ -1,0 +1,322 @@
+generator client {
+provider = "prisma-client-js"
+}
+
+datasource db {
+provider = "postgresql"
+url = env("DATABASE_URL")
+}
+
+enum AgentStatus {
+ACTIVE
+PAUSED
+DEPLETED
+EXPIRED
+}
+
+enum MarketStatus {
+OPEN
+RESOLVING
+CLOSED
+DISPUTED
+}
+
+enum MarketPlatform {
+NATIVE
+POLYMARKET
+KALSHI
+MANIFOLD
+OTHER
+}
+
+enum PositionSide {
+LONG
+SHORT
+}
+
+enum PositionStatus {
+OPEN
+CLOSED
+LIQUIDATED
+}
+
+enum StrategyPref {
+AMM_ONLY
+ORDERBOOK
+HYBRID
+}
+
+model User {
+id String @id @default(uuid())
+username String? @unique
+address String @unique
+email String?
+imageUrl String?
+authMethod String? // WALLET | SSO | PASSKEY
+totalVolume Decimal @default(0) @db.Decimal(28, 8)
+pnl Decimal @default(0) @db.Decimal(28, 8)
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+agents Agent[] @relation("UserToAgent")
+trades Trade[]
+positions Position[]
+aiRequests AiRequest[]
+
+@@index([username])
+}
+
+model Agent {
+id String @id @default(uuid())
+ownerId String
+name String
+persona String
+publicKey String
+encryptedPrivateKey String
+strategy AgentStrategy?
+modelSettings Json
+status AgentStatus @default(ACTIVE)
+balance Decimal @default(0) @db.Decimal(28, 8)
+tradedAmount Decimal @default(0) @db.Decimal(28, 8)
+totalTrades Int @default(0)
+pnl Decimal @default(0) @db.Decimal(28, 8)
+templateId String?
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+owner User @relation("UserToAgent", fields: [ownerId], references: [id], onDelete: Cascade)
+template Template? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+trades Trade[]
+positions Position[]
+aiLogs AiLog[]
+activities Activity[]
+track AgentTrack?
+
+@@index([ownerId])
+@@index([status])
+@@index([templateId])
+}
+
+model AgentStrategy {
+id String @id @default(uuid())
+agentId String @unique
+preference StrategyPref @default(HYBRID)
+maxSlippage Float
+spreadTolerance Float
+
+agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+}
+
+model AgentTrack {
+id String @id @default(uuid())
+agentId String @unique
+date DateTime @db.Date
+volume Decimal @default(0) @db.Decimal(28, 8)
+trades Int @default(0)
+pnl Decimal @default(0) @db.Decimal(28, 8)
+createdAt DateTime @default(now())
+
+agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+@@index([agentId])
+@@index([date])
+}
+
+model Template {
+id String @id @default(uuid())
+name String
+persona String?
+imageUrl String?
+config Json?
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+agents Agent[]
+}
+
+model Market {
+id String @id @default(uuid())
+name String
+creatorAddress String
+volume Decimal @default(0) @db.Decimal(28, 8)
+context String?
+imageUrl String?
+outcomes Json
+outcomePositionIds Json? // CTF position/token id per outcome (same length as outcomes)
+sourceUrl String?
+resolutionDate DateTime
+oracleAddress String
+status MarketStatus @default(OPEN)
+collateralToken String
+conditionId String @unique
+platform MarketPlatform @default(NATIVE)
+liquidity Decimal? @db.Decimal(28, 8)
+confidence Float?
+pnl Decimal? @db.Decimal(28, 8)
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+trades Trade[]
+positions Position[]
+orders Order[]
+news News[]
+aiLogs AiLog[]
+
+@@index([creatorAddress])
+@@index([status])
+@@index([conditionId])
+@@index([platform])
+}
+
+model Position {
+id String @id @default(uuid())
+marketId String
+userId String?
+agentId String?
+address String
+tokenAddress String
+outcomeIndex Int
+side PositionSide
+status PositionStatus @default(OPEN)
+avgPrice Decimal @db.Decimal(28, 18)
+collateralLocked Decimal @db.Decimal(28, 18)
+isAmm Boolean @default(false)
+contractPositionId String? // Position/token id from smart contract
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+agent Agent? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+@@index([marketId])
+@@index([userId])
+@@index([agentId])
+@@index([address])
+}
+
+model Trade {
+id String @id @default(uuid())
+marketId String
+outcomeIndex Int @default(0)
+userId String?
+agentId String?
+side String
+amount Decimal @db.Decimal(28, 18)
+price Decimal @db.Decimal(28, 18)
+txHash String?
+createdAt DateTime @default(now())
+
+user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+agent Agent? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+@@index([marketId])
+@@index([marketId, outcomeIndex])
+@@index([userId])
+@@index([agentId])
+}
+
+model Order {
+id String @id @default(uuid())
+marketId String
+outcomeIndex Int @default(0)
+side String
+type String @default("LIMIT")
+amount Decimal @db.Decimal(28, 18)
+price Decimal @db.Decimal(28, 18)
+status String @default("PENDING")
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+
+market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+@@index([marketId])
+@@index([marketId, outcomeIndex])
+}
+
+model News {
+id String @id @default(uuid())
+marketId String
+title String
+body String?
+imageUrl String?
+sourceUrl String?
+createdAt DateTime @default(now())
+
+market Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+@@index([marketId])
+}
+
+/// Raw ingested items from RSS and CryptoPanic. Deduped by source + externalId.
+model FeedItem {
+id String @id @default(uuid())
+source String // RSS_COINDESK | RSS_COINTELEGRAPH | CRYPTOPANIC
+externalId String
+title String
+body String?
+sourceUrl String?
+imageUrl String?
+publishedAt DateTime
+metadata Json? // e.g. { currencies: ["BTC"], kind: "news" }
+createdAt DateTime @default(now())
+
+@@unique([source, externalId])
+@@index([source])
+@@index([publishedAt])
+}
+
+model AiLog {
+id String @id @default(uuid())
+agentId String
+marketId String?
+action String
+payload Json?
+createdAt DateTime @default(now())
+
+agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+market Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
+
+@@index([agentId])
+@@index([marketId])
+}
+
+model AiRequest {
+id String @id @default(uuid())
+userId String
+prompt String
+response String?
+createdAt DateTime @default(now())
+
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+@@index([userId])
+}
+
+model Activity {
+id String @id @default(uuid())
+agentId String
+type String
+payload Json?
+createdAt DateTime @default(now())
+
+agent Agent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+@@index([agentId])
+}
+
+model Tool {
+id String @id @default(uuid())
+name String
+url String
+description String
+imageUrl String?
+fee Decimal @db.Decimal(28, 8)
+receiverAddress String
+inputSchema Json
+outputSchema Json
+provider String
+createdAt DateTime @default(now())
+updatedAt DateTime @updatedAt
+}

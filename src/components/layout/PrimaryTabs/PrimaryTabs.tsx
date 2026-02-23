@@ -9,7 +9,7 @@ import {
 } from "@/types/layout.types";
 
 const tabButtonBase =
-  "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+  "rounded-md border border-transparent px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
 export function PrimaryTabs() {
   const activeTab = useAppSelector((state) => state.layout.activePrimaryTab);
