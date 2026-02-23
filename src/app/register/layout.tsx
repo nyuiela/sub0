@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RegisterPageBackground } from "@/components/register/RegisterPageBackground";
 import "./register.css";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export default function RegisterLayout({
 }: { children: React.ReactNode }) {
   return (
     <main className="register-page" data-register-layout>
-      {children}
+      <RegisterPageBackground>{children}</RegisterPageBackground>
     </main>
   );
 }

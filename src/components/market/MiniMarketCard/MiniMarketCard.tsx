@@ -90,6 +90,7 @@ export function MiniMarketCard({
             height={AVATAR_SIZE}
             className="h-12 w-12 rounded-sm object-cover"
             loading="lazy"
+            unoptimized
           />
         ) : (
           <>

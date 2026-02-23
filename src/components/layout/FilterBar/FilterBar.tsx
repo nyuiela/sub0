@@ -21,7 +21,7 @@ export function FilterBar() {
 
   return (
     <nav
-      className="flex flex-wrap items-center gap-2 bg-surface px-4 py-2 sm:px-6 m-2 mb-0 shadow-sm rounded-md"
+      className="flex flex-wrap items-center gap-2 bg-surface px-4 py-2 sm:px-6 m-2 mb-2 shadow-sm rounded-md"
       aria-label="Recent markets and agents"
     >
       {recentItems.length === 0 ? (

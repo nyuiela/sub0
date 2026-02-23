@@ -12,7 +12,7 @@ export async function getBackendAuthHeaders(): Promise<Record<string, string>> {
   if (!jwt) return {};
   return {
     Authorization: `Bearer ${jwt}`,
-    Cookie: `jwt=${jwt}`,
+    Cookie: `${JWT_COOKIE_NAME}=${jwt}; jwt=${jwt}`,
   };
 }
 

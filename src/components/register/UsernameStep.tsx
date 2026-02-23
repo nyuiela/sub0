@@ -3,7 +3,8 @@
 import { useCallback, useState } from "react";
 import { checkUsernameAvailable } from "@/lib/api/register";
 
-const USERNAME_REGEX = /^[a-zA-Z0-9_-]{2,32}$/;
+/** Letters, numbers, underscore, hyphen. Same as backend. */
+const USERNAME_REGEX = /^[-a-zA-Z0-9_]{2,32}$/;
 
 export interface UsernameStepProps {
   value: string;

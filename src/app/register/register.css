@@ -1,7 +1,6 @@
-/* Register flow: cyberpunk-minimalism, glassmorphism, neon accents */
+/* Register flow: theme-aware background; glassmorphism and neon accents for dark themes */
 
 .register-page {
-  --reg-bg: #0c0c0f;
   --reg-surface: rgba(20, 20, 28, 0.7);
   --reg-border: rgba(139, 92, 246, 0.25);
   --reg-neon-violet: #a78bfa;
@@ -9,9 +8,25 @@
   --reg-text: #f1f5f9;
   --reg-muted: #94a3b8;
   --reg-success: #4ade80;
+  --reg-bg: #0c0c0f;
   background-color: var(--reg-bg);
   min-height: 100dvh;
   color: var(--reg-text);
+}
+
+[data-theme="light"] .register-page {
+  --reg-bg: #f8fafc;
+  --reg-surface: rgba(255, 255, 255, 0.85);
+  --reg-border: rgba(14, 165, 233, 0.25);
+  --reg-text: #0f172a;
+  --reg-muted: #475569;
+  background-color: var(--reg-bg);
+}
+
+[data-theme="dark"] .register-page,
+[data-theme="trading"] .register-page {
+  --reg-bg: #0c0c0f;
+  background-color: var(--reg-bg);
 }
 
 .register-glass {

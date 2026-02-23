@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef, useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setTheme } from "@/store/slices/themeSlice";
 import { THEME_IDS } from "@/types/theme.types";
@@ -11,38 +12,88 @@ const LABELS: Record<ThemeId, string> = {
   trading: "Trading",
 };
 
-const THEME_SELECT_CLASS =
-  "cursor-pointer rounded-md border border-border bg-surface px-3 py-2 pr-8 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary";
+const BUTTON_CLASS =
+  "flex cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:border-primary";
 
 export function ThemeSwitcher() {
   const themeId = useAppSelector((state) => state.theme.themeId);
   const dispatch = useAppDispatch();
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value as ThemeId;
-    if (THEME_IDS.includes(value)) dispatch(setTheme(value));
+  useEffect(() => {
+    if (!open) return;
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (containerRef.current != null && !containerRef.current.contains(target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const handleSelect = (id: ThemeId) => {
+    dispatch(setTheme(id));
+    setOpen(false);
   };
 
   return (
-    <nav aria-label="Theme selection" className="relative inline-flex items-center gap-2">
-      <span className="text-muted" aria-hidden>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="5" />
-          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
-        </svg>
-      </span>
-      <select
-        value={themeId}
-        onChange={handleChange}
+    <nav
+      ref={containerRef}
+      aria-label="Theme selection"
+      className="relative inline-flex"
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
         aria-label="Select color theme"
-        className={THEME_SELECT_CLASS}
+        className={BUTTON_CLASS}
       >
-        {THEME_IDS.map((id) => (
-          <option key={id} value={id}>
-            {LABELS[id]}
-          </option>
-        ))}
-      </select>
+        <img
+          src="/icons/sun.svg"
+          width={16}
+          height={16}
+          alt=""
+          aria-hidden
+          className={`shrink-0 ${themeId === "dark" || themeId === "trading" ? "invert" : ""}`}
+        />
+        <span>{LABELS[themeId]}</span>
+        <img
+          src="/icons/chevron-down.svg"
+          width={16}
+          height={16}
+          alt=""
+          aria-hidden
+          className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-label="Theme options"
+          className="absolute right-0 top-full z-(--z-dropdown) mt-1 min-w-32 rounded-md border border-border bg-surface py-1 shadow-lg"
+        >
+          {THEME_IDS.map((id) => (
+            <li key={id} role="option" aria-selected={themeId === id}>
+              <button
+                type="button"
+                onClick={() => handleSelect(id)}
+                className={`w-full cursor-pointer px-3 py-2 text-left text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset ${
+                  themeId === id
+                    ? "bg-primary-muted text-primary"
+                    : "bg-surface text-foreground hover:bg-muted/50"
+                }`}
+              >
+                {LABELS[id]}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </nav>
   );
 }

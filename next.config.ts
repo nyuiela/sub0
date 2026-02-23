@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ["localhost", "assets.thirdweb.com"],
+    // domains: ["localhost", "assets.thirdweb.com"],
     remotePatterns: [
       {
         protocol: "https",
@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "*.com",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "4000",
+      },
+      {
+        protocol: "https",
+        hostname: "*.thirdweb.com",
       }
     ],
   },

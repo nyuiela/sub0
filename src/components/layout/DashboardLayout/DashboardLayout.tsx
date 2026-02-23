@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets } from "@/store/slices/marketsSlice";
+import { RegistrationRedirect } from "@/components/auth/RegistrationRedirect";
 import { TopNav } from "@/components/layout/TopNav";
 import { TopNavSkeleton } from "@/components/layout/TopNav/TopNavSkeleton";
 import { FilterBar } from "@/components/layout/FilterBar";
@@ -74,6 +75,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </>
       ) : (
         <>
+          <RegistrationRedirect />
           <TopNav />
           <FilterBar />
           <main className="flex flex-1 flex-col min-h-0 overflow-hidden">

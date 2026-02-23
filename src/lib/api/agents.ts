@@ -72,8 +72,46 @@ function normalizeAgent(raw: Record<string, unknown>): Agent {
 }
 
 /**
- * List agents (authenticated). With JWT, only that user's agents are returned; ownerId is ignored.
- * With API key, ownerId can filter by owner.
+ * List current user's agents (authenticated). Uses GET /api/agents with credentials.
+ * Use for settings and account-scoped lists.
+ */
+export async function getMyAgents(
+  params: AgentListParams = {}
+): Promise<AgentListResponse> {
+  const qs = new URLSearchParams();
+  if (params.status != null && params.status !== "")
+    qs.set("status", params.status);
+  const limit =
+    params.limit != null
+      ? Math.min(MAX_LIMIT, Math.max(1, params.limit))
+      : DEFAULT_LIMIT;
+  qs.set("limit", String(limit));
+  if (params.offset != null && params.offset > 0)
+    qs.set("offset", String(params.offset));
+  const query = qs.toString();
+  const url = `/api/agents${query ? `?${query}` : ""}`;
+  const res = await fetch(url, { credentials: "include" });
+  const data = (await res.json().catch(() => ({
+    data: [],
+    total: 0,
+    limit,
+    offset: params.offset ?? 0,
+  }))) as { data?: unknown[]; total?: number; limit?: number; offset?: number };
+  if (!res.ok) {
+    const err = data as { error?: string };
+    throw new Error(err?.error ?? `My agents fetch failed: ${res.status}`);
+  }
+  const list = Array.isArray(data.data) ? data.data : [];
+  return {
+    data: list.map((item) => normalizeAgent(item as Record<string, unknown>)),
+    total: Number(data.total) ?? 0,
+    limit: Number(data.limit) ?? limit,
+    offset: Number(data.offset) ?? params.offset ?? 0,
+  };
+}
+
+/**
+ * List agents (public). No auth; basic fields only. Use for main page listing.
  */
 export async function getAgents(
   params: AgentListParams = {}
