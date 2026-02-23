@@ -24,10 +24,10 @@ export interface ColumnSizePrefs {
 }
 
 export const DEFAULT_COLUMN_SIZE_PREFS: Record<string, ColumnSizePrefs> = {
-  agents: { widthFraction: 0.35, minFraction: 0.25, maxFraction: 0.6 },
-  new: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
+  agents: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.5 },
+  new: { widthFraction: 0.5, minFraction: 0.3, maxFraction: 0.7 },
   positions: { widthFraction: 0.2, minFraction: 0.12, maxFraction: 0.4 },
-  news: { widthFraction: 0.15, minFraction: 0.1, maxFraction: 0.35 },
+  news: { widthFraction: 0.1, minFraction: 0.08, maxFraction: 0.35 },
   stretch: { widthFraction: 1 / 3, minFraction: 0.15, maxFraction: 0.6 },
   migrated: { widthFraction: 1 / 3, minFraction: 0.15, maxFraction: 0.6 },
   trades: { widthFraction: 1 / 4, minFraction: 0.15, maxFraction: 0.5 },

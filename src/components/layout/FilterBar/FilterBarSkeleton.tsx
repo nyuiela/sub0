@@ -1,18 +1,18 @@
 "use client";
 
-const FILTER_SKELETON_COUNT = 6;
+const PILL_COUNT = 6;
 
 export function FilterBarSkeleton() {
   return (
     <nav
-      className="flex flex-wrap items-center gap-2 bg-surface px-4 py-2 sm:px-6"
+      className="m-2 mb-0 flex flex-wrap items-center gap-2 rounded-md bg-surface px-4 py-2 shadow-sm sm:px-6"
       aria-busy="true"
-      aria-label="Loading filters"
+      aria-label="Loading recent items"
     >
-      {Array.from({ length: FILTER_SKELETON_COUNT }, (_, i) => (
+      {Array.from({ length: PILL_COUNT }, (_, i) => (
         <div
           key={i}
-          className="h-8 w-16 animate-pulse rounded-full bg-border sm:w-20"
+          className="h-8 w-16 animate-pulse rounded-full bg-muted/50 sm:w-20"
         />
       ))}
     </nav>

@@ -1,15 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { getAgents } from "@/lib/api/agents";
+import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "@/components/layout/AgentsColumn/AgentTreemap";
-import { useEffect, useState } from "react";
+import { useAppDispatch } from "@/store/hooks";
+import { addRecent } from "@/store/slices/recentSlice";
 
 const AGENTS_LIMIT = 50;
 
 export interface TrackerAgentColumnProps {
-  /** Filter by owner (user id). When not set, backend may return all or use auth. */
-  ownerId?: string;
   selectedAgentId: string | null;
   onSelectAgent: (agent: Agent | null) => void;
   className?: string;
@@ -32,11 +33,11 @@ function statusColor(status: string): string {
 }
 
 export function TrackerAgentColumn({
-  ownerId,
   selectedAgentId,
   onSelectAgent,
   className = "",
 }: TrackerAgentColumnProps) {
+  const dispatch = useAppDispatch();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,10 +46,7 @@ export function TrackerAgentColumn({
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getAgents({
-      limit: AGENTS_LIMIT,
-      ...(ownerId != null && ownerId !== "" ? { ownerId } : {}),
-    })
+    getAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
         if (!cancelled) {
           setAgents(res.data ?? []);
@@ -57,7 +55,8 @@ export function TrackerAgentColumn({
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load agents");
+          const message = err instanceof Error ? err.message : "Failed to load agents";
+          setError(message);
           setAgents([]);
           setLoading(false);
         }
@@ -65,12 +64,17 @@ export function TrackerAgentColumn({
     return () => {
       cancelled = true;
     };
-  }, [ownerId]);
+  }, []);
 
   if (error != null) {
+    const isUnauth = error.includes("401") || error.toLowerCase().includes("unauthorized");
     return (
       <aside className={`text-sm text-muted-foreground ${className}`.trim()}>
-        {error}
+        {isUnauth ? (
+          <p>Sign in to see your agents.</p>
+        ) : (
+          <p>{error}</p>
+        )}
       </aside>
     );
   }
@@ -85,7 +89,10 @@ export function TrackerAgentColumn({
       className={`flex flex-col gap-4 overflow-auto ${className}`.trim()}
       aria-label="Your agents"
     >
-      <section aria-label="Agents by PnL">
+      <section aria-label="User Agents TreeMap">
+        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+          User Agents TreeMap
+        </h3>
         {loading && agents.length === 0 ? (
           <div className="h-[200px] animate-pulse rounded bg-surface" />
         ) : agents.length > 0 ? (
@@ -122,21 +129,36 @@ export function TrackerAgentColumn({
                 <li key={agent.id}>
                   <button
                     type="button"
-                    onClick={() => onSelectAgent(isSelected ? null : agent)}
-                    className={`w-full border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
+                    onClick={() => {
+                      if (!isSelected) {
+                        dispatch(addRecent({ type: "agent", id: agent.id, label: agent.name }));
+                      }
+                      onSelectAgent(isSelected ? null : agent);
+                    }}
+                    className={`flex w-full gap-3 border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
                       isSelected
                         ? "bg-primary-muted text-primary"
                         : ""
                     }`}
                   >
-                    <span className="text-sm font-medium text-foreground">
-                      {agent.name || agent.id.slice(0, 8)}
-                    </span>
-                    <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
-                      <span className={statusColor(agent.status)}>
-                        {agent.status}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- DiceBear data URI */}
+                    <img
+                      src={getDiceBearAvatarUrl(agent.id, "agent")}
+                      alt=""
+                      width={36}
+                      height={36}
+                      className="h-9 w-9 shrink-0 rounded-full object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <span className="text-sm font-medium text-foreground">
+                        {agent.name || agent.id.slice(0, 8)}
                       </span>
-                      <span className={pnlClass}>PnL {formatPnl(pnl)}</span>
+                      <div className="mt-1 flex flex-wrap gap-x-3 text-xs">
+                        <span className={statusColor(agent.status)}>
+                          {agent.status}
+                        </span>
+                        <span className={pnlClass}>PnL {formatPnl(pnl)}</span>
+                      </div>
                     </div>
                   </button>
                 </li>

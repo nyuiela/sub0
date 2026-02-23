@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@dicebear/collection": "^9.3.2",
+    "@dicebear/core": "^9.3.2",
     "@reduxjs/toolkit": "^2.11.2",
     "d3-hierarchy": "^3.1.2",
     "lightweight-charts": "^5.1.0",
@@ -16,6 +18,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-redux": "^9.2.0",
+    "recharts": "^3.7.0",
     "scichart": "^5.0.178",
     "scichart-react": "^1.0.0",
     "thirdweb": "^5.118.2"

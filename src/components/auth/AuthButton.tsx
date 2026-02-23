@@ -11,11 +11,22 @@ import {
   logout as doLogoutAction,
 } from "@/app/actions/auth";
 
-const connectButtonClass =
-  "!rounded-md !border !border-border !bg-surface !px-3 !py-2 !text-sm !font-medium !text-foreground !transition-colors duration-200 hover:!bg-primary-muted hover:!text-foreground focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-primary focus-visible:!ring-offset-2";
+const BUTTON_HEIGHT = "2.25rem";
+const BUTTON_PADDING = "0.5rem 0.75rem";
+const BUTTON_FONT_SIZE = "0.875rem";
 
-const connectLabelClass =
-  "!rounded-md !border !border-transparent !bg-primary !px-3 !py-2 !text-sm !font-medium !text-white !shadow-sm !transition-opacity hover:!opacity-90 focus-visible:!outline-none focus-visible:!ring-2 focus-visible:!ring-primary focus-visible:!ring-offset-2";
+const connectButtonStyle: React.CSSProperties = {
+  height: BUTTON_HEIGHT,
+  minWidth: "unset",
+  padding: BUTTON_PADDING,
+  fontSize: BUTTON_FONT_SIZE,
+};
+
+const connectButtonClassName =
+  "rounded-md border border-transparent bg-primary px-3 py-2 text-sm font-medium text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
+
+const detailsButtonClassName =
+  "rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
 export function AuthButton() {
   const themeId = useAppSelector((state) => state.theme.themeId);
@@ -34,10 +45,12 @@ export function AuthButton() {
       theme={getConnectTheme(themeId)}
       connectButton={{
         label: "Connect",
-        className: connectLabelClass,
+        className: connectButtonClassName,
+        style: connectButtonStyle,
       }}
       detailsButton={{
-        className: connectButtonClass,
+        className: detailsButtonClassName,
+        style: connectButtonStyle,
       }}
       connectModal={{
         title: "Connect wallet",

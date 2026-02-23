@@ -1,28 +1,22 @@
 "use client";
 
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { Agent } from "@/types/agent.types";
 import type { ColumnSizePrefs } from "@/types/layout.types";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setSelectedTrackerAgentId } from "@/store/slices/layoutSlice";
-import { TrackerAgentColumn } from "./TrackerAgentColumn";
-import { TrackerStatsColumn } from "./TrackerStatsColumn";
-import { TrackerMarketsColumn } from "./TrackerMarketsColumn";
-import { TrackerResizeHandle } from "./TrackerResizeHandle";
+import { TrackerResizeHandle } from "@/components/layout/TrackerLayout/TrackerResizeHandle";
 
-const TRACKER_COLUMN_IDS = ["agents", "stats", "markets"] as const;
-type TrackerColumnId = (typeof TRACKER_COLUMN_IDS)[number];
+const MARKET_COLUMN_IDS = ["sidebar", "main", "trade"] as const;
+type MarketColumnId = (typeof MARKET_COLUMN_IDS)[number];
 
-const TRACKER_LABELS: Record<TrackerColumnId, string> = {
-  agents: "Agents",
-  stats: "Statistics",
-  markets: "Markets",
+const MARKET_LABELS: Record<MarketColumnId, string> = {
+  sidebar: "Sidebar",
+  main: "Chart & Activity",
+  trade: "Trade",
 };
 
-const TRACKER_DEFAULT_PREFS: Record<string, ColumnSizePrefs> = {
-  agents: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.5 },
-  stats: { widthFraction: 0.6, minFraction: 0.3, maxFraction: 0.75 },
-  markets: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.5 },
+const MARKET_DEFAULT_PREFS: Record<string, ColumnSizePrefs> = {
+  sidebar: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.45 },
+  main: { widthFraction: 0.55, minFraction: 0.3, maxFraction: 0.7 },
+  trade: { widthFraction: 0.25, minFraction: 0.2, maxFraction: 0.5 },
 };
 
 const RESIZE_HANDLE_WIDTH = "8px";
@@ -41,25 +35,23 @@ function getPrefs(
   };
 }
 
-export interface TrackerLayoutProps {
-  /** When set, only agents for this user are shown. */
-  ownerId?: string;
+export interface MarketDetailLayoutProps {
+  sidebar: React.ReactNode;
+  main: React.ReactNode;
+  trade: React.ReactNode;
   className?: string;
 }
 
-export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
-  const dispatch = useAppDispatch();
-  const selectedAgentId = useAppSelector((state) => state.layout.selectedTrackerAgentId);
-  const onSelectAgent = useCallback(
-    (agent: Agent | null) => dispatch(setSelectedTrackerAgentId(agent?.id ?? null)),
-    [dispatch]
+export function MarketDetailLayout({
+  sidebar,
+  main,
+  trade,
+  className = "",
+}: MarketDetailLayoutProps) {
+  const [columnOrder, setColumnOrder] = useState<string[]>([...MARKET_COLUMN_IDS]);
+  const [columnSizePrefs, setColumnSizePrefs] = useState<Record<string, ColumnSizePrefs>>(
+    () => ({ ...MARKET_DEFAULT_PREFS })
   );
-  const [columnOrder, setColumnOrder] = useState<string[]>([
-    ...TRACKER_COLUMN_IDS,
-  ]);
-  const [columnSizePrefs, setColumnSizePrefs] = useState<
-    Record<string, ColumnSizePrefs>
-  >(() => ({ ...TRACKER_DEFAULT_PREFS }));
   const containerRef = useRef<HTMLDivElement>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTargetId, setDropTargetId] = useState<string | null>(null);
@@ -75,15 +67,7 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
   }, [columnOrder, columnSizePrefs]);
 
   const handleResize = useCallback(
-    ({
-      leftId,
-      rightId,
-      deltaFraction,
-    }: {
-      leftId: string;
-      rightId: string;
-      deltaFraction: number;
-    }) => {
+    ({ leftId, rightId, deltaFraction }: { leftId: string; rightId: string; deltaFraction: number }) => {
       setColumnSizePrefs((prev) => {
         const left = prev[leftId];
         const right = prev[rightId];
@@ -94,10 +78,7 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
           Math.min(left.maxFraction, left.widthFraction + deltaFraction)
         );
         let newRight = total - newLeft;
-        newRight = Math.max(
-          right.minFraction,
-          Math.min(right.maxFraction, newRight)
-        );
+        newRight = Math.max(right.minFraction, Math.min(right.maxFraction, newRight));
         newLeft = total - newRight;
         return {
           ...prev,
@@ -109,18 +90,17 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
     []
   );
 
-  const handleDragStart = useCallback(
-    (e: React.DragEvent<HTMLElement>, columnId: string) => {
-      e.dataTransfer.setData("text/plain", columnId);
-      e.dataTransfer.effectAllowed = "move";
-      setDraggedId(columnId);
-    },
-    []
-  );
+  const handleDragStart = useCallback((e: React.DragEvent<HTMLElement>, columnId: string) => {
+    e.dataTransfer.setData("text/plain", columnId);
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedId(columnId);
+  }, []);
+
   const handleDragEnd = useCallback(() => {
     setDraggedId(null);
     setDropTargetId(null);
   }, []);
+
   const handleDragOver = useCallback(
     (e: React.DragEvent<HTMLElement>, columnId: string) => {
       e.preventDefault();
@@ -129,7 +109,9 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
     },
     [draggedId]
   );
+
   const handleDragLeave = useCallback(() => setDropTargetId(null), []);
+
   const handleDrop = useCallback(
     (e: React.DragEvent<HTMLElement>, targetId: string) => {
       e.preventDefault();
@@ -149,36 +131,21 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
 
   function renderColumnContent(columnId: string) {
     switch (columnId) {
-      case "agents":
-        return (
-          <TrackerAgentColumn
-            selectedAgentId={selectedAgentId}
-            onSelectAgent={onSelectAgent}
-          />
-        );
-      case "stats":
-        return (
-          <TrackerStatsColumn
-            selectedAgentId={selectedAgentId}
-            className="h-full"
-          />
-        );
-      case "markets":
-        return (
-          <TrackerMarketsColumn
-            selectedAgentId={selectedAgentId}
-            className="h-full"
-          />
-        );
+      case "sidebar":
+        return sidebar;
+      case "main":
+        return main;
+      case "trade":
+        return trade;
       default:
-        return <p className="text-xs text-muted">Unknown column</p>;
+        return null;
     }
   }
 
   return (
     <section
-      className={`flex flex-1 flex-col min-h-0 p-2 ${className}`.trim()}
-      aria-label="Tracker columns. Drag headers to reorder; drag edges to resize."
+      className={`flex min-h-0 flex-1 flex-col ${className}`.trim()}
+      aria-label="Market columns. Drag headers to reorder; drag edges to resize."
     >
       <div
         ref={containerRef}
@@ -195,23 +162,23 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
               onDragOver={(e) => handleDragOver(e, columnId)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, columnId)}
-              aria-label={`Column ${TRACKER_LABELS[columnId as TrackerColumnId] ?? columnId}. Drag to reorder.`}
-              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-surface transition-shadow duration-200 ${
+              aria-label={`Column ${MARKET_LABELS[columnId as MarketColumnId] ?? columnId}. Drag to reorder.`}
+              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-transparent transition-shadow duration-200 ${
                 dropTargetId === columnId ? "ring-2 ring-primary" : ""
               } ${draggedId === columnId ? "opacity-60" : ""}`}
             >
               <header
-                className="flex cursor-grab active:cursor-grabbing items-center gap-2 px-4 py-3"
+                className="flex cursor-grab active:cursor-grabbing items-center gap-2 px-3 py-2"
                 style={{ touchAction: "none" }}
               >
-                <span className="text-disabled" aria-hidden>
+                <span className="text-disabled text-xs" aria-hidden>
                   ⋮⋮
                 </span>
-                <h3 className="text-sm font-semibold text-foreground">
-                  {TRACKER_LABELS[columnId as TrackerColumnId] ?? columnId}
+                <h3 className="text-xs font-semibold text-foreground">
+                  {MARKET_LABELS[columnId as MarketColumnId] ?? columnId}
                 </h3>
               </header>
-              <div className="min-h-0 flex-1 overflow-auto p-1">
+              <div className="min-h-0 flex-1 overflow-auto">
                 {renderColumnContent(columnId)}
               </div>
             </section>

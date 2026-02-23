@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { hydrateThemeFromStorage } from "@/store/themePersist";
 import { hydrateLayoutFromStorage } from "@/store/layoutPersist";
+import { hydrateRecentFromStorage } from "@/store/recentPersist";
 import type { ThemeId, FontId, SizeId } from "@/types/theme.types";
 
 function applyTheme(themeId: ThemeId, fontId: FontId, sizeId: SizeId): void {
@@ -26,6 +27,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       hasHydrated.current = true;
       hydrateThemeFromStorage(dispatch);
       hydrateLayoutFromStorage(dispatch);
+      hydrateRecentFromStorage(dispatch);
     }
   }, [dispatch]);
 

@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import type { OHLCV } from "@/types/chart.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
-import { OUTCOME_SERIES_COLORS } from "@/lib/scichart/theme";
+import { OUTCOME_SERIES_COLORS, getSciChartThemeOverrides } from "@/lib/scichart/theme";
 
 const CHART_H = 320;
 const OUTCOME_COLORS = ["#22C55E", "#3B82F6", "#A855F7", "#F59E0B"];
@@ -143,14 +143,25 @@ export function OutcomeProbabilityChart({
     }
 
     const { seriesData: data, yAxisMode: mode } = chartConfigRef.current;
+    const baseTheme = new SciChartJsNavyTheme();
+    const themeOverrides = getSciChartThemeOverrides();
     const { wasmContext, sciChartSurface } = await SciChartSurface.create(
       el,
-      { theme: new SciChartJsNavyTheme() }
+      { theme: { ...baseTheme, ...themeOverrides } }
     );
 
-    sciChartSurface.xAxes.add(new NumericAxis(wasmContext));
+    sciChartSurface.xAxes.add(
+      new NumericAxis(wasmContext, {
+        drawMinorGridLines: false,
+        maxAutoTicks: 6,
+      })
+    );
     sciChartSurface.yAxes.add(
-      new NumericAxis(wasmContext, { growBy: new NumberRange(0.05, 0.05) })
+      new NumericAxis(wasmContext, {
+        growBy: new NumberRange(0.05, 0.05),
+        drawMinorGridLines: false,
+        maxAutoTicks: 6,
+      })
     );
 
     for (let i = 0; i < data.length; i++) {

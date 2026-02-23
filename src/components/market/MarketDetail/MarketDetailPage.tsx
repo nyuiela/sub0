@@ -4,12 +4,14 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarketById } from "@/store/slices/marketsSlice";
+import { addRecent } from "@/store/slices/recentSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import { getActivities, getMarketHolders, getMarketTraders } from "@/lib/api/activities";
 import { getMarketPrices } from "@/lib/api/prices";
 import type { ActivityItem, MarketHolderItem, MarketTraderItem } from "@/types/activity.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
 import { MarketLeftColumn } from "./MarketLeftColumn";
+import { MarketDetailLayout } from "./MarketDetailLayout";
 import { OutcomeProbabilityChart } from "./OutcomeProbabilityChart";
 import { OrderBookDepthChart } from "./OrderBookDepthChart";
 import { MarketDetailTabs } from "./MarketDetailTabs";
@@ -66,6 +68,13 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   }, [fetchDetails]);
 
   const market = selectedMarket?.id === marketId ? selectedMarket : null;
+
+  useEffect(() => {
+    if (market?.id != null && market?.name != null) {
+      dispatch(addRecent({ type: "market", id: market.id, label: market.name }));
+    }
+  }, [market?.id, market?.name, dispatch]);
+
   const holdersCount = market?.uniqueStakersCount ?? holders.length;
 
   if (detailLoading && market == null) {
@@ -114,73 +123,68 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const volume = market.totalVolume ?? market.volume ?? "0";
   const volumeFormatted = formatVolume(volume);
 
-  return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
-      {/* <header className="mb-4 flex flex-wrap items-center justify-between gap-4 pb-4">
+  const sidebar = (
+    <div className="flex min-h-0 flex-1 flex-col overflow-auto p-2">
+      <MarketLeftColumn marketId={marketId} marketPrices={marketPrices} className="min-h-0 flex-1" />
+    </div>
+  );
 
-        <Link
-          href="/"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          Back to markets
-        </Link>
-      </header> */}
-
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto lg:min-h-[400px]">
-          <MarketLeftColumn marketId={marketId} marketPrices={marketPrices} className="min-h-0 flex-1" />
-        </div>
-
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">
-          <div className="flex items-center gap-3">
-            {market.imageUrl != null ? (
-              <Image
-                src={market.imageUrl}
-                alt="alt"
-                className="h-10 w-10 rounded-full object-cover"
-                width={40}
-                height={40}
-              />
-            ) : (
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
-                {market.name.slice(0, 2).toUpperCase()}
-              </span>
-            )}
-            <div>
-              <h1 className="text-lg font-semibold text-foreground">{market.name}</h1>
-              <p className="text-sm text-muted-foreground">
-                Vol {volumeFormatted} · Holders {holdersCount} · Trades {market.totalTrades ?? 0}
-              </p>
-            </div>
-          </div>
-          <OutcomeProbabilityChart
-            marketId={marketId}
-            marketPrices={marketPrices}
-            className="shrink-0"
+  const main = (
+    <div className="flex min-h-0 flex-1 flex-col overflow-auto gap-3 p-2">
+      <div className="flex items-center gap-3 shrink-0">
+        {market.imageUrl != null ? (
+          <Image
+            src={market.imageUrl}
+            alt=""
+            className="h-10 w-10 rounded-full object-cover"
+            width={40}
+            height={40}
           />
-          <MarketDetailTabs
-            marketId={marketId}
-            holdersCount={holdersCount}
-            activityItems={activities}
-            holders={holders}
-            traders={traders}
-            className="min-h-0 flex-1"
-          />
-        </div>
-
-        <div className="flex min-w-0 flex-col flex-1 overflow-auto">
-          <MarketTradePanel
-            marketId={marketId}
-            marketStatus={market.status}
-            outcomes={market.outcomes}
-            marketPrices={marketPrices}
-            className=""
-          />
-          <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
-          <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
-          <MarketInfoPanel market={market} marketPrices={marketPrices} className="shrink-0" />
+        ) : (
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
+            {market.name.slice(0, 2).toUpperCase()}
+          </span>
+        )}
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">{market.name}</h1>
+          <p className="text-sm text-muted-foreground">
+            Vol {volumeFormatted} · Holders {holdersCount} · Trades {market.totalTrades ?? 0}
+          </p>
         </div>
       </div>
+      <OutcomeProbabilityChart
+        marketId={marketId}
+        marketPrices={marketPrices}
+        className="shrink-0"
+      />
+      <MarketDetailTabs
+        marketId={marketId}
+        holdersCount={holdersCount}
+        activityItems={activities}
+        holders={holders}
+        traders={traders}
+        className="min-h-0 flex-1"
+      />
+    </div>
+  );
+
+  const trade = (
+    <div className="flex min-w-0 flex-1 flex-col overflow-auto gap-3 p-2">
+      <MarketTradePanel
+        marketId={marketId}
+        marketStatus={market.status}
+        outcomes={market.outcomes}
+        marketPrices={marketPrices}
+      />
+      <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
+      <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
+      <MarketInfoPanel market={market} marketPrices={marketPrices} className="shrink-0" />
+    </div>
+  );
+
+  return (
+    <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
+      <MarketDetailLayout sidebar={sidebar} main={main} trade={trade} className="min-h-0 flex-1" />
     </main>
   );
 }

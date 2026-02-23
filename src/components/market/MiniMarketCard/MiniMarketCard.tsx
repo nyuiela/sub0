@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import type { Market } from "@/types/market.types";
 import Image from "next/image";
+import { useAppDispatch } from "@/store/hooks";
+import { addRecent } from "@/store/slices/recentSlice";
+import { getDiceBearAvatarUrl } from "@/lib/avatar";
+import type { Market } from "@/types/market.types";
+
 const AVATAR_SIZE = 94;
 
 function formatMc(value: string | undefined): string {
@@ -38,19 +42,13 @@ function truncateAddress(addr: string, head = 4, tail = 4): string {
   return `${addr.slice(0, head)}..${addr.slice(-tail)}`;
 }
 
-function nameInitials(name: string): string {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] ?? "").toUpperCase() + (parts[1][0] ?? "").toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
-}
-
 export interface MiniMarketCardProps {
   market: Market;
   onBuy?: (market: Market) => void;
   onSell?: (market: Market) => void;
   quickBuyAmount?: string;
+  /** When false, Buy/Sell actions are hidden (e.g. tracker column). Default true. */
+  showActions?: boolean;
   className?: string;
 }
 
@@ -59,8 +57,10 @@ export function MiniMarketCard({
   onBuy,
   onSell,
   quickBuyAmount = "$100",
+  showActions = true,
   className = "",
 }: MiniMarketCardProps) {
+  const dispatch = useAppDispatch();
   const volume = market.totalVolume ?? market.volume ?? "0";
   const mcFormatted = formatMc(volume);
   const vFormatted = volume && !Number.isNaN(Number(volume))
@@ -88,16 +88,21 @@ export function MiniMarketCard({
             alt=""
             width={AVATAR_SIZE}
             height={AVATAR_SIZE}
-            className="h-12 w-12 object-cover"
+            className="h-12 w-12 rounded-sm object-cover"
             loading="lazy"
           />
         ) : (
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-sm bg-border text-sm font-semibold text-muted"
-            style={{ minWidth: AVATAR_SIZE, minHeight: AVATAR_SIZE }}
-          >
-            {nameInitials(market.name)}
-          </div>
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element -- DiceBear data URI */}
+            <img
+            src={getDiceBearAvatarUrl(market.id, "market")}
+            alt=""
+            width={AVATAR_SIZE}
+            height={AVATAR_SIZE}
+            className="h-12 w-12 rounded-sm object-cover"
+            loading="lazy"
+            />
+          </>
         )}
       </figure>
 
@@ -106,6 +111,7 @@ export function MiniMarketCard({
           <h2 id={`market-name-${market.id}`} className="text-sm font-semibold line-clamp-2 text-ellipsis">
             <Link
               href={`/market/${market.id}`}
+              onClick={() => dispatch(addRecent({ type: "market", id: market.id, label: market.name }))}
               className="text-foreground transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               {market.name}
@@ -154,7 +160,7 @@ export function MiniMarketCard({
             )}
         </div>
         <p className="text-[10px] text-muted">
-          <span className="text-muted">{market.conditionId.slice(0, 4)}…{market.conditionId.slice(-4)}</span>
+          <span className="text-muted">{(market.conditionId ?? "").slice(0, 4)}…{(market.conditionId ?? "").slice(-4)}</span>
           <span className="text-success"> F </span>${Number(volume) > 0 ? (Number(volume) * 0.01).toFixed(3) : "0"}
           <span className="text-info"> TX </span>{market.totalTrades ?? 0}
         </p>
@@ -169,28 +175,30 @@ export function MiniMarketCard({
             V ${vFormatted}
           </p>
         </div>
-        <div className="mt-auto flex flex-col items-stretch gap-1.5">
-          <button
-            type="button"
-            onClick={() => onBuy?.(market)}
-            disabled={market.status !== "OPEN"}
-            className="cursor-pointer rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label={`Buy ${quickBuyAmount} on ${market.name}`}
-          >
-            {quickBuyAmount}
-          </button>
-          {onSell != null && (
+        {showActions && (
+          <div className="mt-auto flex flex-col items-stretch gap-1.5">
             <button
               type="button"
-              onClick={() => onSell(market)}
+              onClick={() => onBuy?.(market)}
               disabled={market.status !== "OPEN"}
-              className="cursor-pointer rounded-lg bg-danger px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={`Sell on ${market.name}`}
+              className="cursor-pointer rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label={`Buy ${quickBuyAmount} on ${market.name}`}
             >
-              Sell
+              {quickBuyAmount}
             </button>
-          )}
-        </div>
+            {onSell != null && (
+              <button
+                type="button"
+                onClick={() => onSell(market)}
+                disabled={market.status !== "OPEN"}
+                className="cursor-pointer rounded-lg bg-danger px-4 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={`Sell on ${market.name}`}
+              >
+                Sell
+              </button>
+            )}
+          </div>
+        )}
       </aside>
     </article>
   );

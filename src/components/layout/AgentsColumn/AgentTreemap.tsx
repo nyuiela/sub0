@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { stratify, treemap } from "d3-hierarchy";
 import type { Agent } from "@/types/agent.types";
+import { getSciChartThemeOverrides } from "@/lib/scichart/theme";
 
 const TREEMAP_WIDTH = 10;
 const TREEMAP_HEIGHT = 8;
@@ -22,6 +23,12 @@ interface TreemapDataItem {
   parent: string;
   value: number;
   progress: number;
+}
+
+function formatPnlForTreemap(pnl: number): string {
+  if (pnl === 0) return "0";
+  const sign = pnl > 0 ? "+" : "";
+  return `${sign}${Number(pnl).toFixed(1)}`;
 }
 
 function prepareTreemapData(agents: Agent[]): TreemapDataItem[] {
@@ -70,9 +77,11 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
     let cancelled = false;
 
     const init = async () => {
+      const scichart = await import("scichart");
       const [
         SciChartSurface,
         NumericAxis,
+        NumberRange,
         FastRectangleRenderableSeries,
         XyxyDataSeries,
         EColumnMode,
@@ -80,21 +89,32 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
         EResamplingMode,
         parseColorToUIntArgb,
         SciChartJsNavyTheme,
+        TextAnnotation,
+        ECoordinateMode,
+        EVerticalAnchorPoint,
+        EHorizontalAnchorPoint,
       ] = await Promise.all([
-        import("scichart").then((m) => m.SciChartSurface),
-        import("scichart").then((m) => m.NumericAxis),
-        import("scichart").then((m) => m.FastRectangleRenderableSeries),
-        import("scichart").then((m) => m.XyxyDataSeries),
-        import("scichart").then((m) => m.EColumnMode),
-        import("scichart").then((m) => m.EColumnYMode),
-        import("scichart").then((m) => m.EResamplingMode),
-        import("scichart").then((m) => m.parseColorToUIntArgb),
-        import("scichart").then((m) => m.SciChartJsNavyTheme),
+        Promise.resolve(scichart.SciChartSurface),
+        Promise.resolve(scichart.NumericAxis),
+        Promise.resolve(scichart.NumberRange),
+        Promise.resolve(scichart.FastRectangleRenderableSeries),
+        Promise.resolve(scichart.XyxyDataSeries),
+        Promise.resolve(scichart.EColumnMode),
+        Promise.resolve(scichart.EColumnYMode),
+        Promise.resolve(scichart.EResamplingMode),
+        Promise.resolve(scichart.parseColorToUIntArgb),
+        Promise.resolve(scichart.SciChartJsNavyTheme),
+        Promise.resolve(scichart.TextAnnotation),
+        Promise.resolve(scichart.ECoordinateMode),
+        Promise.resolve(scichart.EVerticalAnchorPoint),
+        Promise.resolve(scichart.EHorizontalAnchorPoint),
       ]);
 
       if (cancelled) return;
-      // useWasmFromCDN is a method, not a React hook
-      await (SciChartSurface as { useWasmFromCDN: () => Promise<void> }).useWasmFromCDN();
+      const Surface = SciChartSurface as unknown as { useWasmFromCDN?: () => void | Promise<void> };
+      if (typeof Surface.useWasmFromCDN === "function") {
+        await Surface.useWasmFromCDN();
+      }
 
       const items = prepareTreemapData(agents);
       const leaves = prepareLayout(items);
@@ -115,9 +135,9 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
           _y: number,
           _index: number,
           _opacity: number | undefined,
-          metadata?: IPointMetadata
+          metadata?: unknown
         ): number => {
-          const p = (metadata as unknown as TreemapDataItem)?.progress ?? 0;
+          const p = (metadata as TreemapDataItem | undefined)?.progress ?? 0;
           if (p === 0) return gray;
           const t =
             p > 0
@@ -137,10 +157,12 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
           const b = Math.round(s.b + (e.b - s.b) * t);
           return (0xff << 24) | (r << 16) | (g << 8) | b;
         },
-      } as IFillPaletteProvider;
+      };
 
+      const baseTheme = new SciChartJsNavyTheme();
+      const themeOverrides = getSciChartThemeOverrides();
       const { sciChartSurface, wasmContext } = await SciChartSurface.create(el, {
-        theme: new SciChartJsNavyTheme(),
+        theme: { ...baseTheme, ...themeOverrides },
       });
       if (cancelled) {
         sciChartSurface.delete();
@@ -148,10 +170,14 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
       }
       surfaceRef.current = { sciChartSurface, wasmContext };
 
-      const xAxis = new NumericAxis(wasmContext, { isVisible: false });
+      const xAxis = new NumericAxis(wasmContext, {
+        isVisible: false,
+        visibleRange: new NumberRange(0, TREEMAP_WIDTH),
+      });
       const yAxis = new NumericAxis(wasmContext, {
         isVisible: false,
         flippedCoordinates: true,
+        visibleRange: new NumberRange(0, TREEMAP_HEIGHT),
       });
       sciChartSurface.xAxes.add(xAxis);
       sciChartSurface.yAxes.add(yAxis);
@@ -162,16 +188,36 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
           yValues: leaves.map((d) => d.y0),
           x1Values: leaves.map((d) => d.x1),
           y1Values: leaves.map((d) => d.y1),
-          metadata: leaves.map((d) => d.data),
+          metadata: leaves.map((d) => ({ ...d.data, isSelected: false })),
         }),
         columnXMode: EColumnMode.StartEnd,
         columnYMode: EColumnYMode.TopBottom,
         strokeThickness: 1,
-        stroke: 0x55ffffff,
+        stroke: "#55ffffff",
         resamplingMode: EResamplingMode.None,
         paletteProvider,
       });
       sciChartSurface.renderableSeries.add(rectangleSeries);
+
+      for (const leaf of leaves) {
+        const cx = (leaf.x0 + leaf.x1) / 2;
+        const cy = (leaf.y0 + leaf.y1) / 2;
+        const shortName = leaf.data.shortName ?? leaf.data.name.slice(0, 8);
+        const pnlStr = formatPnlForTreemap(leaf.data.progress);
+        const label = new TextAnnotation({
+          x1: cx,
+          y1: cy,
+          xCoordinateMode: ECoordinateMode.DataValue,
+          yCoordinateMode: ECoordinateMode.DataValue,
+          horizontalAnchorPoint: EHorizontalAnchorPoint.Center,
+          verticalAnchorPoint: EVerticalAnchorPoint.Center,
+          text: `${shortName}\n${pnlStr}`,
+          textColor: "#ffffff",
+          fontSize: 10,
+          fontFamily: "system-ui, sans-serif",
+        });
+        sciChartSurface.annotations.add(label);
+      }
     };
 
     void init();

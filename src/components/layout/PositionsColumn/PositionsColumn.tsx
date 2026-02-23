@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useAppDispatch } from "@/store/hooks";
+import { addRecent } from "@/store/slices/recentSlice";
 import { getPositions } from "@/lib/api/positions";
 import type { Position, PositionStatus } from "@/types/position.types";
 
@@ -59,10 +61,11 @@ function PositionsColumnSkeleton() {
       {Array.from({ length: 5 }, (_, i) => (
         <li
           key={i}
-          className="animate-pulse border-b border-border bg-surface p-3"
+          className="border-b border-border bg-surface p-3 last:border-b-0"
         >
-          <div className="mb-1 h-3 w-2/3 rounded bg-muted/50" />
-          <div className="h-3 w-1/2 rounded bg-muted/50" />
+          <div className="mb-1.5 h-3 w-2/3 animate-pulse rounded bg-muted/50" />
+          <div className="mb-1.5 h-3 w-1/2 animate-pulse rounded bg-muted/50" />
+          <div className="h-3 w-3/4 animate-pulse rounded bg-muted/50" />
         </li>
       ))}
     </ul>
@@ -78,6 +81,7 @@ export function PositionsColumn({
   address,
   className = "",
 }: PositionsColumnProps) {
+  const dispatch = useAppDispatch();
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -165,6 +169,15 @@ export function PositionsColumn({
                 <h4 className="text-sm font-semibold text-foreground">
                   <Link
                     href={`/market/${pos.marketId}`}
+                    onClick={() =>
+                      dispatch(
+                        addRecent({
+                          type: "market",
+                          id: pos.marketId,
+                          label: pos.market?.name ?? pos.marketId.slice(0, 8),
+                        })
+                      )
+                    }
                     className="line-clamp-2 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                   >
                     {pos.market?.name ?? pos.marketId.slice(0, 8)}
