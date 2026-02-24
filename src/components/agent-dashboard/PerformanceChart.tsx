@@ -159,10 +159,12 @@ export function PerformanceChart({ tracks, className = "" }: PerformanceChartPro
                 labelFormatter={(_, payload) =>
                   payload?.[0]?.payload?.date ?? ""
                 }
-                formatter={(value: number, name: string) => {
-                  if (name === "Cumulative PnL") return [value.toFixed(2), "PnL"];
-                  if (name === "LLM Cost") return [`$${value.toFixed(4)}`, "Cost"];
-                  return [value, name];
+                formatter={(value, name) => {
+                  const v = typeof value === "number" ? value : 0;
+                  const n = name ?? "";
+                  if (n === "Cumulative PnL") return [v.toFixed(2), "PnL"];
+                  if (n === "LLM Cost") return [`$${v.toFixed(4)}`, "Cost"];
+                  return [v, n];
                 }}
               />
               <Legend

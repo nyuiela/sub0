@@ -13,17 +13,26 @@ import {
 const tabButtonBase =
   "rounded-md border border-transparent px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
-export function PrimaryTabs() {
+export interface PrimaryTabsProps {
+  /** When false, Settings (wallet) tab is hidden. Default true. */
+  isRegistered?: boolean;
+}
+
+export function PrimaryTabs({ isRegistered = true }: PrimaryTabsProps) {
   const pathname = usePathname();
   const router = useRouter();
   const activeTab = useAppSelector((state) => state.layout.activePrimaryTab);
   const dispatch = useAppDispatch();
   const isSettingsPage = pathname?.startsWith("/settings") ?? false;
 
+  const tabIds = isRegistered
+    ? PRIMARY_TAB_IDS
+    : PRIMARY_TAB_IDS.filter((id) => id !== "wallet");
+
   return (
     <nav aria-label="Primary navigation">
       <ul className="flex flex-wrap items-center gap-1">
-        {PRIMARY_TAB_IDS.map((tabId: PrimaryTabId) => {
+        {tabIds.map((tabId: PrimaryTabId) => {
           const isWallet = tabId === "wallet";
           const isActive = isWallet ? isSettingsPage : !isSettingsPage && activeTab === tabId;
 

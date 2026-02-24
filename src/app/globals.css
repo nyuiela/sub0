@@ -74,6 +74,10 @@
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
   --color-info: #3B82F6;
+  --color-accent-violet: #A855F7;
+  --color-accent-violet-hover: #9333EA;
+  --color-accent-blue: #3B82F6;
+  --color-accent-blue-hover: #2563EB;
 }
 
 /* ==========================================================================
@@ -94,6 +98,10 @@
   --color-warning: #FBBF24;
   --color-danger: #F87171;
   --color-info: #60A5FA;
+  --color-accent-violet: #C084FC;
+  --color-accent-violet-hover: #A855F7;
+  --color-accent-blue: #60A5FA;
+  --color-accent-blue-hover: #3B82F6;
 }
 
 /* ==========================================================================
@@ -114,6 +122,10 @@
   --color-warning: #D29922;
   --color-danger: #F85149;
   --color-info: #58A6FF;
+  --color-accent-violet: #A78BFA;
+  --color-accent-violet-hover: #8B5CF6;
+  --color-accent-blue: #58A6FF;
+  --color-accent-blue-hover: #3794FF;
 }
 
 /* ==========================================================================
@@ -135,6 +147,10 @@
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
   --color-info: var(--color-info);
+  --color-accent-violet: var(--color-accent-violet);
+  --color-accent-violet-hover: var(--color-accent-violet-hover);
+  --color-accent-blue: var(--color-accent-blue);
+  --color-accent-blue-hover: var(--color-accent-blue-hover);
 
   /* Font families (injected by layout; fallbacks for SSR). */
   --font-sans: var(--font-sans-fallback, ui-sans-serif, system-ui, sans-serif);

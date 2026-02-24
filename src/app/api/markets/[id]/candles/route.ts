@@ -65,5 +65,7 @@ export async function GET(
       `[candles] ${id} outcomeIndex=${outcomeIndex ?? "none"} -> ${res.status} (${data.length} candles)`
     );
   }
-  return NextResponse.json<CandlesResponse>({ data, resolution });
+  const resolutionOut: CandlesResponse["resolution"] =
+    resolution === "1m" || resolution === "1d" ? resolution : "1h";
+  return NextResponse.json<CandlesResponse>({ data, resolution: resolutionOut });
 }

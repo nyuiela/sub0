@@ -79,7 +79,7 @@ export async function getMyAgents(
   params: AgentListParams = {}
 ): Promise<AgentListResponse> {
   const qs = new URLSearchParams();
-  if (params.status != null && params.status !== "")
+  if (params.status != null)
     qs.set("status", params.status);
   const limit =
     params.limit != null
@@ -119,7 +119,7 @@ export async function getAgents(
   const qs = new URLSearchParams();
   if (params.ownerId != null && params.ownerId !== "")
     qs.set("ownerId", params.ownerId);
-  if (params.status != null && params.status !== "")
+  if (params.status != null)
     qs.set("status", params.status);
   const limit =
     params.limit != null
@@ -170,7 +170,7 @@ export async function getAgentsPublic(
   params: AgentPublicListParams = {}
 ): Promise<AgentPublicListResponse> {
   const qs = new URLSearchParams();
-  if (params.status != null && params.status !== "")
+  if (params.status != null)
     qs.set("status", params.status);
   const limit =
     params.limit != null

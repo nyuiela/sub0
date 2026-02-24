@@ -1,5 +1,6 @@
 "use client";
 
+import { Toaster } from "sonner";
 import { ReduxProvider } from "./ReduxProvider";
 import { ThemeProvider } from "./ThemeProvider";
 import { ThirdwebProvider } from "@/components/auth";
@@ -12,6 +13,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <ThemeProvider>
           <WebSocketConnector />
           {children}
+          <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </ThirdwebProvider>
     </ReduxProvider>

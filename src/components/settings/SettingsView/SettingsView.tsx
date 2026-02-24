@@ -2,11 +2,11 @@
 
 import { useState, useCallback } from "react";
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
-import { AccountSection } from "@/components/settings/AccountSection";
-import { WalletsSection } from "@/components/settings/WalletsSection";
-import { AgentsSection } from "@/components/settings/AgentsSection";
+import { ProfileTab } from "@/components/settings/ProfileTab";
+import { AgentStudioForm } from "@/components/settings/AgentStudioForm";
+import { VaultTab } from "@/components/settings/VaultTab";
+import { DeveloperApiTab } from "@/components/settings/DeveloperApiTab";
 import { AgentEditSection } from "@/components/settings/AgentEditSection";
-import { TemplatesSection } from "@/components/settings/TemplatesSection";
 import {
   SETTINGS_SECTIONS,
   type SettingsSectionId,
@@ -27,11 +27,11 @@ function isAgentEditView(viewId: SettingsViewId): boolean {
 }
 
 export function SettingsView() {
-  const [currentView, setCurrentView] = useState<SettingsViewId>("account");
+  const [currentView, setCurrentView] = useState<SettingsViewId>("profile");
 
   const handleBack = useCallback(() => {
     setCurrentView((prev) => {
-      if (isAgentEditView(prev)) return "agents";
+      if (isAgentEditView(prev)) return "agent-studio";
       return null;
     });
   }, []);
@@ -100,12 +100,10 @@ export function SettingsView() {
           </h1>
         </header>
 
-          {currentView === "account" && <AccountSection />}
-          {currentView === "wallets" && <WalletsSection />}
-          {currentView === "agents" && (
-            <AgentsSection onSelectAgent={handleSelectAgent} />
-          )}
-          {currentView === "templates" && <TemplatesSection />}
+          {currentView === "profile" && <ProfileTab />}
+          {currentView === "agent-studio" && <AgentStudioForm />}
+          {currentView === "vault" && <VaultTab />}
+          {currentView === "developer-api" && <DeveloperApiTab />}
 
           {isAgentEditView(currentView) && (
             <AgentEditSection agentId={currentView} />

@@ -32,7 +32,6 @@ const detailsButtonClassName =
   "rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
 export function AuthButton() {
-  const router = useRouter();
   const themeId = useAppSelector((state) => state.theme.themeId);
 
   if (!thirdwebClient) {
@@ -74,13 +73,13 @@ export function AuthButton() {
           if (!result.success) {
             throw new Error("Login failed");
           }
-          const sessionRes = await fetch("/api/auth/session", {
-            credentials: "include",
-          });
-          const data = (await sessionRes.json()) as SessionResponse;
-          if (data.loggedIn === true && data.registered === false) {
-            router.replace("/register");
-          }
+          // const sessionRes = await fetch("/api/auth/session", {
+          //   credentials: "include",
+          // });
+          // const data = (await sessionRes.json()) as SessionResponse;
+          // if (data.loggedIn === true && data.registered === false) {
+          //   router.replace("/register");
+          // }
         },
         getLoginPayload: async ({ address }) => {
           return generatePayload({ address });

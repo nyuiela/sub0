@@ -19,7 +19,7 @@ export async function getPositions(
     qs.set("agentId", params.agentId);
   if (params.address != null && params.address !== "")
     qs.set("address", params.address);
-  if (params.status != null && params.status !== "")
+  if (params.status != null)
     qs.set("status", params.status);
   const limit =
     params.limit != null

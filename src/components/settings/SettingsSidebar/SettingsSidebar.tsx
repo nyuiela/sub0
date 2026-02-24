@@ -11,7 +11,7 @@ function getActiveSectionId(viewId: SettingsViewId): SettingsSectionId | null {
   if (viewId == null) return null;
   if (SETTINGS_SECTION_IDS.includes(viewId as SettingsSectionId))
     return viewId as SettingsSectionId;
-  if (typeof viewId === "string") return "agents";
+  if (typeof viewId === "string") return "agent-studio";
   return null;
 }
 

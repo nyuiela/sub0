@@ -1,13 +1,33 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PrimaryTabs } from "@/components/layout/PrimaryTabs";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { AccountBar } from "@/components/layout/AccountBar";
 import { AuthButton } from "@/components/auth";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { getCurrentUser } from "@/lib/api/auth";
 
 export function TopNav() {
+  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    getCurrentUser()
+      .then((user) => {
+        if (!cancelled) setIsRegistered(user != null && (user.id != null || user.address != null));
+      })
+      .catch(() => {
+        if (!cancelled) setIsRegistered(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const showRegister = isRegistered === false;
+
   return (
     <header className="sticky top-0 z-40 bg-surface px-4">
       <section className="flex flex-wrap items-center gap-2 py-2 sm:gap-3 sm:py-1 w-full justify-between">
@@ -18,13 +38,21 @@ export function TopNav() {
           >
             Sub0
           </Link>
-          <PrimaryTabs />
+          <PrimaryTabs isRegistered={isRegistered !== false} />
         </div>
 
         <SearchBar />
         <div className="flex shrink-0 items-center gap-2">
           <ThemeSwitcher />
           <AccountBar />
+          {showRegister && (
+            <Link
+              href="/register"
+              className="rounded-md border border-primary bg-transparent px-3 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            >
+              Register
+            </Link>
+          )}
           <AuthButton />
         </div>
       </section>

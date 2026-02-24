@@ -80,17 +80,20 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   if (detailLoading && market == null) {
     return (
       <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
-        <header className="mb-4 h-14 animate-pulse rounded-lg bg-muted" />
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
-          <div className="min-h-[200px] animate-pulse rounded-lg bg-muted" />
-          <div className="flex flex-col gap-4">
-            <div className="min-h-[280px] animate-pulse rounded-lg bg-muted" />
-            <div className="min-h-[200px] animate-pulse rounded-lg bg-muted" />
-          </div>
-          <div className="flex flex-col gap-4">
-            <div className="min-h-[320px] animate-pulse rounded-lg bg-muted" />
-            <div className="min-h-[180px] animate-pulse rounded-lg bg-muted" />
-          </div>
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
+          <aside className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface">
+            <div className="h-10 shrink-0 animate-pulse rounded-t-lg bg-muted/50" />
+            <div className="min-h-[200px] flex-1 animate-pulse rounded-b-lg bg-muted/30" />
+          </aside>
+          <section className="flex flex-col gap-3 overflow-hidden">
+            <div className="h-14 shrink-0 animate-pulse rounded-lg border border-border bg-surface" />
+            <div className="min-h-[280px] flex-1 animate-pulse rounded-lg border border-border bg-surface" />
+            <div className="min-h-[120px] shrink-0 animate-pulse rounded-lg border border-border bg-surface" />
+          </section>
+          <aside className="flex flex-col gap-3 overflow-hidden">
+            <div className="min-h-[320px] animate-pulse rounded-lg border border-border bg-surface" />
+            <div className="min-h-[180px] animate-pulse rounded-lg border border-border bg-surface" />
+          </aside>
         </div>
       </main>
     );
