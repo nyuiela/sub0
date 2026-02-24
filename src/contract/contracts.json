@@ -2,12 +2,12 @@
   "chainId": 84532,
   "chainSelectorName": "ethereum-testnet-sepolia-base-1",
   "contracts": {
-    "sub0": "0x7bf8ea2f79A6cA9dbc870ACa0e003d1CCb885306",
-    "predictionVault": "0xc2631ab40ed1a7D64f30C744188742Fb8DaEd48B",
-    "conditionalTokens": "0x1845ec008D0791b075a04ef76807733065714653",
-    "vault": "0x2Fe3ff45A327c3CF82d55CAa1b1f9641B4c70b55",
-    "usdc": "0xD44b22769E09D79791703d0225119E8d7D09b736",
-    "hub": "0xc393C4C586E2c72842e7BCF8C7FF73d79DdEF16b"
+    "sub0": "0x78bE5078c6614D43a730eeC5323fa45d7bd829b7",
+    "predictionVault": "0x8f7baaEf7f15acc36eeBEA97370414eeC2F0FD79",
+    "conditionalTokens": "0x732754D455DB204990A8a1EC07552dF0d1fCB349",
+    "vault": "0x6049dE7e1ecceBcF7b39EF9A2fd639e3E6925f32",
+    "usdc": "0x8D2F94cd1831c1b41a784f3E1c29BD3f047b7E49",
+    "hub": "0xb18f47F9F0dd0FC0fC2d09C8bf0BecBf16368371"
   },
   "eip712": {
     "domainName": "Sub0PredictionVault",
