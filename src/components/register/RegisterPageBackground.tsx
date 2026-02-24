@@ -26,8 +26,8 @@ export function RegisterPageBackground({ children }: RegisterPageBackgroundProps
       >
         <Particles
           particleColors={particleColors}
-          particleCount={200}
-          particleSpread={10}
+          particleCount={400}
+          particleSpread={8}
           speed={0.1}
           particleBaseSize={100}
           moveParticlesOnHover

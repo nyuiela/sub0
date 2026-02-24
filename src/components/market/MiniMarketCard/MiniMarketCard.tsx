@@ -46,6 +46,8 @@ export interface MiniMarketCardProps {
   market: Market;
   onBuy?: (market: Market) => void;
   onSell?: (market: Market) => void;
+  /** Called when user clicks "Add to agent" to assign this market to an agent for trading. */
+  onAddToAgent?: (market: Market) => void;
   quickBuyAmount?: string;
   /** When false, Buy/Sell actions are hidden (e.g. tracker column). Default true. */
   showActions?: boolean;
@@ -56,6 +58,7 @@ export function MiniMarketCard({
   market,
   onBuy,
   onSell,
+  onAddToAgent,
   quickBuyAmount = "$100",
   showActions = true,
   className = "",
@@ -180,13 +183,24 @@ export function MiniMarketCard({
           <div className="mt-auto flex flex-col items-stretch gap-1.5">
             <button
               type="button"
-              onClick={() => onBuy?.(market)}
+              onClick={() => onAddToAgent?.(market)}
               disabled={market.status !== "OPEN"}
               className="cursor-pointer rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={`Buy ${quickBuyAmount} on ${market.name}`}
+              aria-label={`Add ${market.name} to agent`}
             >
-              {quickBuyAmount}
+              Add to agent
             </button>
+            {onBuy != null && (
+              <button
+                type="button"
+                onClick={() => onBuy(market)}
+                disabled={market.status !== "OPEN"}
+                className="cursor-pointer rounded-lg border border-border bg-surface px-3 py-2 text-xs font-medium text-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label={`Buy ${quickBuyAmount} on ${market.name}`}
+              >
+                {quickBuyAmount}
+              </button>
+            )}
             {onSell != null && (
               <button
                 type="button"

@@ -153,7 +153,10 @@ export function DraggableColumns() {
                   {COLUMN_LABELS[columnId] ?? columnId}
                 </h3>
               </header>
-              <div className="flex-1 overflow-auto p-1 min-h-0">
+              <div
+                className="scrollbar-hidden flex-1 overflow-auto p-1 min-h-0"
+                data-column-scroll
+              >
                 {columnId === "new" ? (
                   <MiniMarketsContainer />
                 ) : columnId === "news" ? (

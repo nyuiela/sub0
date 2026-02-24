@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAgents } from "@/lib/api/agents";
+import { getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "@/components/layout/AgentsColumn/AgentTreemap";
@@ -46,16 +46,20 @@ export function TrackerAgentColumn({
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getAgents({ limit: AGENTS_LIMIT })
+    getMyAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
         if (!cancelled) {
-          setAgents(res.data ?? []);
+          const list = res.data ?? [];
+          setAgents(list);
+          if (list.length > 0 && selectedAgentId == null) {
+            onSelectAgent(list[0] ?? null);
+          }
           setLoading(false);
         }
       })
       .catch((err) => {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : "Failed to load agents";
+          const message = err instanceof Error ? err.message : "Sign in to see your agents.";
           setError(message);
           setAgents([]);
           setLoading(false);
@@ -64,7 +68,7 @@ export function TrackerAgentColumn({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [onSelectAgent, selectedAgentId]);
 
   if (error != null) {
     const isUnauth = error.includes("401") || error.toLowerCase().includes("unauthorized");
@@ -157,9 +161,18 @@ export function TrackerAgentColumn({
                         <span className={statusColor(agent.status)}>
                           {agent.status}
                         </span>
+                        <span className="text-muted">Bal {Number(agent.balance).toFixed(2)}</span>
                         <span className={pnlClass}>PnL {formatPnl(pnl)}</span>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={(e) => e.stopPropagation()}
+                      className="shrink-0 rounded-md border border-transparent bg-success px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      aria-label={`Deposit to ${agent.name || "agent"}`}
+                    >
+                      Deposit
+                    </button>
                   </button>
                 </li>
               );

@@ -242,3 +242,22 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Hide scrollbars while keeping scroll behavior (Agents, Markets, Positions, News columns). */
+.scrollbar-hidden,
+[data-column-scroll] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.scrollbar-hidden::-webkit-scrollbar,
+[data-column-scroll]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.scrollbar-hidden::-webkit-scrollbar-track,
+.scrollbar-hidden::-webkit-scrollbar-thumb,
+[data-column-scroll]::-webkit-scrollbar-track,
+[data-column-scroll]::-webkit-scrollbar-thumb {
+  display: none !important;
+}

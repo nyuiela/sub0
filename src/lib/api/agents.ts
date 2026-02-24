@@ -305,6 +305,26 @@ export async function updateAgent(
 }
 
 /**
+ * Enqueue a market for an agent (add market to agent so agent trades on it).
+ * Requires auth; agent must belong to current user.
+ */
+export async function enqueueAgentMarket(
+  params: { marketId: string; agentId: string }
+): Promise<{ jobId: string }> {
+  const res = await fetch("/api/agent/enqueue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(params),
+  });
+  const data = (await res.json().catch(() => ({}))) as { jobId?: string; error?: string };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Add to agent failed");
+  }
+  return { jobId: data.jobId ?? "" };
+}
+
+/**
  * Delete an agent. Owner or API key only. Returns 204 no body.
  */
 export async function deleteAgent(id: string): Promise<void> {

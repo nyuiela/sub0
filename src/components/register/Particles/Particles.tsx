@@ -102,8 +102,8 @@ const fragment = /* glsl */ `
 `;
 
 export function Particles({
-  particleCount = 200,
-  particleSpread = 10,
+  particleCount = 400,
+  particleSpread = 40,
   speed = 0.1,
   particleColors,
   moveParticlesOnHover = false,

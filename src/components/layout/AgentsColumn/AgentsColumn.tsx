@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAgents } from "@/lib/api/agents";
+import { getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "./AgentTreemap";
@@ -89,7 +89,7 @@ export function AgentsColumn({
         setError(null);
       }
     });
-    getAgents({ limit, status })
+    getMyAgents({ limit, status })
       .then((res) => {
         if (!cancelled) {
           setAgents(res.data ?? []);
@@ -98,7 +98,7 @@ export function AgentsColumn({
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Failed to load agents");
+          setError(err instanceof Error ? err.message : "Sign in to see your agents.");
           setAgents([]);
           setLoading(false);
         }
@@ -181,6 +181,15 @@ export function AgentsColumn({
                     <p className="mt-1 text-[10px] text-muted">
                       {formatTimeAgo(agent.updatedAt)}
                     </p>
+                  </div>
+                  <div className="shrink-0 self-center">
+                    <button
+                      type="button"
+                      className="cursor-pointer rounded-md border border-transparent bg-success px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      aria-label={`Deposit to ${agent.name || "agent"}`}
+                    >
+                      Deposit
+                    </button>
                   </div>
                 </section>
               </li>
