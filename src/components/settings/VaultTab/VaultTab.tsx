@@ -10,6 +10,7 @@ import {
   depositVault,
   withdrawVault,
 } from "@/lib/api/settings";
+import { MintUsdcButton } from "@/components/settings/MintUsdcButton/MintUsdcButton";
 
 export function VaultTab() {
   const [balance, setBalance] = useState<string>("0");
@@ -78,6 +79,8 @@ export function VaultTab() {
           {balanceLoading ? "…" : balance} USDC
         </p>
       </article>
+
+      <MintUsdcButton />
 
       <div className="grid gap-6 sm:grid-cols-2">
         <article

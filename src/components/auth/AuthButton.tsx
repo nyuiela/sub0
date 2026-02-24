@@ -90,6 +90,7 @@ export function AuthButton() {
         className: connectButtonClassName,
         style: connectButtonStyle,
       }}
+      chain={baseSepolia}
       detailsButton={{
         className: detailsButtonClassName,
         style: connectButtonStyle,
