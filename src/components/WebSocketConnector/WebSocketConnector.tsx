@@ -1,18 +1,10 @@
 "use client";
 
-import { useWebSocket } from "@/lib/websocket";
-import { appConfig } from "@/config/app.config";
-
 /**
- * Mounts once inside AppProviders and establishes WebSocket connection.
- * Redux holds status and lastMessage for the rest of the app.
+ * WebSocket is managed by useMarketSocket (Markets page / Market detail).
+ * Status is synced to Redux there. This component no longer opens a separate
+ * connection (avoids connecting to echo server or duplicating backend connection).
  */
 export function WebSocketConnector() {
-  useWebSocket({
-    url: appConfig.websocketUrl,
-    enabled: appConfig.websocketEnabled,
-    reconnectMaxAttempts: 5,
-    reconnectIntervalMs: 3000,
-  });
   return null;
 }

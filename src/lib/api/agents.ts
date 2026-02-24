@@ -36,6 +36,10 @@ function normalizeAgent(raw: Record<string, unknown>): Agent {
     name: String(raw.name ?? ""),
     persona: raw.persona != null ? String(raw.persona) : null,
     publicKey: raw.publicKey != null ? String(raw.publicKey) : null,
+    walletAddress:
+      raw.walletAddress != null && String(raw.walletAddress).trim() !== ""
+        ? String(raw.walletAddress).trim()
+        : null,
     balance: parseNum(raw.balance),
     tradedAmount: parseNum(raw.tradedAmount),
     totalTrades: parseNum(raw.totalTrades),
@@ -68,6 +72,9 @@ function normalizeAgent(raw: Record<string, unknown>): Agent {
     winRate: raw.winRate != null ? parseNum(raw.winRate) : undefined,
     totalLlmTokens: raw.totalLlmTokens != null ? parseNum(raw.totalLlmTokens) : undefined,
     totalLlmCost: raw.totalLlmCost != null ? parseNum(raw.totalLlmCost) : undefined,
+    enqueuedMarketIds: Array.isArray(raw.enqueuedMarketIds)
+      ? (raw.enqueuedMarketIds as unknown[]).map((id) => String(id)).filter(Boolean)
+      : undefined,
   };
 }
 
@@ -322,6 +329,25 @@ export async function enqueueAgentMarket(
     throw new Error(data?.error ?? "Add to agent failed");
   }
   return { jobId: data.jobId ?? "" };
+}
+
+/**
+ * Remove a market from an agent's enqueued list (stops showing "Added" for that market for this agent).
+ * Requires auth; agent must belong to current user.
+ */
+export async function deleteAgentEnqueuedMarket(
+  params: { marketId: string; agentId: string }
+): Promise<void> {
+  const res = await fetch("/api/agent/enqueue", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(params),
+  });
+  if (!res.ok && res.status !== 204) {
+    const data = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(data?.error ?? "Remove from agent failed");
+  }
 }
 
 /**

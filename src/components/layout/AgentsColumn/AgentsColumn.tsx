@@ -5,6 +5,7 @@ import { getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "./AgentTreemap";
+import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
@@ -80,6 +81,7 @@ export function AgentsColumn({
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -185,6 +187,7 @@ export function AgentsColumn({
                   <div className="shrink-0 self-center">
                     <button
                       type="button"
+                      onClick={() => setAgentForDeposit(agent)}
                       className="cursor-pointer rounded-md border border-transparent bg-success px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       aria-label={`Deposit to ${agent.name || "agent"}`}
                     >
@@ -196,6 +199,13 @@ export function AgentsColumn({
             );
           })}
         </ul>
+      )}
+
+      {agentForDeposit != null && (
+        <DepositToAgentModal
+          agent={agentForDeposit}
+          onClose={() => setAgentForDeposit(null)}
+        />
       )}
     </article>
   );

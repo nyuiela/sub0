@@ -8,7 +8,9 @@ import {
   setMarketVolumeFromStats,
 } from "@/store/slices/marketsSlice";
 import { fetchMarkets, fetchMarketById } from "@/store/slices/marketsSlice";
+import { setStatus } from "@/store/slices/websocketSlice";
 import type { OrderBookSnapshot } from "@/types/market.types";
+import type { WebSocketStatus } from "@/types/websocket.types";
 import {
   marketRoom,
   WS_ROOM_MARKETS,
@@ -23,6 +25,13 @@ import { marketWebSocketService } from "./marketWebSocketService";
 
 const DEFAULT_RECONNECT_MAX_ATTEMPTS = 10;
 const DEFAULT_RECONNECT_INTERVAL_MS = 2000;
+
+function toReduxStatus(s: MarketSocketStatus): WebSocketStatus {
+  if (s === "connecting") return "connecting";
+  if (s === "open") return "open";
+  if (s === "closed" || s === "error") return s;
+  return "closed";
+}
 
 export interface UseMarketSocketOptions {
   /** Subscribe to a single market (order book, trades, market updates). */
@@ -106,11 +115,10 @@ function createThrottledDispatch(
 let connectionRefCount = 0;
 
 /**
- * Manages WebSocket connection (ref-counted), SUBSCRIBE/UNSUBSCRIBE for
- * market(s) and "markets" room, PING/PONG, and routes events:
- * - ORDER_BOOK_UPDATE / TRADE_EXECUTED: throttled into Redux (no full refetch).
- * - MARKET_UPDATED (created/updated/deleted): invalidates list/detail (refetch).
- * - MARKET_UPDATED (stats): merges volume into state.
+ * Manages WebSocket connection (ref-counted by mount), SUBSCRIBE/UNSUBSCRIBE for
+ * market(s) and "markets" room, PING/PONG, and routes events.
+ * Connection is kept open while any useMarketSocket is mounted; changing
+ * marketIds only updates subscriptions so the connection does not drop.
  */
 export function useMarketSocket(options: UseMarketSocketOptions): void {
   const {
@@ -141,6 +149,23 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     (!!marketId || subscribeToList || (marketIdsOption != null && marketIdsOption.length > 0));
 
   useEffect(() => {
+    if (!enabled || !hasRoomsIntent) return;
+    connectionRefCount += 1;
+    return () => {
+      connectionRefCount = Math.max(0, connectionRefCount - 1);
+      throttleRef.current?.flush();
+      throttleRef.current = null;
+      if (connectionRefCount === 0) {
+        const state = marketWebSocketService.getReadyState();
+        if (state === WebSocket.OPEN) {
+          marketWebSocketService.disconnect();
+        }
+        dispatch(setStatus("closed"));
+      }
+    };
+  }, [enabled, hasRoomsIntent, dispatch]);
+
+  useEffect(() => {
     optionsRef.current = options;
     const wsUrl = getMarketWebSocketUrl();
     const roomsToSubscribe: string[] = [];
@@ -150,10 +175,13 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     if (subscribeToList) roomsToSubscribe.push(WS_ROOM_MARKETS);
     roomsRef.current = roomsToSubscribe;
 
-    if (!enabled || !wsUrl || !hasRoomsIntent || roomsToSubscribe.length === 0) return;
-
-    connectionRefCount += 1;
-    const shouldConnect = connectionRefCount === 1;
+    if (!enabled || !hasRoomsIntent || roomsToSubscribe.length === 0) {
+      return;
+    }
+    if (!wsUrl) {
+      dispatch(setStatus("closed"));
+      return;
+    }
 
     const subscribeToRooms = () => {
       const rooms = roomsRef.current;
@@ -164,69 +192,76 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
       }
     };
 
+    const shouldConnect = connectionRefCount >= 1;
+    const readyState = marketWebSocketService.getReadyState();
+
     if (shouldConnect) {
-      marketWebSocketService.connect({
-        url: wsUrl,
-        reconnectMaxAttempts,
-        reconnectIntervalMs,
-        onStatus: (status) => {
-          optionsRef.current.onStatus?.(status as MarketSocketStatus);
-          if (status === "open") {
-            subscribedRoomsRef.current.clear();
-            subscribeToRooms();
-          }
-        },
-        onMessage: (message) => {
-          const type = message.type as string;
-          const payload = message.payload as Record<string, unknown> | undefined;
-
-          if (type === "ORDER_BOOK_UPDATE") {
-            const p = payload as OrderBookUpdatePayload | undefined;
-            if (p?.marketId && Array.isArray(p.bids) && Array.isArray(p.asks)) {
-              ensureThrottle().pushOrderBook({
-                marketId: p.marketId,
-                bids: p.bids,
-                asks: p.asks,
-                timestamp: typeof p.timestamp === "number" ? p.timestamp : Date.now(),
-              });
-            }
-          } else if (type === "TRADE_EXECUTED") {
-            const p = payload as TradeExecutedPayload | undefined;
-            if (p?.marketId && p?.executedAt != null) {
-              ensureThrottle().pushTrade(p);
-              optionsRef.current.onTradeExecuted?.(p);
-            }
-          } else if (type === "MARKET_UPDATED") {
-            const p = payload as MarketUpdatedPayload | undefined;
-            if (!p?.marketId) return;
-            const reason = p.reason;
-
-            if (reason === "created" || reason === "updated" || reason === "deleted") {
-              void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
-              if (reason !== "deleted" && p.marketId) {
-                void dispatch(fetchMarketById(p.marketId));
+      if (readyState !== WebSocket.OPEN && readyState !== WebSocket.CONNECTING) {
+        marketWebSocketService.connect({
+          url: wsUrl,
+          reconnectMaxAttempts,
+          reconnectIntervalMs,
+          onStatus: (status) => {
+            dispatch(setStatus(toReduxStatus(status as MarketSocketStatus)));
+            optionsRef.current.onStatus?.(status as MarketSocketStatus);
+            if (status === "open") {
+              if (connectionRefCount === 0) {
+                marketWebSocketService.disconnect();
+                dispatch(setStatus("closed"));
+                return;
               }
-            } else if (reason === "stats" && typeof p.volume === "string") {
-              dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
+              subscribedRoomsRef.current.clear();
+              subscribeToRooms();
             }
-          }
-        },
-      });
-    } else if (marketWebSocketService.getReadyState() === WebSocket.OPEN) {
-      subscribeToRooms();
+          },
+          onMessage: (message) => {
+            const type = message.type as string;
+            const payload = message.payload as Record<string, unknown> | undefined;
+
+            if (type === "ORDER_BOOK_UPDATE") {
+              const p = payload as OrderBookUpdatePayload | undefined;
+              if (p?.marketId && Array.isArray(p.bids) && Array.isArray(p.asks)) {
+                ensureThrottle().pushOrderBook({
+                  marketId: p.marketId,
+                  bids: p.bids,
+                  asks: p.asks,
+                  timestamp: typeof p.timestamp === "number" ? p.timestamp : Date.now(),
+                });
+              }
+            } else if (type === "TRADE_EXECUTED") {
+              const p = payload as TradeExecutedPayload | undefined;
+              if (p?.marketId && p?.executedAt != null) {
+                ensureThrottle().pushTrade(p);
+                optionsRef.current.onTradeExecuted?.(p);
+              }
+            } else if (type === "MARKET_UPDATED") {
+              const p = payload as MarketUpdatedPayload | undefined;
+              if (!p?.marketId) return;
+              const reason = p.reason;
+
+              if (reason === "created" || reason === "updated" || reason === "deleted") {
+                void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
+                if (reason !== "deleted" && p.marketId) {
+                  void dispatch(fetchMarketById(p.marketId));
+                }
+              } else if (reason === "stats" && typeof p.volume === "string") {
+                dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
+              }
+            }
+          },
+        });
+      } else {
+        subscribeToRooms();
+      }
     }
 
     return () => {
       const toUnsub = new Set(subscribedRoomsRef.current);
       for (const room of toUnsub) {
-        marketWebSocketService.send({ type: "UNSUBSCRIBE", payload: { room } });
-      }
-      subscribedRoomsRef.current.clear();
-      connectionRefCount = Math.max(0, connectionRefCount - 1);
-      if (connectionRefCount === 0) {
-        throttleRef.current?.flush();
-        throttleRef.current = null;
-        marketWebSocketService.disconnect();
+        if (marketWebSocketService.getReadyState() === WebSocket.OPEN) {
+          marketWebSocketService.send({ type: "UNSUBSCRIBE", payload: { room } });
+        }
+        subscribedRoomsRef.current.delete(room);
       }
     };
   }, [
@@ -234,6 +269,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     hasRoomsIntent,
     marketId ?? "",
     marketIdsOption?.length ?? 0,
+    marketIdsOption?.join(",") ?? "",
     subscribeToList,
     reconnectMaxAttempts,
     reconnectIntervalMs,

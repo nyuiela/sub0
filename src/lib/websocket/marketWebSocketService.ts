@@ -43,6 +43,24 @@ class MarketWebSocketService {
 
   private open(): void {
     if (typeof window === "undefined" || !this.url) return;
+    const state = this.ws?.readyState;
+    if (state === WebSocket.CONNECTING) return;
+    if (state === WebSocket.OPEN) {
+      this.onStatus?.("open");
+      return;
+    }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    if (this.ws != null) {
+      this.ws.onopen = null;
+      this.ws.onclose = null;
+      this.ws.onerror = null;
+      this.ws.onmessage = null;
+      this.ws.close(1000, "Reconnect");
+      this.ws = null;
+    }
     this.onStatus?.("connecting");
     try {
       this.ws = new WebSocket(this.url);

@@ -48,6 +48,8 @@ export interface MiniMarketCardProps {
   onSell?: (market: Market) => void;
   /** Called when user clicks "Add to agent" to assign this market to an agent for trading. */
   onAddToAgent?: (market: Market) => void;
+  /** Agent IDs that have been added to this market (for button label and modal selection). */
+  addedAgentIds?: string[];
   quickBuyAmount?: string;
   /** When false, Buy/Sell actions are hidden (e.g. tracker column). Default true. */
   showActions?: boolean;
@@ -59,10 +61,12 @@ export function MiniMarketCard({
   onBuy,
   onSell,
   onAddToAgent,
+  addedAgentIds = [],
   quickBuyAmount = "$100",
   showActions = true,
   className = "",
 }: MiniMarketCardProps) {
+  const addedCount = addedAgentIds.length;
   const dispatch = useAppDispatch();
   const volume = market.totalVolume ?? market.volume ?? "0";
   const mcFormatted = formatMc(volume);
@@ -185,10 +189,14 @@ export function MiniMarketCard({
               type="button"
               onClick={() => onAddToAgent?.(market)}
               disabled={market.status !== "OPEN"}
-              className="cursor-pointer rounded-lg bg-success px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              aria-label={`Add ${market.name} to agent`}
+              className={`cursor-pointer rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                addedCount > 0
+                  ? "border border-success bg-success/10 text-success focus-visible:ring-success"
+                  : "border border-transparent bg-success text-white focus-visible:ring-success"
+              }`}
+              aria-label={addedCount > 0 ? `${market.name}: ${addedCount} agent(s) added` : `Add ${market.name} to agent`}
             >
-              Add to agent
+              {addedCount > 0 ? `Added (${addedCount})` : "Add to agent"}
             </button>
             {onBuy != null && (
               <button

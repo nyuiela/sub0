@@ -29,6 +29,8 @@ export interface Agent {
   name: string;
   persona: string | null;
   publicKey: string | null;
+  /** Agent wallet address for receiving USDC; set when agent wallet is created. */
+  walletAddress?: string | null;
   balance: number;
   tradedAmount: number;
   totalTrades: number;
@@ -46,6 +48,8 @@ export interface Agent {
   winRate?: number;
   totalLlmTokens?: number;
   totalLlmCost?: number;
+  /** Market IDs this agent has been added to (Markets page "Add to agent"). Persisted by backend. */
+  enqueuedMarketIds?: string[];
 }
 
 export interface AgentListParams {

@@ -5,6 +5,7 @@ import { getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "@/components/layout/AgentsColumn/AgentTreemap";
+import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { useAppDispatch } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 
@@ -41,6 +42,7 @@ export function TrackerAgentColumn({
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,15 +133,25 @@ export function TrackerAgentColumn({
               const pnlClass = pnl >= 0 ? "text-success" : "text-danger";
               return (
                 <li key={agent.id}>
-                  <button
-                    type="button"
+                  <div
+                    role="button"
+                    tabIndex={0}
                     onClick={() => {
                       if (!isSelected) {
                         dispatch(addRecent({ type: "agent", id: agent.id, label: agent.name }));
                       }
                       onSelectAgent(isSelected ? null : agent);
                     }}
-                    className={`flex w-full gap-3 border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        if (!isSelected) {
+                          dispatch(addRecent({ type: "agent", id: agent.id, label: agent.name }));
+                        }
+                        onSelectAgent(isSelected ? null : agent);
+                      }
+                    }}
+                    className={`flex w-full gap-3 border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset cursor-pointer ${
                       isSelected
                         ? "bg-primary-muted text-primary"
                         : ""
@@ -167,19 +179,29 @@ export function TrackerAgentColumn({
                     </div>
                     <button
                       type="button"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAgentForDeposit(agent);
+                      }}
                       className="shrink-0 rounded-md border border-transparent bg-success px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       aria-label={`Deposit to ${agent.name || "agent"}`}
                     >
                       Deposit
                     </button>
-                  </button>
+                  </div>
                 </li>
               );
             })}
           </ul>
         )}
       </section>
+
+      {agentForDeposit != null && (
+        <DepositToAgentModal
+          agent={agentForDeposit}
+          onClose={() => setAgentForDeposit(null)}
+        />
+      )}
 
       {selectedAgent != null && (
         <>

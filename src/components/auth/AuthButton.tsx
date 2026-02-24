@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/lib/api/auth";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
+import { useWalletBalanceRefresh } from "@/contexts/WalletBalanceRefreshContext";
 import { baseSepolia } from "thirdweb/chains";
 import { contracts } from "@/contract/contracts.json";
 
@@ -57,6 +58,7 @@ type User = {
 };
 export function AuthButton() {
   const themeId = useAppSelector((state) => state.theme.themeId);
+  const { refreshKey } = useWalletBalanceRefresh();
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -83,6 +85,7 @@ export function AuthButton() {
 
   return (
     <ConnectButton
+      key={refreshKey}
       client={thirdwebClient}
       theme={getConnectTheme(themeId)}
       connectButton={{
@@ -90,6 +93,7 @@ export function AuthButton() {
         className: connectButtonClassName,
         style: connectButtonStyle,
       }}
+      chain={baseSepolia}
       detailsButton={{
         className: detailsButtonClassName,
         style: connectButtonStyle,

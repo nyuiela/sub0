@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { stratify, treemap } from "d3-hierarchy";
 import type { Agent } from "@/types/agent.types";
 import { getSciChartThemeOverrides } from "@/lib/scichart/theme";
@@ -70,14 +70,43 @@ export interface AgentTreemapProps {
 export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<{ sciChartSurface: { delete: () => void }; wasmContext: unknown } | null>(null);
+  const [containerReady, setContainerReady] = useState(false);
+  const [chartError, setChartError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!containerRef.current || agents.length === 0) return;
+    if (agents.length === 0) {
+      setContainerReady(false);
+      setChartError(null);
+      return;
+    }
+    const el = containerRef.current;
+    if (!el) return;
+    const checkSize = () => {
+      const rect = el.getBoundingClientRect();
+      setContainerReady(rect.width >= 1 && rect.height >= 1);
+    };
+    requestAnimationFrame(() => {
+      checkSize();
+    });
+    const ro = new ResizeObserver(checkSize);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      setContainerReady(false);
+    };
+  }, [agents.length]);
+
+  useEffect(() => {
+    if (!containerRef.current || agents.length === 0 || !containerReady) return;
+    setChartError(null);
     const el = containerRef.current;
     let cancelled = false;
 
     const init = async () => {
-      const scichart = await import("scichart");
+      try {
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1 || cancelled) return;
+        const scichart = await import("scichart");
       const [
         SciChartSurface,
         NumericAxis,
@@ -118,6 +147,7 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
 
       const items = prepareTreemapData(agents);
       const leaves = prepareLayout(items);
+      if (leaves.length === 0) return;
       const minP = Math.min(...leaves.map((l) => l.data.progress), 0);
       const maxP = Math.max(...leaves.map((l) => l.data.progress), 0);
       const gray = 0x404040;
@@ -159,6 +189,10 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
         },
       };
 
+      const again = el.getBoundingClientRect();
+      if (again.width < 1 || again.height < 1 || cancelled) return;
+      el.style.width = `${Math.round(again.width)}px`;
+      el.style.height = `${Math.round(again.height)}px`;
       const baseTheme = new SciChartJsNavyTheme();
       const themeOverrides = getSciChartThemeOverrides();
       const { sciChartSurface, wasmContext } = await SciChartSurface.create(el, {
@@ -218,6 +252,11 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
         });
         sciChartSurface.annotations.add(label);
       }
+      } catch (err) {
+        if (!cancelled) {
+          setChartError(err instanceof Error ? err.message : "Chart failed to load");
+        }
+      }
     };
 
     void init();
@@ -228,20 +267,28 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
         surfaceRef.current = null;
       }
     };
-  }, [agents]);
+  }, [agents, containerReady]);
 
   if (agents.length === 0) return null;
 
   return (
     <section
-      className={`overflow-hidden rounded ${className}`.trim()}
+      className={`relative overflow-hidden rounded ${className}`.trim()}
       aria-label="Top agents treemap by traded volume"
-      style={{ minHeight: CHART_HEIGHT_PX, height: CHART_HEIGHT_PX }}
+      style={{ minHeight: CHART_HEIGHT_PX, height: CHART_HEIGHT_PX, minWidth: 160 }}
     >
       <div
         ref={containerRef}
         style={{ width: "100%", height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
       />
+      {chartError != null && (
+        <div
+          className="flex items-center justify-center rounded bg-muted/90 p-3 text-center text-xs text-muted-foreground"
+          style={{ marginTop: -CHART_HEIGHT_PX, height: CHART_HEIGHT_PX }}
+        >
+          {chartError}
+        </div>
+      )}
     </section>
   );
 }

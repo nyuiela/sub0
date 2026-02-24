@@ -4,6 +4,7 @@ import websocketReducer from "./slices/websocketSlice";
 import layoutReducer from "./slices/layoutSlice";
 import marketsReducer from "./slices/marketsSlice";
 import recentReducer from "./slices/recentSlice";
+import marketAgentsReducer from "./slices/marketAgentsSlice";
 import { saveThemeToStorage } from "./themePersist";
 import { saveLayoutToStorage } from "./layoutPersist";
 import { saveRecentToStorage } from "./recentPersist";
@@ -12,6 +13,7 @@ import type { WebSocketSliceState } from "./slices/websocketSlice";
 import type { LayoutSliceState } from "./slices/layoutSlice";
 import type { MarketsSliceState } from "./slices/marketsSlice";
 import type { RecentSliceState } from "./slices/recentSlice";
+import type { MarketAgentsSliceState } from "./slices/marketAgentsSlice";
 
 export type RootState = {
   theme: ThemeSliceState;
@@ -19,6 +21,7 @@ export type RootState = {
   layout: LayoutSliceState;
   markets: MarketsSliceState;
   recent: RecentSliceState;
+  marketAgents: MarketAgentsSliceState;
 };
 
 const persistMiddleware: Middleware<object, RootState> = (storeApi) => (next) => (action) => {
@@ -52,6 +55,7 @@ export const store = configureStore({
     layout: layoutReducer,
     markets: marketsReducer,
     recent: recentReducer,
+    marketAgents: marketAgentsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true }).concat(persistMiddleware),
