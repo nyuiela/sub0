@@ -4,9 +4,9 @@
  */
 
 import { createAvatar } from "@dicebear/core";
-import { botttsNeutral, shapes, personas } from "@dicebear/collection";
+import { botttsNeutral, shapes, personas, adventurerNeutral } from "@dicebear/collection";
 
-export type AvatarStyle = "agent" | "market" | "persona";
+export type AvatarStyle = "agent" | "market" | "persona" | "adventurer";
 
 function createDiceBearAvatar(seed: string, style: AvatarStyle) {
   const safeSeed = (seed?.trim() || "default").slice(0, 100);
@@ -17,6 +17,8 @@ function createDiceBearAvatar(seed: string, style: AvatarStyle) {
       return createAvatar(shapes, { seed: safeSeed });
     case "persona":
       return createAvatar(personas, { seed: safeSeed });
+    case "adventurer":
+      return createAvatar(adventurerNeutral, { seed: safeSeed });
   }
 }
 

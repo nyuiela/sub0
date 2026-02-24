@@ -11,6 +11,11 @@ import {
   login as doLoginAction,
   logout as doLogoutAction,
 } from "@/app/actions/auth";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/lib/api/auth";
+import { getDiceBearAvatarUrl } from "@/lib/avatar";
+import { baseSepolia } from "thirdweb/chains";
+import { contracts } from "@/contract/contracts.json";
 
 type SessionResponse = { loggedIn: boolean; registered?: boolean };
 
@@ -32,8 +37,41 @@ const connectButtonClassName =
 const detailsButtonClassName =
   "rounded-md border border-border bg-surface px-3 py-2 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-primary-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
+type User = {
+  id: string;
+  address: string;
+  email: string;
+  username: string;
+  imageUrl: string | null;
+  authMethod: "WALLET" | "SSO" | "PASSKEY";
+  totalVolume: string;
+  pnl: string;
+  createdAt: string;
+  updatedAt: string;
+  agents: {
+    id: string;
+    name: string;
+    status: "ACTIVE" | "INACTIVE";
+  }[];
+
+};
 export function AuthButton() {
   const themeId = useAppSelector((state) => state.theme.themeId);
+  const [user, setUser] = useState<User | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getCurrentUser()
+      .then((user) => {
+        console.log("user", user);
+        if (!cancelled) setUser(user as User);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (!thirdwebClient) {
     return (
@@ -55,6 +93,13 @@ export function AuthButton() {
       detailsButton={{
         className: detailsButtonClassName,
         style: connectButtonStyle,
+        connectedAccountAvatarUrl: user?.imageUrl ? user.imageUrl : getDiceBearAvatarUrl(user?.address ?? "", "adventurer"),
+        connectedAccountName: user?.username ?? "",
+        // showBalanceInFiat: "USD",
+        displayBalanceToken: {
+          [baseSepolia.id]: contracts.usdc,
+        } as Record<string, string>,
+
       }}
       connectModal={{
         title: "Connect wallet",
