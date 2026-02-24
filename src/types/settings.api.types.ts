@@ -3,7 +3,7 @@
  * Auth: JWT/session only (credentials: include).
  */
 
-/** GET /auth/me – current user from JWT. */
+/** GET /api/auth/me – current user from JWT. */
 export interface CurrentUserResponse {
   id?: string;
   address?: string;

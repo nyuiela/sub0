@@ -10,7 +10,7 @@ export async function GET() {
     );
   }
   const headers = await getBackendAuthHeaders();
-  const res = await fetch(`${base}/auth/me`, {
+  const res = await fetch(`${base}/api/auth/me`, {
     cache: "no-store",
     headers: { ...headers },
   });

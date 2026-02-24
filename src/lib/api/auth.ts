@@ -1,6 +1,6 @@
 /**
- * Auth API client: current user (GET /auth/me).
- * Uses Next.js proxy /api/user/me -> backend /auth/me. Credentials: include.
+ * Auth API client: current user (GET /api/auth/me).
+ * Uses Next.js proxy /api/user/me -> backend /api/auth/me. Credentials: include.
  */
 
 import type { CurrentUserResponse } from "@/types/settings.api.types";

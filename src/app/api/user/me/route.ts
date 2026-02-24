@@ -1,8 +1,13 @@
-import { NextResponse } from "next/server";
-import { getBackendBase, getBackendAuthHeaders } from "@/lib/api/backendAuth";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  getBackendBase,
+  getBackendAuthHeaders,
+  getJwtFromCookieHeader,
+  buildBackendAuthHeaders,
+} from "@/lib/api/backendAuth";
 
-/** GET /api/user/me – proxy to backend GET /auth/me (current user from JWT). */
-export async function GET() {
+/** GET /api/user/me – proxy to backend GET /api/auth/me (current user from JWT). */
+export async function GET(request: NextRequest) {
   const base = getBackendBase();
   if (!base) {
     return NextResponse.json(
@@ -10,10 +15,18 @@ export async function GET() {
       { status: 503 }
     );
   }
-  const headers = await getBackendAuthHeaders();
-  const res = await fetch(`${base}/auth/me`, {
+  const cookieHeader = request.headers.get("cookie");
+  const jwtFromRequest = getJwtFromCookieHeader(cookieHeader);
+  const headers = jwtFromRequest
+    ? buildBackendAuthHeaders(jwtFromRequest)
+    : await getBackendAuthHeaders();
+  const res = await fetch(`${base}/api/auth/me`, {
+    method: "GET",
     cache: "no-store",
-    headers: { ...headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

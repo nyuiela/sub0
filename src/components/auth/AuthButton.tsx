@@ -23,6 +23,7 @@ const connectButtonStyle: React.CSSProperties = {
   minWidth: "unset",
   padding: BUTTON_PADDING,
   fontSize: BUTTON_FONT_SIZE,
+  border: "none",
 };
 
 const connectButtonClassName =
@@ -57,7 +58,7 @@ export function AuthButton() {
       }}
       connectModal={{
         title: "Connect wallet",
-        size: "wide",
+        size: "compact",
         showThirdwebBranding: false,
       }}
       auth={{
