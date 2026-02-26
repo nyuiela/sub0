@@ -7,6 +7,7 @@ import type { Agent, AgentPublic } from "@/types/agent.types";
 import { AgentTreemap } from "./AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
+import { formatCollateral } from "@/lib/formatNumbers";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
@@ -57,7 +58,7 @@ export interface AgentsColumnProps {
 
 function formatPnl(pnl: number): string {
   const sign = pnl >= 0 ? "+" : "";
-  return `${sign}${Number(pnl).toFixed(2)}`;
+  return `${sign}${formatCollateral(pnl)}`;
 }
 
 function formatTimeAgo(iso: string): string {
@@ -224,8 +225,8 @@ export function AgentsColumn({
                       )}
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span><span className="text-foreground font-medium">Bal</span> {isMine ? Number(agent.balance).toFixed(2) : "-"}</span>
-                      <span><span className="text-foreground font-medium">Vol</span> {Number(agent.tradedAmount).toFixed(0)}</span>
+                      <span><span className="text-foreground font-medium">Bal</span> {isMine ? formatCollateral(agent.balance) : "-"}</span>
+                      <span><span className="text-foreground font-medium">Vol</span> {formatCollateral(agent.tradedAmount)}</span>
                       <span><span className="text-foreground font-medium">Trades</span> {agent.totalTrades}</span>
                       <span className={pnlClass}><span className="text-muted font-normal">PnL</span> {formatPnl(pnl)}</span>
                     </div>

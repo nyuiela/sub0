@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { selectOrderBookByMarketId } from "@/store/slices/marketsSlice";
 import { addRecent } from "@/store/slices/recentSlice";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
+import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
+import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { Market } from "@/types/market.types";
 
 const AVATAR_SIZE = 194;
@@ -15,74 +16,14 @@ function formatMc(value: string | undefined): string {
   if (value == null || value === "") return "0";
   const n = Number(value);
   if (Number.isNaN(n)) return value;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
-  return n.toFixed(2);
-}
-
-function formatTimeAgo(iso: string, now: Date = new Date()): string {
-  try {
-    const d = new Date(iso);
-    const diffMs = now.getTime() - d.getTime();
-    const totalSec = Math.floor(diffMs / 1000);
-    if (totalSec < 0) return "0s";
-
-    const diffDay = Math.floor(totalSec / 86400);
-    const diffHour = Math.floor((totalSec % 86400) / 3600);
-    const diffMin = Math.floor((totalSec % 3600) / 60);
-    const sec = totalSec % 60;
-
-    if (diffDay >= 7) {
-      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    }
-    if (diffDay > 0) {
-      return `${diffDay}d ${diffHour}h ${diffMin}m ${sec}s`;
-    }
-    if (diffHour > 0) {
-      return `${diffHour}h ${diffMin}m ${sec}s`;
-    }
-    if (diffMin > 0) {
-      return `${diffMin}m ${sec}s`;
-    }
-    return `${sec}s`;
-  } catch {
-    return "";
-  }
+  if (n >= 1_000_000) return `${formatCollateral(n / 1_000_000)}M`;
+  if (n >= 1_000) return `${formatCollateral(n / 1_000)}K`;
+  return formatCollateral(n);
 }
 
 function truncateAddress(addr: string, head = 4, tail = 4): string {
   if (addr.length <= head + tail + 2) return addr;
   return `${addr.slice(0, head)}..${addr.slice(-tail)}`;
-}
-
-interface LiveTimeDisplayProps {
-  createdAt?: string;
-  fallbackAddress?: string;
-}
-
-function LiveTimeDisplay({ createdAt, fallbackAddress }: LiveTimeDisplayProps) {
-  const timeRef = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!createdAt) return;
-
-    const updateTime = () => {
-      if (timeRef.current) {
-        timeRef.current.textContent = formatTimeAgo(createdAt, new Date());
-      }
-    };
-
-    updateTime();
-    const intervalId = setInterval(updateTime, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [createdAt]);
-
-  if (!createdAt) {
-    return <span>{truncateAddress(fallbackAddress ?? "", 4, 6)}</span>;
-  }
-
-  return <span ref={timeRef} />;
 }
 
 export interface MiniMarketCardProps {
@@ -120,7 +61,7 @@ export function MiniMarketCard({
   const volume = market.totalVolume ?? market.volume ?? "0";
   const mcFormatted = formatMc(volume);
   const vFormatted = volume && !Number.isNaN(Number(volume))
-    ? Number(volume).toFixed(1)
+    ? formatCollateral(volume)
     : "0";
   const outcomes = Array.isArray(market.outcomes)
     ? market.outcomes.map((o) => (typeof o === "string" ? o : String(o)))
@@ -175,7 +116,7 @@ export function MiniMarketCard({
         <p className="text-xs text-success" aria-label="Time or countdown">
           <LiveTimeDisplay
             createdAt={market.createdAt}
-            fallbackAddress={market.creatorAddress}
+            fallback={truncateAddress(market.creatorAddress ?? "", 4, 6)}
           />
         </p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -218,14 +159,14 @@ export function MiniMarketCard({
         </div>
         {(bestBid != null || bestAsk != null) && (
           <p className="text-[10px] text-muted" aria-label="Best bid and ask">
-            <span className="text-success">Bid {bestBid ?? "—"}</span>
+            <span className="text-success">Bid {formatOutcomePrice(bestBid)}</span>
             <span className="mx-1 text-muted">|</span>
-            <span className="text-danger">Ask {bestAsk ?? "—"}</span>
+            <span className="text-danger">Ask {formatOutcomePrice(bestAsk)}</span>
           </p>
         )}
         <p className="text-[10px] text-muted">
           <span className="text-muted">{(market.conditionId ?? "").slice(0, 4)}…{(market.conditionId ?? "").slice(-4)}</span>
-          <span className="text-success"> F </span>${Number(volume) > 0 ? (Number(volume) * 0.01).toFixed(3) : "0"}
+          <span className="text-success"> F </span>${formatCollateral(Number(volume) > 0 ? Number(volume) * 0.01 : 0)}
           <span className="text-info"> TX </span>{market.totalTrades ?? 0}
         </p>
       </section>

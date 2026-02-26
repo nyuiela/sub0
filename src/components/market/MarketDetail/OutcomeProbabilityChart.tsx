@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useRef } from "react";
 import type { OHLCV } from "@/types/chart.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
+import { formatOutcomePrice } from "@/lib/formatNumbers";
 import { OUTCOME_SERIES_COLORS, getSciChartThemeOverrides } from "@/lib/scichart/theme";
 
 const CHART_H = 320;
@@ -260,7 +261,7 @@ export function OutcomeProbabilityChart({
                     />
                   </div>
                   <span className="w-14 tabular-nums text-sm text-muted-foreground">
-                    {(pct / 100).toFixed(4)}
+                    {formatOutcomePrice(pct / 100)}
                   </span>
                 </div>
               );
@@ -304,7 +305,7 @@ export function OutcomeProbabilityChart({
           {options.length > 0 && (
             <span className="tabular-nums">
               {options
-                .map((o) => `${o.label}: ${Number(o.instantPrice).toFixed(4)}`)
+                .map((o) => `${o.label}: ${formatOutcomePrice(o.instantPrice)}`)
                 .join(" | ")}
             </span>
           )}

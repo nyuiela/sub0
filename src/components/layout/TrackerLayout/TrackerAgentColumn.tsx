@@ -9,6 +9,7 @@ import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositT
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
 import { useAppDispatch } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
+import { formatCollateral } from "@/lib/formatNumbers";
 
 const AGENTS_LIMIT = 50;
 
@@ -20,7 +21,7 @@ export interface TrackerAgentColumnProps {
 
 function formatPnl(pnl: number): string {
   const sign = pnl >= 0 ? "+" : "";
-  return `${sign}${Number(pnl).toFixed(2)}`;
+  return `${sign}${formatCollateral(pnl)}`;
 }
 
 function statusColor(status: string): string {
@@ -175,7 +176,7 @@ export function TrackerAgentColumn({
                         <span className={statusColor(agent.status)}>
                           {agent.status}
                         </span>
-                        <span className="text-muted">Bal {Number(agent.balance).toFixed(2)}</span>
+                        <span className="text-muted">Bal {formatCollateral(agent.balance)}</span>
                         <span className={pnlClass}>PnL {formatPnl(pnl)}</span>
                       </div>
                     </div>

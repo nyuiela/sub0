@@ -5,32 +5,14 @@ import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 import { useRecentTrades } from "@/lib/websocket/useLiveMarketData";
+import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
+import { formatOutcomePrice, formatOutcomeQuantity } from "@/lib/formatNumbers";
 import type { RecentTradeItem } from "@/store/slices/recentTradesSlice";
 
 export interface TradesColumnProps {
   /** Max trades to show. Default 30. */
   limit?: number;
   className?: string;
-}
-
-function formatTimeAgo(iso: string): string {
-  try {
-    const d = new Date(iso);
-    const now = new Date();
-    const diffMs = now.getTime() - d.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    if (diffSec < 60) return `${diffSec}s ago`;
-    if (diffMin < 60) return `${diffMin}m ago`;
-    return d.toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return "";
-  }
 }
 
 function TradeRow({
@@ -66,11 +48,11 @@ function TradeRow({
         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className={sideClass}>{item.side}</span>
           <span className="text-muted-foreground">
-            {item.price} <span className="text-muted">x</span> {item.size}
+            {formatOutcomePrice(item.price)} <span className="text-muted">x</span> {formatOutcomeQuantity(item.size)}
           </span>
         </div>
         <p className="mt-1 text-[10px] text-muted">
-          {formatTimeAgo(item.executedAt)}
+          <LiveTimeDisplay createdAt={item.executedAt} />
           {item.agentId != null ? (
             <span className="ml-1"> agent {item.agentId.slice(0, 8)}...</span>
           ) : null}

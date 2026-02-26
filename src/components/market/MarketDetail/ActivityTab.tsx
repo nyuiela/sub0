@@ -1,5 +1,6 @@
 "use client";
 
+import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral } from "@/lib/formatNumbers";
 import type {
   ActivityItem,
   ActivityTradePayload,
@@ -52,8 +53,8 @@ function TradeRow({ item, payload }: { item: ActivityItem; payload: ActivityTrad
       <td className="py-2 text-right">
         <span className={side === "long" ? "text-green-600" : "text-red-600"}>{side}</span>
       </td>
-      <td className="py-2 text-right tabular-nums">{payload.amount}</td>
-      <td className="py-2 text-right tabular-nums">{payload.price}</td>
+      <td className="py-2 text-right tabular-nums">{formatOutcomeQuantity(payload.amount)}</td>
+      <td className="py-2 text-right tabular-nums">{formatOutcomePrice(payload.price)}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.createdAt)}</td>
     </tr>
@@ -73,8 +74,8 @@ function PositionRow({ item, payload }: { item: ActivityItem; payload: ActivityP
     <tr className="border-b border-border/50 hover:bg-muted/50">
       <td className="py-2 capitalize">{item.type}</td>
       <td className="py-2 text-right">-</td>
-      <td className="py-2 text-right tabular-nums">{payload.collateralLocked}</td>
-      <td className="py-2 text-right tabular-nums">{payload.avgPrice}</td>
+      <td className="py-2 text-right tabular-nums">{formatCollateral(payload.collateralLocked)}</td>
+      <td className="py-2 text-right tabular-nums">{formatOutcomePrice(payload.avgPrice)}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.updatedAt)}</td>
     </tr>

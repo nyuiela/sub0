@@ -6,6 +6,7 @@ import { getPositions } from "@/lib/api/positions";
 import { getAgent, getAgentReasoning } from "@/lib/api/agents";
 import type { Agent } from "@/types/agent.types";
 import type { AgentReasoning } from "@/types/agent.types";
+import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { MarketPricesResponse } from "@/types/prices.types";
 import type { Position } from "@/types/position.types";
 
@@ -24,7 +25,7 @@ const TABS: { id: MarketLeftTabId; label: string }[] = [
 
 function formatPnl(pnl: number): string {
   const sign = pnl >= 0 ? "+" : "";
-  return `${sign}${Number(pnl).toFixed(2)}`;
+  return `${sign}${formatCollateral(pnl)}`;
 }
 
 function formatTime(iso: string): string {
@@ -131,7 +132,7 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
                     >
                       <span className="font-medium text-foreground">{o.label}</span>
                       <span className="tabular-nums text-muted-foreground">
-                        {Number(o.instantPrice).toFixed(4)}
+                        {formatOutcomePrice(o.instantPrice)}
                       </span>
                     </li>
                   ))}

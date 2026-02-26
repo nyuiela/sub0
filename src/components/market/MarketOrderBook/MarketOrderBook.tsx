@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { selectOrderBookByMarketId } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
+import { formatOutcomePrice, formatOutcomeQuantity } from "@/lib/formatNumbers";
 import type { OrderBookLevel } from "@/types/market.types";
 
 const BID_ASK_MAX_ROWS = 12;
@@ -56,9 +57,9 @@ function OrderBookSide({
                 <td
                   className={`py-1 pr-2 ${side === "bid" ? "text-success" : "text-danger"}`}
                 >
-                  {level.price}
+                  {formatOutcomePrice(level.price)}
                 </td>
-                <td className="py-1 text-right tabular-nums">{level.quantity}</td>
+                <td className="py-1 text-right tabular-nums">{formatOutcomeQuantity(level.quantity)}</td>
               </tr>
             ))
           )}

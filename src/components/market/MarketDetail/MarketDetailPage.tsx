@@ -19,6 +19,7 @@ import { MarketTradePanel } from "./MarketTradePanel";
 import { MarketInfoPanel } from "./MarketInfoPanel";
 import { MarketOrderBook } from "../MarketOrderBook";
 import Image from "next/image";
+import { formatCollateral } from "@/lib/formatNumbers";
 
 export interface MarketDetailPageProps {
   marketId: string;
@@ -28,9 +29,9 @@ function formatVolume(value: string | undefined): string {
   if (value == null || value === "") return "0";
   const n = Number(value);
   if (Number.isNaN(n)) return value;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(2)}K`;
-  return n.toFixed(2);
+  if (n >= 1_000_000) return `${formatCollateral(n / 1_000_000)}M`;
+  if (n >= 1_000) return `${formatCollateral(n / 1_000)}K`;
+  return formatCollateral(n);
 }
 
 export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
@@ -49,14 +50,24 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   const fetchDetails = useCallback(() => {
     if (!marketId) return;
+    setActivities([]);
+    setHolders([]);
+    setTraders([]);
     getActivities({ marketId, limit: 50 })
-      .then((res) => setActivities(res.data))
+      .then((res) => {
+        const list = res.data ?? [];
+        const forThisMarket = list.filter((item) => {
+          const p = item.payload as { marketId?: string };
+          return p.marketId === marketId;
+        });
+        setActivities(forThisMarket);
+      })
       .catch(() => setActivities([]));
     getMarketHolders(marketId)
-      .then((res) => setHolders(res.data))
+      .then((res) => setHolders(res.data ?? []))
       .catch(() => setHolders([]));
     getMarketTraders(marketId)
-      .then((res) => setTraders(res.data))
+      .then((res) => setTraders(res.data ?? []))
       .catch(() => setTraders([]));
     getMarketPrices(marketId)
       .then(setMarketPrices)

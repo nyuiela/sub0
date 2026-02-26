@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 import { getPositions } from "@/lib/api/positions";
+import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
+import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { Position, PositionStatus } from "@/types/position.types";
 
 const POSITIONS_LIMIT = 20;
@@ -23,23 +25,6 @@ export interface PositionsColumnProps {
   /** Filter by wallet address. */
   address?: string;
   className?: string;
-}
-
-function formatTimeAgo(iso: string): string {
-  try {
-    const d = new Date(iso);
-    const now = new Date();
-    const diffMs = now.getTime() - d.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 60) return `${diffMins}m ago`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h ago`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  } catch {
-    return "";
-  }
 }
 
 function positionStatusColor(status: PositionStatus): string {
@@ -156,14 +141,8 @@ export function PositionsColumn({
         {positions.map((pos) => {
           const sideClass =
             pos.side === "LONG" ? "text-success" : "text-danger";
-          const avgPriceNum = Number(pos.avgPrice);
-          const collateralNum = Number(pos.collateralLocked);
-          const avgPriceStr = Number.isFinite(avgPriceNum)
-            ? avgPriceNum.toFixed(4)
-            : pos.avgPrice;
-          const collateralStr = Number.isFinite(collateralNum)
-            ? collateralNum.toFixed(2)
-            : pos.collateralLocked;
+          const avgPriceStr = formatOutcomePrice(pos.avgPrice);
+          const collateralStr = formatCollateral(pos.collateralLocked);
           return (
             <li key={pos.id}>
               <section className="border-b border-border bg-surface p-3 transition-colors last:border-b-0 hover:bg-muted/30">
@@ -204,7 +183,7 @@ export function PositionsColumn({
                   </span>
                 </div>
                 <p className="mt-1 text-[10px] text-muted">
-                  {formatTimeAgo(pos.updatedAt)}
+                  <LiveTimeDisplay createdAt={pos.updatedAt} />
                 </p>
               </section>
             </li>

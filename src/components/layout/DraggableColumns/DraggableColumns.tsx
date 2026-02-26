@@ -9,11 +9,13 @@ import { NewsColumn } from "@/components/layout/NewsColumn";
 import { AgentsColumn } from "@/components/layout/AgentsColumn";
 import { PositionsColumn } from "@/components/layout/PositionsColumn";
 import { TradesColumn } from "@/components/layout/TradesColumn";
+import { PortfolioColumn } from "@/components/layout/PortfolioColumn";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 
 const COLUMN_LABELS: Record<string, string> = {
   agents: "Agents",
   new: "Markets",
+  portfolio: "Positions & Trades",
   positions: "Positions",
   news: "News",
   trades: "Trades",
@@ -164,6 +166,8 @@ export function DraggableColumns() {
                   <NewsColumn />
                 ) : columnId === "agents" ? (
                   <AgentsColumn />
+                ) : columnId === "portfolio" ? (
+                  <PortfolioColumn />
                 ) : columnId === "positions" ? (
                   <PositionsColumn />
                 ) : columnId === "trades" ? (
