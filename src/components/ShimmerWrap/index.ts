@@ -1,0 +1,1 @@
+export { ShimmerWrap } from "./ShimmerWrap";

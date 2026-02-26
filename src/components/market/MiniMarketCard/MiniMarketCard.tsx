@@ -8,6 +8,8 @@ import { selectOrderBookByMarketId } from "@/store/slices/marketsSlice";
 import { addRecent } from "@/store/slices/recentSlice";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
+import { ShimmerWrap } from "@/components/ShimmerWrap";
+import { FlipNumber } from "@/components/FlipNumber";
 import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { Market } from "@/types/market.types";
 
@@ -89,11 +91,16 @@ export function MiniMarketCard({
     }
   }, [market.id, volume, totalTrades]);
 
+  const liveDataKey = `${volume}-${totalTrades}-${bestBid ?? ""}-${bestAsk ?? ""}`;
+  const outcomePricesKey = (market.outcomePrices ?? []).slice(0, 5).join(",");
+  const bidAskKey = `${bestBid ?? ""}-${bestAsk ?? ""}`;
+
   return (
-    <article
-      className={`flex gap-3 border-b border-border bg-surface p-3 ${className} mb-2`}
-      aria-labelledby={`market-name-${market.id}`}
-    >
+    <ShimmerWrap as="div" triggerKey={liveDataKey}>
+      <article
+        className={`flex gap-3 border-b border-border bg-surface p-3 ${className} mb-2`}
+        aria-labelledby={`market-name-${market.id}`}
+      >
       <figure className="shrink-0" aria-hidden>
         {market.imageUrl ? (
           <Image
@@ -140,13 +147,13 @@ export function MiniMarketCard({
         </p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className="text-muted" aria-label="Orders and trades">
-            <span className="text-foreground font-medium">Q</span> {activeOrders}<span className="text-muted">/</span>{qDisplay}
+            <span className="text-foreground font-medium">Q</span> <FlipNumber value={activeOrders} /><span className="text-muted">/</span><FlipNumber value={qDisplay} />
           </span>
           <span className="text-muted" aria-label="Holders">
-            <span className="text-foreground font-medium">H</span> {market.uniqueStakersCount ?? 0}
+            <span className="text-foreground font-medium">H</span> <FlipNumber value={market.uniqueStakersCount ?? 0} />
           </span>
         </div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5" aria-label="Outcome probabilities">
+        <ShimmerWrap triggerKey={outcomePricesKey} as="div" className="flex flex-wrap items-center gap-x-2 gap-y-0.5" aria-label="Outcome probabilities">
           {outcomes.length > 0
             ? outcomes.slice(0, 5).map((outcome, i) => {
               const isFirst = i === 0;
@@ -175,28 +182,28 @@ export function MiniMarketCard({
                 —
               </span>
             )}
-        </div>
+        </ShimmerWrap>
         {(bestBid != null || bestAsk != null) && (
-          <p className="text-[10px] text-muted" aria-label="Best bid and ask">
-            <span className="text-success">Bid {formatOutcomePrice(bestBid)}</span>
+          <ShimmerWrap as="p" triggerKey={bidAskKey} className="text-[10px] text-muted" aria-label="Best bid and ask">
+            <span className="text-success">Bid <FlipNumber value={formatOutcomePrice(bestBid)} /></span>
             <span className="mx-1 text-muted">|</span>
-            <span className="text-danger">Ask {formatOutcomePrice(bestAsk)}</span>
-          </p>
+            <span className="text-danger">Ask <FlipNumber value={formatOutcomePrice(bestAsk)} /></span>
+          </ShimmerWrap>
         )}
         <p className="text-[10px] text-muted">
           <span className="text-muted">{(market.conditionId ?? "").slice(0, 4)}…{(market.conditionId ?? "").slice(-4)}</span>
-          <span className="text-success"> F </span>${formatCollateral(Number(volume) > 0 ? Number(volume) * 0.01 : 0)}
-          <span className="text-info"> TX </span>{market.totalTrades ?? 0}
+          <span className="text-success"> F </span>${" "}<FlipNumber value={formatCollateral(Number(volume) > 0 ? Number(volume) * 0.01 : 0)} />
+          <span className="text-info"> TX </span><FlipNumber value={market.totalTrades ?? 0} />
         </p>
       </section>
 
       <aside className="flex shrink-0 flex-col items-end justify-between gap-2" aria-label="Metrics and actions">
         <div className="flex flex-col items-end text-right">
           <p className="text-xs font-medium text-foreground">
-            MC ${mcFormatted}
+            MC $<FlipNumber value={mcFormatted} />
           </p>
           <p className="text-xs text-muted">
-            V ${vFormatted}
+            V $<FlipNumber value={vFormatted} />
           </p>
         </div>
         {showActions && (
@@ -244,5 +251,6 @@ export function MiniMarketCard({
         )}
       </aside>
     </article>
+    </ShimmerWrap>
   );
 }
