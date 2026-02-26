@@ -1,15 +1,51 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMyAgents } from "@/lib/api/agents";
+import { getAgentsPublic, getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
-import type { Agent } from "@/types/agent.types";
+import type { Agent, AgentPublic } from "@/types/agent.types";
 import { AgentTreemap } from "./AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
+
+/** Display row: full agent when owned, minimal when from public list only. */
+export type AgentRowDisplay = Agent & { isMine: boolean };
+
+function parseNum(value: unknown): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string") {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  }
+  return 0;
+}
+
+function publicToRow(ap: AgentPublic): AgentRowDisplay {
+  return {
+    id: ap.id,
+    ownerId: "",
+    name: ap.name,
+    persona: null,
+    publicKey: null,
+    walletAddress: null,
+    balance: 0,
+    tradedAmount: parseNum(ap.volume),
+    totalTrades: ap.trades,
+    pnl: parseNum(ap.pnl),
+    status: ap.status,
+    modelSettings: null,
+    templateId: null,
+    createdAt: ap.createdAt,
+    updatedAt: ap.updatedAt,
+    owner: "",
+    strategy: null,
+    template: null,
+    isMine: false,
+  };
+}
 
 export interface AgentsColumnProps {
   /** Max agents to fetch. Default 30. */
@@ -79,7 +115,7 @@ export function AgentsColumn({
   status = "ACTIVE",
   className = "",
 }: AgentsColumnProps) {
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [agents, setAgents] = useState<AgentRowDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
@@ -87,26 +123,36 @@ export function AgentsColumn({
 
   useEffect(() => {
     let cancelled = false;
-    queueMicrotask(() => {
-      if (!cancelled) {
-        setLoading(true);
-        setError(null);
-      }
-    });
-    getMyAgents({ limit, status })
-      .then((res) => {
-        if (!cancelled) {
-          setAgents(res.data ?? []);
-          setLoading(false);
-        }
+    setLoading(true);
+    setError(null);
+
+    Promise.all([
+      getAgentsPublic({ limit, status }),
+      getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
+    ])
+      .then(([publicRes, myRes]) => {
+        if (cancelled) return;
+        const publicList = publicRes.data ?? [];
+        const myList = myRes.data ?? [];
+        const myMap = new Map(myList.map((a) => [a.id, a]));
+        const merged: AgentRowDisplay[] = publicList.map((ap) => {
+          const mine = myMap.get(ap.id);
+          if (mine) return { ...mine, isMine: true };
+          return publicToRow(ap);
+        });
+        merged.sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0));
+        setAgents(merged);
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Sign in to see your agents.");
+          setError(err instanceof Error ? err.message : "Failed to load agents.");
           setAgents([]);
-          setLoading(false);
         }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
+
     return () => {
       cancelled = true;
     };
@@ -128,10 +174,7 @@ export function AgentsColumn({
     );
   }
 
-  const topForTreemap = agents
-    .slice()
-    .sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0))
-    .slice(0, TREEMAP_TOP);
+  const topForTreemap = agents.slice(0, TREEMAP_TOP);
 
   return (
     <article
@@ -141,20 +184,24 @@ export function AgentsColumn({
       {topForTreemap.length > 0 && (
         <section aria-label="Agents TreeMap">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-            Agents TreeMap
+            Agents by volume
           </h3>
+          <p className="mb-2 text-[10px] text-muted-foreground">
+            All agents listed. Only yours show Deposit / Get wallet.
+          </p>
           <AgentTreemap agents={topForTreemap} />
         </section>
       )}
       {agents.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No agents yet. Create one to see it here.
+          No agents yet. Create one in Settings to see it here.
         </p>
       ) : (
         <ul className="space-y-0" aria-label="Agent list">
           {agents.map((agent) => {
             const pnl = agent.pnl ?? 0;
             const pnlClass = pnl >= 0 ? "text-success" : "text-danger";
+            const isMine = agent.isMine;
             return (
               <li key={agent.id}>
                 <section className="flex gap-3 border-b border-border bg-surface p-3 transition-colors last:border-b-0 hover:bg-muted/30">
@@ -177,7 +224,7 @@ export function AgentsColumn({
                       )}
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span><span className="text-foreground font-medium">Bal</span> {Number(agent.balance).toFixed(2)}</span>
+                      <span><span className="text-foreground font-medium">Bal</span> {isMine ? Number(agent.balance).toFixed(2) : "-"}</span>
                       <span><span className="text-foreground font-medium">Vol</span> {Number(agent.tradedAmount).toFixed(0)}</span>
                       <span><span className="text-foreground font-medium">Trades</span> {agent.totalTrades}</span>
                       <span className={pnlClass}><span className="text-muted font-normal">PnL</span> {formatPnl(pnl)}</span>
@@ -186,27 +233,29 @@ export function AgentsColumn({
                       {formatTimeAgo(agent.updatedAt)}
                     </p>
                   </div>
-                  <div className="shrink-0 self-center">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const hasWallet = Boolean(agent.walletAddress?.trim());
-                        if (hasWallet) setAgentForDeposit(agent);
-                        else setAgentForGetWallet(agent);
-                      }}
-                      className="cursor-pointer rounded-md border border-transparent bg-success 
-                      px-3 py-1.5 text-xs font-medium text-white transition-opacity 
-                      hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 
-                      focus-visible:ring-primary focus-visible:ring-offset-2"
-                      aria-label={
-                        agent.walletAddress?.trim()
-                          ? `Deposit to ${agent.name || "agent"}`
-                          : `Get wallet for ${agent.name || "agent"}`
-                      }
-                    >
-                      {agent.walletAddress?.trim() ? "Deposit" : "Get wallet"}
-                    </button>
-                  </div>
+                  {isMine && (
+                    <div className="shrink-0 self-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const hasWallet = Boolean(agent.walletAddress?.trim());
+                          if (hasWallet) setAgentForDeposit(agent);
+                          else setAgentForGetWallet(agent);
+                        }}
+                        className="cursor-pointer rounded-md border border-transparent bg-success 
+                        px-3 py-1.5 text-xs font-medium text-white transition-opacity 
+                        hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 
+                        focus-visible:ring-primary focus-visible:ring-offset-2"
+                        aria-label={
+                          agent.walletAddress?.trim()
+                            ? `Deposit to ${agent.name || "agent"}`
+                            : `Get wallet for ${agent.name || "agent"}`
+                        }
+                      >
+                        {agent.walletAddress?.trim() ? "Deposit" : "Get wallet"}
+                      </button>
+                    </div>
+                  )}
                 </section>
               </li>
             );
@@ -226,9 +275,21 @@ export function AgentsColumn({
           onClose={() => setAgentForGetWallet(null)}
           onSuccess={() => {
             setAgentForGetWallet(null);
-            getMyAgents({ limit, status }).then((res) =>
-              setAgents(res.data ?? [])
-            );
+            Promise.all([
+              getAgentsPublic({ limit, status }),
+              getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
+            ]).then(([publicRes, myRes]) => {
+              const publicList = publicRes.data ?? [];
+              const myList = myRes.data ?? [];
+              const myMap = new Map(myList.map((a) => [a.id, a]));
+              const merged: AgentRowDisplay[] = publicList.map((ap) => {
+                const mine = myMap.get(ap.id);
+                if (mine) return { ...mine, isMine: true };
+                return publicToRow(ap);
+              });
+              merged.sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0));
+              setAgents(merged);
+            });
           }}
         />
       )}
