@@ -3,6 +3,30 @@ import { getBackendBase, getBackendAuthHeaders } from "@/lib/api/backendAuth";
 import type { AgentListResponse } from "@/types/agent.types";
 
 const DEFAULT_LIMIT = 20;
+
+export async function POST(request: Request) {
+  const base = getBackendBase();
+  if (!base) {
+    return NextResponse.json({ error: "Backend not configured" }, { status: 503 });
+  }
+  const headers = await getBackendAuthHeaders();
+  const body = await request.json().catch(() => ({}));
+  const res = await fetch(`${base}/api/agents`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...headers },
+    credentials: "include",
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = data as { error?: string };
+    return NextResponse.json(
+      { error: err?.error ?? "Create agent failed" },
+      { status: res.status }
+    );
+  }
+  return NextResponse.json(data);
+}
 const DEFAULT_OFFSET = 0;
 const MAX_LIMIT = 100;
 

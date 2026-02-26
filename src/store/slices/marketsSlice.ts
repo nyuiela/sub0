@@ -216,10 +216,10 @@ const marketsSlice = createSlice({
       })
       .addCase(fetchMarkets.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = action.payload.data;
-        state.total = action.payload.total;
-        state.limit = action.payload.limit;
-        state.offset = action.payload.offset;
+        state.list = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        state.total = action.payload?.total ?? 0;
+        state.limit = action.payload?.limit ?? state.limit;
+        state.offset = action.payload?.offset ?? state.offset;
       })
       .addCase(fetchMarkets.rejected, (state, action) => {
         state.listLoading = false;

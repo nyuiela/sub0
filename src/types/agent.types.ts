@@ -144,15 +144,17 @@ export interface AgentReasoningListResponse {
   offset: number;
 }
 
-/** POST /api/agents – create agent. */
+/** POST /api/agents – create agent. Omit publicKey/encryptedPrivateKey to create then call create-wallet (CRE). */
 export interface CreateAgentBody {
   ownerId: string;
   name: string;
   persona: string;
-  publicKey: string;
-  encryptedPrivateKey: string;
   modelSettings: Record<string, unknown>;
   templateId?: string;
+  /** Optional: omit to use CRE create-wallet after create. */
+  publicKey?: string;
+  /** Optional: omit to use CRE create-wallet after create. */
+  encryptedPrivateKey?: string;
 }
 
 /** PATCH /api/agents/:id – update agent (all fields optional). */

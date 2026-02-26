@@ -33,7 +33,8 @@ function MarkdownPreview({ source }: { source: string }) {
     </pre>
   );
 }
-import { getMyAgents, getAgent, updateAgent } from "@/lib/api/agents";
+import { getMyAgents, getAgent, updateAgent, createAgent, createAgentWallet } from "@/lib/api/agents";
+import { getCurrentUser } from "@/lib/api/auth";
 import type { Agent } from "@/types/agent.types";
 import {
   OPENCLAW_DOC_META,
@@ -198,14 +199,67 @@ export function AgentStudioForm() {
   }, [selectedId]);
 
   const onSubmit = async (data: AgentStudioFormValues) => {
-    const id =
-      selectedId !== "new" ? (data.agentId ?? selectedId) : null;
-    if (!id) {
-      toast.info(
-        "Agent creation requires wallet key setup. Use the app flow to create an agent."
-      );
+    const isNew = selectedId === "new";
+    const id = !isNew ? (data.agentId ?? selectedId) : null;
+
+    if (isNew) {
+      try {
+        const user = await getCurrentUser();
+        const ownerId = user?.id ?? user?.userId;
+        if (!ownerId) {
+          toast.error("You must be signed in to create an agent.");
+          return;
+        }
+        toast.info("Creating agent and generating wallet via CRE…");
+        const agent = await createAgent({
+          ownerId,
+          name: data.name.trim() || "My Agent",
+          persona: data.openclaw.persona ?? "Trading agent",
+          modelSettings: {
+            model: data.model,
+            temperature: data.temperature,
+            strategyPreference: data.strategyPreference,
+            maxSlippage: data.maxSlippage,
+            spreadTolerance: data.spreadTolerance,
+            openclaw: data.openclaw,
+            tools: {
+              internetSearch: data.toolInternetSearch,
+              newsCrawler: data.toolNewsCrawler,
+              twitter: data.toolTwitter,
+              sportsData: data.toolSportsData,
+            },
+          },
+        });
+        await createAgentWallet(agent.id);
+        await updateAgent(agent.id, {
+          name: data.name.trim() || agent.name,
+          persona: data.openclaw.persona ?? agent.persona,
+          modelSettings: {
+            model: data.model,
+            temperature: data.temperature,
+            strategyPreference: data.strategyPreference,
+            maxSlippage: data.maxSlippage,
+            spreadTolerance: data.spreadTolerance,
+            openclaw: data.openclaw,
+            tools: {
+              internetSearch: data.toolInternetSearch,
+              newsCrawler: data.toolNewsCrawler,
+              twitter: data.toolTwitter,
+              sportsData: data.toolSportsData,
+            },
+          },
+        });
+        toast.success("Agent created and wallet generated (CRE).");
+        const list = await getMyAgents({ limit: 100 });
+        setAgents(list.data);
+        setSelectedId(agent.id);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to create agent");
+      }
       return;
     }
+
+    if (!id) return;
     try {
       await updateAgent(id, {
         name: data.name,
