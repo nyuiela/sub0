@@ -10,6 +10,7 @@ import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
 import { ShimmerWrap } from "@/components/ShimmerWrap";
 import { FlipNumber } from "@/components/FlipNumber";
+import { OrderFillBar } from "@/components/market/OrderFillBar";
 import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { Market } from "@/types/market.types";
 
@@ -190,6 +191,15 @@ export function MiniMarketCard({
             <span className="text-danger">Ask <FlipNumber value={formatOutcomePrice(bestAsk)} /></span>
           </ShimmerWrap>
         )}
+        {(orderBook?.bids?.length ?? 0) > 0 || (orderBook?.asks?.length ?? 0) > 0 ? (
+          <OrderFillBar
+            bids={orderBook?.bids}
+            asks={orderBook?.asks}
+            showLabels
+            height="0.25rem"
+            className="mt-0.5"
+          />
+        ) : null}
         <p className="text-[10px] text-muted">
           <span className="text-muted">{(market.conditionId ?? "").slice(0, 4)}…{(market.conditionId ?? "").slice(-4)}</span>
           <span className="text-success"> F </span>${" "}<FlipNumber value={formatCollateral(Number(volume) > 0 ? Number(volume) * 0.01 : 0)} />
