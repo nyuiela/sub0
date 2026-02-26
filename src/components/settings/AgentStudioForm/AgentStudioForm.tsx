@@ -11,6 +11,7 @@ import type { MDEditorProps } from "@uiw/react-md-editor";
 import {
   agentStudioSchema,
   MODEL_OPTIONS,
+  getDefaultModelOption,
   STRATEGY_OPTIONS,
   TOOL_OPTIONS,
   type AgentStudioFormValues,
@@ -53,7 +54,7 @@ function getModelFromAgent(agent: Agent): string {
   const ms = agent.modelSettings;
   if (ms && typeof ms === "object" && "model" in ms && typeof ms.model === "string")
     return ms.model;
-  return MODEL_OPTIONS[0]?.value ?? "gpt-4o";
+  return getDefaultModelOption();
 }
 
 function getTemperatureFromAgent(agent: Agent): number {
@@ -129,7 +130,7 @@ export function AgentStudioForm() {
       strategyPreference: "HYBRID",
       maxSlippage: 1,
       spreadTolerance: 0.5,
-      model: MODEL_OPTIONS[0]?.value ?? "gpt-4o",
+      model: getDefaultModelOption(),
       temperature: 0.7,
       toolInternetSearch: false,
       toolNewsCrawler: false,
@@ -165,7 +166,7 @@ export function AgentStudioForm() {
         strategyPreference: "HYBRID",
         maxSlippage: 1,
         spreadTolerance: 0.5,
-        model: MODEL_OPTIONS[0]?.value ?? "gpt-4o",
+        model: getDefaultModelOption(),
         temperature: 0.7,
         toolInternetSearch: false,
         toolNewsCrawler: false,
@@ -415,8 +416,12 @@ export function AgentStudioForm() {
               aria-label="Model"
             >
               {MODEL_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  disabled={opt.comingSoon === true}
+                >
+                  {opt.comingSoon === true ? `${opt.label} (Coming soon)` : opt.label}
                 </option>
               ))}
             </select>

@@ -53,12 +53,11 @@ function normalizeAgent(raw: Record<string, unknown>): Agent {
     createdAt: String(raw.createdAt ?? ""),
     updatedAt: String(raw.updatedAt ?? ""),
     owner:
-      raw.owner != null && typeof raw.owner === "object" && !Array.isArray(raw.owner)
-        ? {
-          id: String((raw.owner as Record<string, unknown>).id ?? ""),
-          address: String((raw.owner as Record<string, unknown>).address ?? ""),
-        }
-        : { id: "", address: "" },
+      typeof raw.owner === "string"
+        ? raw.owner.trim()
+        : raw.owner != null && typeof raw.owner === "object" && !Array.isArray(raw.owner)
+          ? String((raw.owner as Record<string, unknown>).address ?? "").trim()
+          : "",
     strategy:
       raw.strategy != null && typeof raw.strategy === "object"
         ? (raw.strategy as Agent["strategy"])
@@ -307,6 +306,23 @@ export async function updateAgent(
   if (!res.ok) {
     const err = data as { error?: string };
     throw new Error(err?.error ?? `Update agent failed: ${res.status}`);
+  }
+  return normalizeAgent(data as Record<string, unknown>);
+}
+
+/**
+ * Create agent wallet via CRE (createAgentKey). Use when agent has no walletAddress yet.
+ * Returns updated agent with walletAddress set.
+ */
+export async function createAgentWallet(id: string): Promise<Agent> {
+  const res = await fetch(`/api/agents/${encodeURIComponent(id)}/create-wallet`, {
+    method: "POST",
+    credentials: "include",
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = data as { error?: string; detail?: string };
+    throw new Error(err?.error ?? err?.detail ?? `Create wallet failed: ${res.status}`);
   }
   return normalizeAgent(data as Record<string, unknown>);
 }

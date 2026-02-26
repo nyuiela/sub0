@@ -35,7 +35,7 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
   const [balancesLoading, setBalancesLoading] = useState(false);
   const { mutate: sendTransaction, isPending } = useSendTransaction();
 
-  const address = agent.walletAddress ?? agent.owner?.address ?? null;
+  const address = agent.walletAddress ?? agent.owner ?? null;
   const hasWallet = Boolean(address && String(address).trim().length > 0);
 
   useEffect(() => {

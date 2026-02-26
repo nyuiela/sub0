@@ -6,6 +6,7 @@ import { ProfileTab } from "@/components/settings/ProfileTab";
 import { AgentStudioForm } from "@/components/settings/AgentStudioForm";
 import { VaultTab } from "@/components/settings/VaultTab";
 import { DeveloperApiTab } from "@/components/settings/DeveloperApiTab";
+import { ClaimAgentTab } from "@/components/settings/ClaimAgentTab/ClaimAgentTab";
 import {
   SETTINGS_SECTIONS,
   type SettingsSectionId,
@@ -28,6 +29,7 @@ function SettingsContent({ sectionId }: { sectionId: SettingsSectionId }) {
       <div className="flex-1 overflow-auto">
         {sectionId === "profile" && <ProfileTab />}
         {sectionId === "agent-studio" && <AgentStudioForm />}
+        {sectionId === "claim-agent" && <ClaimAgentTab />}
         {sectionId === "vault" && <VaultTab />}
         {sectionId === "developer-api" && <DeveloperApiTab />}
       </div>

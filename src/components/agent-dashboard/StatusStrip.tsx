@@ -31,6 +31,9 @@ export function StatusStrip({
   }
 
   const isActive = agent.status === "ACTIVE";
+  const buttonLabel = isActive
+    ? "Pause (stop agent)"
+    : "Resume (start agent; next cron cycle will run it)";
   const indicatorColor = isActive
     ? "bg-success"
     : agent.status === "PAUSED"
@@ -63,6 +66,8 @@ export function StatusStrip({
         type="button"
         onClick={handleToggle}
         disabled={saving}
+        title={buttonLabel}
+        aria-label={buttonLabel}
         className={`rounded px-3 py-1.5 text-xs font-medium transition-opacity disabled:opacity-50 ${
           isActive
             ? "bg-warning text-white hover:opacity-90"

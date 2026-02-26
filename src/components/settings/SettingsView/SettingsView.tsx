@@ -6,6 +6,7 @@ import { ProfileTab } from "@/components/settings/ProfileTab";
 import { AgentStudioForm } from "@/components/settings/AgentStudioForm";
 import { VaultTab } from "@/components/settings/VaultTab";
 import { DeveloperApiTab } from "@/components/settings/DeveloperApiTab";
+import { ClaimAgentTab } from "@/components/settings/ClaimAgentTab/ClaimAgentTab";
 import { AgentEditSection } from "@/components/settings/AgentEditSection";
 import {
   SETTINGS_SECTIONS,
@@ -102,6 +103,7 @@ export function SettingsView() {
 
           {currentView === "profile" && <ProfileTab />}
           {currentView === "agent-studio" && <AgentStudioForm />}
+          {currentView === "claim-agent" && <ClaimAgentTab />}
           {currentView === "vault" && <VaultTab />}
           {currentView === "developer-api" && <DeveloperApiTab />}
 

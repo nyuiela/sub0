@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { updateAgent } from "@/lib/api/agents";
 import type { Agent } from "@/types/agent.types";
+import { MODEL_OPTIONS, getDefaultModelOption } from "@/lib/settings.schema";
+
+const CUSTOM_MODEL_VALUE = "__custom__";
 
 export interface AgentSettingsFormProps {
   agent: Agent;
@@ -28,7 +31,19 @@ export function AgentSettingsForm({
       : typeof modelSettings.temperature === "string"
         ? Number(modelSettings.temperature)
         : 0.7;
-  const modelName = String(modelSettings.model ?? modelSettings.modelName ?? "");
+  const savedModel = String(modelSettings.model ?? modelSettings.modelName ?? "");
+  const presetMatch = MODEL_OPTIONS.some((o) => o.value === savedModel);
+  const [modelSelect, setModelSelect] = useState(presetMatch ? savedModel : CUSTOM_MODEL_VALUE);
+  const [customModel, setCustomModel] = useState(presetMatch ? "" : savedModel);
+  useEffect(() => {
+    const match = MODEL_OPTIONS.some((o) => o.value === savedModel);
+    setModelSelect(match ? savedModel : CUSTOM_MODEL_VALUE);
+    setCustomModel(match ? "" : savedModel);
+  }, [agent.id, savedModel]);
+  const effectiveModel = useMemo(
+    () => (modelSelect === CUSTOM_MODEL_VALUE ? customModel.trim() : modelSelect),
+    [modelSelect, customModel]
+  );
 
   const strategy = agent.strategy ?? {};
   const maxSlippage = strategy.maxSlippage ?? 0;
@@ -38,15 +53,13 @@ export function AgentSettingsForm({
     setSaving(true);
     setError(null);
     const tempInput = (document.getElementById("agent-temp") as HTMLInputElement | null)?.value;
-    const modelInput = (document.getElementById("agent-model") as HTMLInputElement | null)?.value;
     const temp = tempInput != null ? Number(tempInput) : temperature;
-    const model = modelInput?.trim() ?? modelName;
     try {
       const updated = await updateAgent(agent.id, {
         modelSettings: {
           ...modelSettings,
           temperature: Number.isFinite(temp) ? temp : 0.7,
-          model: model || undefined,
+          model: effectiveModel || undefined,
         },
       });
       onUpdate(updated);
@@ -122,13 +135,34 @@ export function AgentSettingsForm({
               >
                 Model
               </label>
-              <input
+              <select
                 id="agent-model"
-                type="text"
-                defaultValue={modelName}
-                placeholder="e.g. gpt-4o-mini"
+                value={modelSelect}
+                onChange={(e) => setModelSelect(e.target.value)}
                 className="w-full rounded border border-border bg-background px-2 py-1.5 text-sm text-foreground"
-              />
+                aria-label="Select model"
+              >
+                {MODEL_OPTIONS.map((o) => (
+                  <option
+                    key={o.value}
+                    value={o.value}
+                    disabled={o.comingSoon === true}
+                  >
+                    {o.comingSoon === true ? `${o.label} (Coming soon)` : o.label}
+                  </option>
+                ))}
+                <option value={CUSTOM_MODEL_VALUE}>Other (custom)</option>
+              </select>
+              {modelSelect === CUSTOM_MODEL_VALUE && (
+                <input
+                  type="text"
+                  value={customModel}
+                  onChange={(e) => setCustomModel(e.target.value)}
+                  placeholder="e.g. gpt-4o-mini"
+                  className="mt-2 w-full rounded border border-border bg-background px-2 py-1.5 text-sm text-foreground"
+                  aria-label="Custom model name"
+                />
+              )}
             </div>
             <div>
               <p className="mb-1 text-xs font-medium text-muted">

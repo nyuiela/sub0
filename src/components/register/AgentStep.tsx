@@ -6,6 +6,7 @@ import {
   type AgentCreatePayload,
   type AgentTemplatePayload,
 } from "@/types/register.types";
+import { MODEL_OPTIONS, getDefaultModelOption } from "@/lib/settings.schema";
 
 export type AgentChoice = "create" | "template";
 
@@ -28,12 +29,21 @@ export function AgentStep({
   onTemplatePayloadChange,
   onNext,
 }: AgentStepProps) {
+  const defaultModel = getDefaultModelOption();
   const [createName, setCreateName] = useState(createPayload.name ?? "");
   const [createPersona, setCreatePersona] = useState(createPayload.persona ?? "");
+  const [createModel, setCreateModel] = useState(
+    (createPayload.modelSettings as Record<string, unknown> | undefined)?.model as string | undefined
+      ?? defaultModel
+  );
   const [templateId, setTemplateId] = useState(templatePayload.templateId ?? "");
   const [templateName, setTemplateName] = useState(templatePayload.name ?? "");
   const [templatePersona, setTemplatePersona] = useState(
     templatePayload.persona ?? ""
+  );
+  const [templateModel, setTemplateModel] = useState(
+    (templatePayload.modelSettings as Record<string, unknown> | undefined)?.model as string | undefined
+      ?? defaultModel
   );
 
   const personaTrimmed = (s: string) => s.slice(0, PERSONA_MAX_LENGTH);
@@ -46,6 +56,7 @@ export function AgentStep({
         ...createPayload,
         name: createName.trim(),
         persona: createPersonaSafe.trim() || undefined,
+        modelSettings: { model: createModel || defaultModel },
       });
     } else if (choice === "template") {
       onTemplatePayloadChange({
@@ -53,6 +64,7 @@ export function AgentStep({
         templateId: templateId.trim(),
         name: templateName.trim(),
         persona: templatePersonaSafe.trim() || undefined,
+        modelSettings: { model: templateModel || defaultModel },
       });
     }
     onNext();
@@ -136,6 +148,27 @@ export function AgentStep({
               {createPersona.length} / {PERSONA_MAX_LENGTH}
             </span>
           </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-(--reg-muted)">
+              Model
+            </span>
+            <select
+              value={createModel}
+              onChange={(e) => setCreateModel(e.target.value)}
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) focus:border-(--reg-neon-violet) focus:outline-none"
+              aria-label="Select model for new agent"
+            >
+              {MODEL_OPTIONS.map((o) => (
+                <option
+                  key={o.value}
+                  value={o.value}
+                  disabled={o.comingSoon === true}
+                >
+                  {o.comingSoon === true ? `${o.label} (Coming soon)` : o.label}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       )}
       {choice === "template" && (
@@ -179,6 +212,27 @@ export function AgentStep({
             <span className="text-xs text-(--reg-muted)">
               {templatePersona.length} / {PERSONA_MAX_LENGTH}
             </span>
+          </label>
+          <label className="flex flex-col gap-2">
+            <span className="text-sm text-(--reg-muted)">
+              Model
+            </span>
+            <select
+              value={templateModel}
+              onChange={(e) => setTemplateModel(e.target.value)}
+              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) focus:border-(--reg-neon-violet) focus:outline-none"
+              aria-label="Select model for agent from template"
+            >
+              {MODEL_OPTIONS.map((o) => (
+                <option
+                  key={o.value}
+                  value={o.value}
+                  disabled={o.comingSoon === true}
+                >
+                  {o.comingSoon === true ? `${o.label} (Coming soon)` : o.label}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
       )}

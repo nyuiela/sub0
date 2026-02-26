@@ -6,6 +6,7 @@ import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "@/components/layout/AgentsColumn/AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
+import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
 import { useAppDispatch } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 
@@ -43,6 +44,7 @@ export function TrackerAgentColumn({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
+  const [agentForGetWallet, setAgentForGetWallet] = useState<Agent | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -181,12 +183,23 @@ export function TrackerAgentColumn({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setAgentForDeposit(agent);
+                        const hasWallet = Boolean(agent.walletAddress?.trim());
+                        if (hasWallet) setAgentForDeposit(agent);
+                        else setAgentForGetWallet(agent);
                       }}
-                      className="shrink-0 rounded-md border border-transparent bg-success px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                      aria-label={`Deposit to ${agent.name || "agent"}`}
+                      className="shrink-0 rounded-md border border-transparent px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{
+                        backgroundColor: agent.walletAddress?.trim()
+                          ? "var(--success)"
+                          : "var(--primary)",
+                      }}
+                      aria-label={
+                        agent.walletAddress?.trim()
+                          ? `Deposit to ${agent.name || "agent"}`
+                          : `Get wallet for ${agent.name || "agent"}`
+                      }
                     >
-                      Deposit
+                      {agent.walletAddress?.trim() ? "Deposit" : "Get wallet"}
                     </button>
                   </div>
                 </li>
@@ -202,17 +215,21 @@ export function TrackerAgentColumn({
           onClose={() => setAgentForDeposit(null)}
         />
       )}
+      {agentForGetWallet != null && (
+        <GetWalletModal
+          agent={agentForGetWallet}
+          onClose={() => setAgentForGetWallet(null)}
+          onSuccess={() => {
+            setAgentForGetWallet(null);
+            getMyAgents({ limit: AGENTS_LIMIT }).then((res) =>
+              setAgents(res.data ?? [])
+            );
+          }}
+        />
+      )}
 
       {selectedAgent != null && (
         <>
-          <section aria-label="Agent settings">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-              Settings
-            </h3>
-            <div className="border-b border-border bg-surface p-3 text-sm text-muted-foreground last:border-b-0">
-              Agent settings (name, status, keys) – coming soon.
-            </div>
-          </section>
           <section aria-label="Preferences">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
               Preferences

@@ -6,6 +6,7 @@
 export const SETTINGS_SECTION_IDS = [
   "profile",
   "agent-studio",
+  "claim-agent",
   "vault",
   "developer-api",
 ] as const;
@@ -24,6 +25,7 @@ export interface SettingsSectionItem {
 export const SETTINGS_SECTIONS: SettingsSectionItem[] = [
   { id: "profile", label: "Profile", description: "Global profile and account" },
   { id: "agent-studio", label: "Agent Studio", description: "Configure AI trading agents" },
+  { id: "claim-agent", label: "Claim external agent", description: "BYOA: link an external agent to your wallet" },
   { id: "vault", label: "Vault & Funds", description: "USDC balance and deposits" },
   { id: "developer-api", label: "Developer API", description: "API keys and integration" },
 ];

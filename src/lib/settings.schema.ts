@@ -55,12 +55,28 @@ export const vaultSchema = z.object({
 
 export type VaultFormValues = z.infer<typeof vaultSchema>;
 
-export const MODEL_OPTIONS = [
-  { value: "gpt-4o", label: "GPT-4o" },
-  { value: "gpt-4o-mini", label: "GPT-4o Mini" },
-  { value: "claude-3-5-sonnet", label: "Claude 3.5 Sonnet" },
-  { value: "claude-3-opus", label: "Claude 3 Opus" },
-] as const;
+export interface ModelOption {
+  value: string;
+  label: string;
+  comingSoon?: boolean;
+}
+
+/** Only Gemini Flash is available (Gemini API key); others shown as Coming soon. */
+export const MODEL_OPTIONS: ModelOption[] = [
+  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  { value: "gpt-4o", label: "GPT-4o", comingSoon: true },
+  { value: "gpt-4o-mini", label: "GPT-4o Mini", comingSoon: true },
+  { value: "claude-3-5-sonnet", label: "Claude 3.5 Sonnet", comingSoon: true },
+  { value: "claude-3-opus", label: "Claude 3 Opus", comingSoon: true },
+];
+
+export const DEFAULT_MODEL_VALUE = "gemini-2.0-flash";
+
+/** First model that is not coming soon; use for defaults. */
+export function getDefaultModelOption(): string {
+  const opt = MODEL_OPTIONS.find((o) => !o.comingSoon);
+  return opt?.value ?? DEFAULT_MODEL_VALUE;
+}
 
 export const STRATEGY_OPTIONS: { value: StrategyPref; label: string }[] = [
   { value: "AMM_ONLY", label: "AMM only" },

@@ -7,11 +7,7 @@
 
 export type AgentStatus = "ACTIVE" | "PAUSED" | "DEPLETED" | "EXPIRED";
 
-export interface AgentOwner {
-  id: string;
-  address: string;
-}
-
+/** Owner is returned as the wallet address string (0x...) from the API. */
 export interface AgentStrategy {
   preference?: string;
   maxSlippage?: number;
@@ -40,7 +36,8 @@ export interface Agent {
   templateId: string | null;
   createdAt: string;
   updatedAt: string;
-  owner: AgentOwner;
+  /** Owner wallet address (0x...). */
+  owner: string;
   strategy: AgentStrategy | null;
   template: AgentTemplate | null;
   currentExposure?: number;
