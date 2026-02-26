@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchMarkets } from "@/store/slices/marketsSlice";
+import { fetchMarkets, fetchOrderBooksForList } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 // import { RegistrationRedirect } from "@/components/auth/RegistrationRedirect";
 import { TopNav } from "@/components/layout/TopNav";
@@ -50,7 +50,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     if (children == null && activeTab === "markets") {
-      void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
+      void dispatch(fetchMarkets({ status: "OPEN", limit: 24 })).then(() => {
+        void dispatch(fetchOrderBooksForList());
+      });
     }
   }, [children, activeTab, dispatch]);
 

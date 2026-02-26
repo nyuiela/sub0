@@ -73,6 +73,47 @@ export const fetchMarketByConditionId = createAsyncThunk(
   }
 );
 
+const MAX_ORDER_BOOK_HYDRATE = 20;
+
+/** Fetches order book snapshots for list markets that don't have one yet (e.g. after page refresh). */
+export const fetchOrderBooksForList = createAsyncThunk(
+  "markets/fetchOrderBooksForList",
+  async (
+    _: void,
+    { getState, dispatch }
+  ) => {
+    const state = getState() as { markets: MarketsSliceState };
+    const list = state.markets.list;
+    const ids = list.slice(0, MAX_ORDER_BOOK_HYDRATE).map((m) => m.id);
+    const ob = state.markets.orderBookByMarketId;
+    const toFetch = ids.filter((id) => {
+      const key = `${id}-0`;
+      return !(ob[key] ?? ob[id]);
+    });
+    if (toFetch.length === 0) return;
+    const results = await Promise.allSettled(
+      toFetch.map((id) => marketsApi.getMarketById(id))
+    );
+    for (let i = 0; i < results.length; i++) {
+      const r = results[i];
+      if (r.status !== "fulfilled") continue;
+      const market = r.value;
+      const snap = market?.orderBookSnapshot;
+      if (snap?.bids == null || snap?.asks == null) continue;
+      dispatch(
+        setOrderBookForMarket({
+          marketId: snap.marketId ?? market.id,
+          outcomeIndex: snap.outcomeIndex ?? 0,
+          bids: snap.bids,
+          asks: snap.asks,
+          timestamp:
+            typeof snap.timestamp === "number" ? snap.timestamp : Date.now(),
+        })
+      );
+    }
+  }
+);
+
 export const createMarket = createAsyncThunk(
   "markets/create",
   async (
@@ -216,10 +257,24 @@ const marketsSlice = createSlice({
       })
       .addCase(fetchMarkets.fulfilled, (state, action) => {
         state.listLoading = false;
-        state.list = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        const list = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        state.list = list;
         state.total = action.payload?.total ?? 0;
         state.limit = action.payload?.limit ?? state.limit;
         state.offset = action.payload?.offset ?? state.offset;
+        for (const m of list) {
+          const snap = m.orderBookSnapshot;
+          if (snap?.bids != null && snap?.asks != null) {
+            const key = `${m.id}-${snap.outcomeIndex ?? 0}`;
+            state.orderBookByMarketId[key] = {
+              marketId: m.id,
+              outcomeIndex: snap.outcomeIndex ?? 0,
+              bids: snap.bids,
+              asks: snap.asks,
+              timestamp: typeof snap.timestamp === "number" ? snap.timestamp : Date.now(),
+            };
+          }
+        }
       })
       .addCase(fetchMarkets.rejected, (state, action) => {
         state.listLoading = false;
