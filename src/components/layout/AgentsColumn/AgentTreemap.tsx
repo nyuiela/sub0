@@ -36,7 +36,8 @@ function prepareTreemapData(agents: Agent[]): TreemapDataItem[] {
     { name: "Agents", parent: "", value: 0, progress: 0 },
   ];
   for (const a of agents) {
-    const value = Math.max(0.01, (a.tradedAmount ?? 0) || (a.balance ?? 0) || 1);
+    const volume = (a.tradedAmount ?? 0) + (a.balance ?? 0);
+    const value = Math.max(0.01, volume || 1);
     const progress = typeof a.pnl === "number" ? a.pnl : 0;
     items.push({
       name: a.id,
@@ -65,13 +66,57 @@ function prepareLayout(
 export interface AgentTreemapProps {
   agents: Agent[];
   className?: string;
+  /** When true, render a simple CSS treemap only (no SciChart). Use for reliable display when WASM may fail. */
+  simpleOnly?: boolean;
 }
 
-export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
+function SimpleTreemapFallback({ agents, className = "" }: { agents: Agent[]; className?: string }) {
+  const total = agents.reduce(
+    (sum, a) => sum + Math.max(0.01, (a.tradedAmount ?? 0) + (a.balance ?? 0) || 1),
+    0
+  );
+  if (total <= 0) return null;
+  return (
+    <section
+      className={`flex flex-wrap gap-0.5 overflow-hidden rounded ${className}`.trim()}
+      style={{ minHeight: CHART_HEIGHT_PX }}
+      aria-label="Agents by volume"
+    >
+      {agents.map((a) => {
+        const value = Math.max(0.01, (a.tradedAmount ?? 0) + (a.balance ?? 0) || 1);
+        const pct = Math.max(8, (value / total) * 100);
+        const pnl = typeof a.pnl === "number" ? a.pnl : 0;
+        const bg =
+          pnl > 0
+            ? "bg-success/80"
+            : pnl < 0
+              ? "bg-destructive/60"
+              : "bg-muted";
+        return (
+          <div
+            key={a.id}
+            className={`flex items-center justify-center rounded p-1 text-center ${bg} text-white`}
+            style={{ flex: `${pct} 1 0`, minWidth: "20%", fontSize: 10 }}
+            title={`${a.name ?? a.id} | Vol: ${value.toFixed(0)} | PnL: ${pnl}`}
+          >
+            <span className="truncate">{a.name?.slice(0, 8) ?? a.id.slice(0, 8)}</span>
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
+export function AgentTreemap({ agents, className = "", simpleOnly = false }: AgentTreemapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<{ sciChartSurface: { delete: () => void }; wasmContext: unknown } | null>(null);
   const [containerReady, setContainerReady] = useState(false);
   const [chartError, setChartError] = useState<string | null>(null);
+
+  if (agents.length === 0) return null;
+  if (simpleOnly) {
+    return <SimpleTreemapFallback agents={agents} className={className} />;
+  }
 
   useEffect(() => {
     if (agents.length === 0) {
@@ -282,11 +327,9 @@ export function AgentTreemap({ agents, className = "" }: AgentTreemapProps) {
         style={{ width: "100%", height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
       />
       {chartError != null && (
-        <div
-          className="flex items-center justify-center rounded bg-muted/90 p-3 text-center text-xs text-muted-foreground"
-          style={{ marginTop: -CHART_HEIGHT_PX, height: CHART_HEIGHT_PX }}
-        >
-          {chartError}
+        <div className="absolute inset-0 flex flex-col gap-1 rounded bg-muted/90 p-2">
+          <p className="text-xs text-muted-foreground">{chartError}</p>
+          <SimpleTreemapFallback agents={agents} className="flex-1 min-h-0" />
         </div>
       )}
     </section>

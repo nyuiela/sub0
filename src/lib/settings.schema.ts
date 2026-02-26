@@ -61,9 +61,15 @@ export interface ModelOption {
   comingSoon?: boolean;
 }
 
-/** Only Gemini Flash is available (Gemini API key); others shown as Coming soon. */
+/** Gemini (uses GEMINI_API_KEY_TRADING_1/2/3) and Grok (uses XAI_API_KEY) are available. */
 export const MODEL_OPTIONS: ModelOption[] = [
   { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+  { value: "gemini-2.5-flash-preview", label: "Gemini 2.5 Flash (preview)" },
+  { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },
+  { value: "gemini-2.5-pro-preview", label: "Gemini 2.5 Pro" },
+  { value: "grok-3-mini", label: "Grok 3 Mini" },
+  { value: "grok-4-fast-reasoning", label: "Grok 4" },
   { value: "gpt-4o", label: "GPT-4o", comingSoon: true },
   { value: "gpt-4o-mini", label: "GPT-4o Mini", comingSoon: true },
   { value: "claude-3-5-sonnet", label: "Claude 3.5 Sonnet", comingSoon: true },

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getActivities } from "@/lib/api/activities";
 import { getAgentPendingTrades } from "@/lib/api/pendingTrades";
@@ -33,6 +34,7 @@ function ExecutedTradeRow({ item }: { item: ActivityItem }) {
   const side = p.side === "BID" ? "long" : "short";
   const who =
     p.userId != null ? p.userId.slice(0, 8) + "..." : p.agentId != null ? p.agentId.slice(0, 8) + "..." : "-";
+  const marketId = p.marketId ?? "";
   return (
     <tr className="border-b border-border/50 hover:bg-muted/50">
       <td className="py-2 text-sm text-muted-foreground">Executed</td>
@@ -42,7 +44,19 @@ function ExecutedTradeRow({ item }: { item: ActivityItem }) {
       <td className="py-2 text-right tabular-nums">{p.amount}</td>
       <td className="py-2 text-right tabular-nums">{p.price}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
-      <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(p.createdAt)}</td>
+      <td className="py-2 text-right text-muted-foreground pr-2">{formatTimeAgo(p.createdAt)}</td>
+      <td className="py-2 pl-3">
+        {marketId ? (
+          <Link
+            href={`/market/${marketId}`}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            View market
+          </Link>
+        ) : (
+          <span className="text-xs text-muted-foreground">-</span>
+        )}
+      </td>
     </tr>
   );
 }
@@ -54,8 +68,9 @@ function PendingTradeRow({ row }: { row: PendingAgentTradeItem }) {
       ? "Pending (no wallet)"
       : "Pending (add funds)";
   const agentName = row.agent?.name ?? row.agentId.slice(0, 8) + "...";
+  const marketId = row.marketId ?? "";
   return (
-    <tr className="border-b border-border/50 hover:bg-muted/50 bg-muted/20">
+    <tr className="border-b border-border/50 bg-muted/20 hover:bg-muted/30">
       <td className="py-2 text-sm text-amber-600">{reason}</td>
       <td className="py-2 text-right">
         <span className={side === "long" ? "text-green-600" : "text-red-600"}>{side}</span>
@@ -65,7 +80,19 @@ function PendingTradeRow({ row }: { row: PendingAgentTradeItem }) {
       <td className="py-2 font-mono text-xs" title={row.agentId}>
         {agentName}
       </td>
-      <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(row.createdAt)}</td>
+      <td className="py-2 text-right text-muted-foreground pr-2">{formatTimeAgo(row.createdAt)}</td>
+      <td className="py-2 pl-3">
+        {marketId ? (
+          <Link
+            href={`/market/${marketId}`}
+            className="text-xs font-medium text-primary hover:underline"
+          >
+            View market
+          </Link>
+        ) : (
+          <span className="text-xs text-muted-foreground">-</span>
+        )}
+      </td>
     </tr>
   );
 }
@@ -143,7 +170,7 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
           </button>
         </div>
       </header>
-      <div className="min-h-[120px] flex-1 overflow-auto">
+      <div className="min-h-[120px] flex-1 overflow-auto px-4">
         {loading ? (
           <p className="p-4 text-sm text-muted-foreground">Loading...</p>
         ) : error ? (
@@ -154,41 +181,85 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
           </p>
         ) : (
           <>
-            {(hasExecuted || hasPending) && (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border text-muted-foreground sticky top-0 bg-background">
-                    <th className="py-2 text-left font-medium">Status</th>
-                    <th className="py-2 text-right font-medium">Side</th>
-                    <th className="py-2 text-right font-medium">Amount</th>
-                    <th className="py-2 text-right font-medium">Price</th>
-                    <th className="py-2 text-left font-medium">Agent / User</th>
-                    <th className="py-2 text-right font-medium">Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {executed.map((item) => (
-                    <ExecutedTradeRow key={item.id} item={item} />
-                  ))}
-                  {pending.map((row) => (
-                    <PendingTradeRow key={row.id} row={row} />
-                  ))}
-                </tbody>
-              </table>
+            {hasExecuted && (
+              <section className="py-4" aria-label="Executed trades">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                  Executed trades
+                </h3>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-muted-foreground sticky top-0 bg-background">
+                      <th className="py-2 text-left font-medium">Status</th>
+                      <th className="py-2 text-right font-medium">Side</th>
+                      <th className="py-2 text-right font-medium">Amount</th>
+                      <th className="py-2 text-right font-medium">Price</th>
+                      <th className="py-2 text-left font-medium">Agent / User</th>
+                      <th className="py-2 text-right font-medium pr-2">Time</th>
+                      <th className="py-2 text-left font-medium pl-3">Market</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {executed.map((item) => (
+                      <ExecutedTradeRow key={item.id} item={item} />
+                    ))}
+                  </tbody>
+                </table>
+              </section>
+            )}
+            {hasPending && (
+              <section className="border-t border-border py-4" aria-label="Pending trades">
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                  Pending trades (your agents)
+                </h3>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-muted-foreground sticky top-0 bg-background">
+                      <th className="py-2 text-left font-medium">Status</th>
+                      <th className="py-2 text-right font-medium">Side</th>
+                      <th className="py-2 text-right font-medium">Amount</th>
+                      <th className="py-2 text-right font-medium">Price</th>
+                      <th className="py-2 text-left font-medium">Agent</th>
+                      <th className="py-2 text-right font-medium pr-2">Time</th>
+                      <th className="py-2 text-left font-medium pl-3">Market</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pending.map((row) => (
+                      <PendingTradeRow key={row.id} row={row} />
+                    ))}
+                  </tbody>
+                </table>
+              </section>
             )}
             {hasEnqueued && (
-              <section className="border-t border-border mt-4 px-4 py-3" aria-label="Markets in queue">
+              <section className="border-t border-border py-4" aria-label="Markets in queue">
                 <h3 className="text-sm font-medium text-foreground mb-2">Markets added to agents</h3>
-                <ul className="space-y-1.5 text-sm text-muted-foreground">
-                  {agentsWithQueue.map((agent) => (
-                    <li key={agent.id}>
-                      <span className="font-medium text-foreground">{agent.name}</span>
-                      {" – "}
-                      {(agent.enqueuedMarketIds ?? []).length} market{(agent.enqueuedMarketIds ?? []).length === 1 ? "" : "s"} in queue
-                      {". "}
-                      Pending analysis and trade when agent has wallet and funds.
-                    </li>
-                  ))}
+                <p className="text-xs text-muted-foreground mb-3">
+                  Queued markets below. Pending analysis and trade when agent has wallet and funds.
+                </p>
+                <ul className="space-y-3 text-sm">
+                  {agentsWithQueue.map((agent) => {
+                    const ids = agent.enqueuedMarketIds ?? [];
+                    return (
+                      <li key={agent.id} className="flex flex-col gap-1">
+                        <span className="font-medium text-foreground">
+                          {agent.name} – {ids.length} market{ids.length === 1 ? "" : "s"} in queue
+                        </span>
+                        <ul className="list-inside list-disc space-y-0.5 text-muted-foreground">
+                          {ids.map((marketId, idx) => (
+                            <li key={marketId}>
+                              <Link
+                                href={`/market/${marketId}`}
+                                className="text-primary hover:underline"
+                              >
+                                View market {ids.length > 1 ? idx + 1 : ""}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             )}

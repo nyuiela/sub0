@@ -27,6 +27,8 @@ export interface Agent {
   publicKey: string | null;
   /** Agent wallet address for receiving USDC; set when agent wallet is created. */
   walletAddress?: string | null;
+  /** True when agent has both walletAddress and stored key (can receive deposits and sign). */
+  hasCompleteWallet?: boolean;
   balance: number;
   tradedAmount: number;
   totalTrades: number;

@@ -40,6 +40,7 @@ function normalizeAgent(raw: Record<string, unknown>): Agent {
       raw.walletAddress != null && String(raw.walletAddress).trim() !== ""
         ? String(raw.walletAddress).trim()
         : null,
+    hasCompleteWallet: raw.hasCompleteWallet === true,
     balance: parseNum(raw.balance),
     tradedAmount: parseNum(raw.tradedAmount),
     totalTrades: parseNum(raw.totalTrades),

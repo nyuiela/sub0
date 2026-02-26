@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getContract, prepareContractCall, prepareTransaction, toWei } from "thirdweb";
-import { useSendTransaction } from "thirdweb/react";
+import { getContract, prepareContractCall } from "thirdweb";
+import { useSendTransaction, useActiveAccount } from "thirdweb/react";
 import { baseSepolia } from "thirdweb/chains";
 import { toast } from "sonner";
 import { thirdwebClient } from "@/lib/thirdweb/client";
@@ -30,13 +30,20 @@ function truncateAddress(addr: string, head = 6, tail = 4): string {
 }
 
 export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps) {
+  const activeAccount = useActiveAccount();
   const [amountInput, setAmountInput] = useState("100");
   const [balances, setBalances] = useState<{ eth: string; usdc: string } | null>(null);
+  const [senderBalance, setSenderBalance] = useState<{ usdc: string } | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(false);
-  const { mutate: sendTransaction, isPending } = useSendTransaction();
+  const [senderBalanceLoading, setSenderBalanceLoading] = useState(false);
+  const { mutate: sendTransaction, isPending } = useSendTransaction({
+    payModal: false,
+  });
 
   const address = agent.walletAddress ?? agent.owner ?? null;
-  const hasWallet = Boolean(address && String(address).trim().length > 0);
+  const hasCompleteWallet = agent.hasCompleteWallet === true;
+  const hasAddress = Boolean(address && String(address).trim().length > 0);
+  const senderAddress = activeAccount?.address ?? null;
 
   useEffect(() => {
     if (!address) {
@@ -59,6 +66,28 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
       cancelled = true;
     };
   }, [address]);
+
+  useEffect(() => {
+    if (!senderAddress) {
+      setSenderBalance(null);
+      return;
+    }
+    let cancelled = false;
+    setSenderBalanceLoading(true);
+    getWalletBalances(senderAddress)
+      .then((b) => {
+        if (!cancelled) setSenderBalance({ usdc: b.usdc });
+      })
+      .catch(() => {
+        if (!cancelled) setSenderBalance(null);
+      })
+      .finally(() => {
+        if (!cancelled) setSenderBalanceLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [senderAddress]);
 
   const amount = useMemo(() => parseAmount(amountInput), [amountInput]);
 
@@ -86,12 +115,19 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
         onClose();
       },
       onError: (err) => {
-        toast.error(err?.message ?? "Transfer failed");
+        const msg = err?.message ?? "Transfer failed";
+        const isBalanceRelated =
+          /insufficient|exceeds balance|not enough balance|balance too low/i.test(String(msg));
+        toast.error(
+          isBalanceRelated
+            ? "Your connected wallet has no USDC or not enough. The header balance is for this same wallet; mint test USDC from the header if needed."
+            : msg
+        );
       },
     });
   }, [agent.walletAddress, agent.name, amount, onClose, sendTransaction]);
 
-  const canTransferUsdc = Boolean(agent.walletAddress && amount > 0);
+  const canTransferUsdc = Boolean(hasCompleteWallet && agent.walletAddress && amount > 0);
 
   return (
     <section
@@ -122,6 +158,11 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
                 {truncateAddress(address)}
               </span>
             </p>
+            {!hasCompleteWallet && agent.walletAddress && (
+              <p className="mb-2 text-xs text-muted">
+                This agent&apos;s wallet is not ready. Get wallet for this agent first to enable deposits.
+              </p>
+            )}
             {balancesLoading ? (
               <p className="mb-3 text-xs text-muted">
                 {agent.walletAddress ? "Loading agent balance…" : "Loading balance…"}
@@ -141,15 +182,27 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
           </p>
         )}
 
-        {hasWallet && (
+        {hasAddress && (
           <>
             {address && !agent.walletAddress && (
               <p className="mb-2 text-xs text-muted">
-                Transfers are disabled until this agent has its own wallet. The address above is your connected owner's address.
+                Transfers are disabled until this agent has its own wallet. The address above is your connected owner&apos;s address.
               </p>
             )}
 
             <p className="mb-2 text-xs font-medium text-foreground">Send USDC</p>
+            {senderAddress && (
+              <p className="mb-2 text-xs text-muted">
+                Sending from: <span className="font-mono" title={senderAddress}>{truncateAddress(senderAddress)}</span>
+                {senderBalanceLoading ? " (loading…)" : senderBalance != null ? ` (${senderBalance.usdc} USDC)` : ""}
+                . This is the same wallet shown in the header.
+              </p>
+            )}
+            {!senderAddress && (
+              <p className="mb-2 text-xs text-muted">
+                Connect a wallet to send USDC. The header balance is for your connected wallet.
+              </p>
+            )}
             <label className="mb-1 block text-xs text-muted">Amount (USDC)</label>
             <input
               type="text"
@@ -180,7 +233,7 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
           </>
         )}
 
-        {!hasWallet && (
+        {!hasAddress && (
           <button
             type="button"
             onClick={onClose}

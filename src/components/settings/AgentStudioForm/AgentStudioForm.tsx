@@ -33,7 +33,7 @@ function MarkdownPreview({ source }: { source: string }) {
     </pre>
   );
 }
-import { getMyAgents, getAgent, updateAgent, createAgent, createAgentWallet } from "@/lib/api/agents";
+import { getMyAgents, getAgent, updateAgent, createAgent } from "@/lib/api/agents";
 import { getCurrentUser } from "@/lib/api/auth";
 import type { Agent } from "@/types/agent.types";
 import {
@@ -210,7 +210,7 @@ export function AgentStudioForm() {
           toast.error("You must be signed in to create an agent.");
           return;
         }
-        toast.info("Creating agent and generating wallet via CRE…");
+        toast.info("Creating agent and wallet…");
         const agent = await createAgent({
           ownerId,
           name: data.name.trim() || "My Agent",
@@ -230,7 +230,6 @@ export function AgentStudioForm() {
             },
           },
         });
-        await createAgentWallet(agent.id);
         await updateAgent(agent.id, {
           name: data.name.trim() || agent.name,
           persona: data.openclaw.persona ?? agent.persona,
@@ -249,7 +248,7 @@ export function AgentStudioForm() {
             },
           },
         });
-        toast.success("Agent created and wallet generated (CRE).");
+        toast.success("Agent created with wallet.");
         const list = await getMyAgents({ limit: 100 });
         setAgents(list.data);
         setSelectedId(agent.id);

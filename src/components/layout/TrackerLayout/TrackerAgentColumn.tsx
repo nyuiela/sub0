@@ -104,7 +104,7 @@ export function TrackerAgentColumn({
         {loading && agents.length === 0 ? (
           <div className="h-[200px] animate-pulse rounded bg-surface" />
         ) : agents.length > 0 ? (
-          <AgentTreemap agents={agents} />
+          <AgentTreemap agents={agents} simpleOnly />
         ) : (
           <p className="text-sm text-muted-foreground">No agents yet.</p>
         )}
@@ -131,6 +131,7 @@ export function TrackerAgentColumn({
           <ul className="space-y-0">
             {agents.map((agent) => {
               const isSelected = agent.id === selectedAgentId;
+              const hasWallet = agent.hasCompleteWallet === true;
               const pnl = agent.pnl ?? 0;
               const pnlClass = pnl >= 0 ? "text-success" : "text-danger";
               return (
@@ -183,19 +184,18 @@ export function TrackerAgentColumn({
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        const hasWallet = Boolean(agent.walletAddress?.trim());
                         if (hasWallet) setAgentForDeposit(agent);
                         else setAgentForGetWallet(agent);
                       }}
                       className="shrink-0 rounded-md border border-transparent px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       style={{ backgroundColor: "var(--color-success)" }}
                       aria-label={
-                        agent.walletAddress?.trim()
+                        hasWallet
                           ? `Deposit to ${agent.name || "agent"}`
                           : `Get wallet for ${agent.name || "agent"}`
                       }
                     >
-                      {agent.walletAddress?.trim() ? "Deposit" : "Get wallet"}
+                      {hasWallet ? "Deposit" : "Get wallet"}
                     </button>
                   </div>
                 </li>

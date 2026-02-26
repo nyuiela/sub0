@@ -202,6 +202,7 @@ export function AgentsColumn({
             const pnl = agent.pnl ?? 0;
             const pnlClass = pnl >= 0 ? "text-success" : "text-danger";
             const isMine = agent.isMine;
+            const hasWallet = agent.hasCompleteWallet === true;
             return (
               <li key={agent.id}>
                 <section className="flex gap-3 border-b border-border bg-surface p-3 transition-colors last:border-b-0 hover:bg-muted/30">
@@ -238,7 +239,6 @@ export function AgentsColumn({
                       <button
                         type="button"
                         onClick={() => {
-                          const hasWallet = Boolean(agent.walletAddress?.trim());
                           if (hasWallet) setAgentForDeposit(agent);
                           else setAgentForGetWallet(agent);
                         }}
@@ -247,12 +247,12 @@ export function AgentsColumn({
                         hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 
                         focus-visible:ring-primary focus-visible:ring-offset-2"
                         aria-label={
-                          agent.walletAddress?.trim()
+                          hasWallet
                             ? `Deposit to ${agent.name || "agent"}`
                             : `Get wallet for ${agent.name || "agent"}`
                         }
                       >
-                        {agent.walletAddress?.trim() ? "Deposit" : "Get wallet"}
+                        {hasWallet ? "Deposit" : "Get wallet"}
                       </button>
                     </div>
                   )}
