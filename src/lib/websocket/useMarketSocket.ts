@@ -9,6 +9,8 @@ import {
 } from "@/store/slices/marketsSlice";
 import { fetchMarkets, fetchMarketById } from "@/store/slices/marketsSlice";
 import { setStatus } from "@/store/slices/websocketSlice";
+import { requestPositionsRefetch } from "@/store/slices/positionsSlice";
+import { addRecentTrade } from "@/store/slices/recentTradesSlice";
 import type { OrderBookSnapshot } from "@/types/market.types";
 import type { WebSocketStatus } from "@/types/websocket.types";
 import {
@@ -236,6 +238,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               const p = payload as TradeExecutedPayload | undefined;
               if (p?.marketId && p?.executedAt != null) {
                 ensureThrottle().pushTrade(p);
+                dispatch(addRecentTrade(p));
                 optionsRef.current.onTradeExecuted?.(p);
               }
             } else if (type === "MARKET_UPDATED") {
@@ -261,6 +264,9 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
                 }
               } else if (reason === "stats" && typeof p.volume === "string") {
                 dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
+              } else if (reason === "position") {
+                dispatch(requestPositionsRefetch());
+                void dispatch(fetchMarketById(p.marketId));
               }
             }
           },

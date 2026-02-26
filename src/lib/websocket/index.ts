@@ -2,6 +2,7 @@ export { websocketService } from "./websocketService";
 export { useWebSocket } from "./useWebSocket";
 export { marketWebSocketService } from "./marketWebSocketService";
 export { useMarketSocket } from "./useMarketSocket";
+export { useLiveOrderBook, useRecentTrades } from "./useLiveMarketData";
 export { getMarketWebSocketUrl } from "./marketWsUrl";
 export type {
   MarketUpdatedPayload,

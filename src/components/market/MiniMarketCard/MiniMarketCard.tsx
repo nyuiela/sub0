@@ -3,12 +3,13 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { selectOrderBookByMarketId } from "@/store/slices/marketsSlice";
 import { addRecent } from "@/store/slices/recentSlice";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Market } from "@/types/market.types";
 
-const AVATAR_SIZE = 94;
+const AVATAR_SIZE = 194;
 
 function formatMc(value: string | undefined): string {
   if (value == null || value === "") return "0";
@@ -110,6 +111,11 @@ export function MiniMarketCard({
 }: MiniMarketCardProps) {
   const addedCount = addedAgentIds.length;
   const dispatch = useAppDispatch();
+  const orderBook = useAppSelector((state) =>
+    selectOrderBookByMarketId(state, market.id, 0)
+  );
+  const bestBid = orderBook?.bids?.[0]?.price;
+  const bestAsk = orderBook?.asks?.[0]?.price;
 
   const volume = market.totalVolume ?? market.volume ?? "0";
   const mcFormatted = formatMc(volume);
@@ -135,7 +141,7 @@ export function MiniMarketCard({
             alt=""
             width={AVATAR_SIZE}
             height={AVATAR_SIZE}
-            className="h-12 w-12 rounded-sm object-cover"
+            className="h-24 w-24 rounded-sm object-cover"
             loading="lazy"
             unoptimized
           />
@@ -147,7 +153,7 @@ export function MiniMarketCard({
               alt=""
               width={AVATAR_SIZE}
               height={AVATAR_SIZE}
-              className="h-12 w-12 rounded-sm object-cover"
+              className="h-24 w-24 rounded-sm object-cover"
               loading="lazy"
             />
           </>
@@ -210,6 +216,13 @@ export function MiniMarketCard({
               </span>
             )}
         </div>
+        {(bestBid != null || bestAsk != null) && (
+          <p className="text-[10px] text-muted" aria-label="Best bid and ask">
+            <span className="text-success">Bid {bestBid ?? "—"}</span>
+            <span className="mx-1 text-muted">|</span>
+            <span className="text-danger">Ask {bestAsk ?? "—"}</span>
+          </p>
+        )}
         <p className="text-[10px] text-muted">
           <span className="text-muted">{(market.conditionId ?? "").slice(0, 4)}…{(market.conditionId ?? "").slice(-4)}</span>
           <span className="text-success"> F </span>${Number(volume) > 0 ? (Number(volume) * 0.01).toFixed(3) : "0"}

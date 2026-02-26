@@ -2,12 +2,13 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { setColumnOrder, resetColumnOrder } from "@/store/slices/layoutSlice";
+import { setColumnOrder } from "@/store/slices/layoutSlice";
 import type { ColumnSizePrefs } from "@/types/layout.types";
 import { MiniMarketsContainer } from "@/components/market";
 import { NewsColumn } from "@/components/layout/NewsColumn";
 import { AgentsColumn } from "@/components/layout/AgentsColumn";
 import { PositionsColumn } from "@/components/layout/PositionsColumn";
+import { TradesColumn } from "@/components/layout/TradesColumn";
 import { ColumnResizeHandle } from "./ColumnResizeHandle";
 
 const COLUMN_LABELS: Record<string, string> = {
@@ -165,6 +166,8 @@ export function DraggableColumns() {
                   <AgentsColumn />
                 ) : columnId === "positions" ? (
                   <PositionsColumn />
+                ) : columnId === "trades" ? (
+                  <TradesColumn />
                 ) : (
                   <p className="text-xs text-muted">
                     Column content slot. Replace with market list or trade panel.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useAppSelector } from "@/store/hooks";
 import { getPositions } from "@/lib/api/positions";
 import { getAgent, getAgentReasoning } from "@/lib/api/agents";
 import type { Agent } from "@/types/agent.types";
@@ -36,6 +37,7 @@ function formatTime(iso: string): string {
 }
 
 export function MarketLeftColumn({ marketId, marketPrices, className = "" }: MarketLeftColumnProps) {
+  const refetchTrigger = useAppSelector((state) => state.positions.refetchTrigger);
   const [activeTab, setActiveTab] = useState<MarketLeftTabId>("assets");
   const [positions, setPositions] = useState<Position[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -78,7 +80,7 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
 
   useEffect(() => {
     if (activeTab === "statistic") loadStatistic();
-  }, [activeTab, loadStatistic]);
+  }, [activeTab, loadStatistic, refetchTrigger]);
 
   const hasTraded = positions.length > 0;
 

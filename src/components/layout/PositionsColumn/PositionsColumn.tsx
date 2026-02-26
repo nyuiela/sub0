@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 import { getPositions } from "@/lib/api/positions";
 import type { Position, PositionStatus } from "@/types/position.types";
@@ -82,6 +82,7 @@ export function PositionsColumn({
   className = "",
 }: PositionsColumnProps) {
   const dispatch = useAppDispatch();
+  const refetchTrigger = useAppSelector((state) => state.positions.refetchTrigger);
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -120,7 +121,7 @@ export function PositionsColumn({
     return () => {
       cancelled = true;
     };
-  }, [status, limit, marketId, userId, agentId, address]);
+  }, [status, limit, marketId, userId, agentId, address, refetchTrigger]);
 
   if (loading && positions.length === 0) {
     return (
