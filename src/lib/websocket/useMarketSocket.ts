@@ -25,6 +25,8 @@ import { marketWebSocketService } from "./marketWebSocketService";
 
 const DEFAULT_RECONNECT_MAX_ATTEMPTS = 10;
 const DEFAULT_RECONNECT_INTERVAL_MS = 2000;
+/** Debounce list refetch when many markets are created in a burst (e.g. CRE creates 20–30). */
+const LIST_REFETCH_DEBOUNCE_MS = 600;
 
 function toReduxStatus(s: MarketSocketStatus): WebSocketStatus {
   if (s === "connecting") return "connecting";
@@ -136,6 +138,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
   const throttleRef = useRef<ReturnType<typeof createThrottledDispatch> | null>(null);
   const optionsRef = useRef(options);
   const roomsRef = useRef<string[]>([]);
+  const listRefetchTimeoutRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
 
   const ensureThrottle = useCallback(() => {
     if (throttleRef.current == null) {
@@ -211,7 +214,8 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
                 return;
               }
               subscribedRoomsRef.current.clear();
-              subscribeToRooms();
+              // Defer subscribe so the server has attached its message handler (await register).
+              setTimeout(() => subscribeToRooms(), 0);
             }
           },
           onMessage: (message) => {
@@ -240,7 +244,18 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               const reason = p.reason;
 
               if (reason === "created" || reason === "updated" || reason === "deleted") {
-                void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
+                if (reason === "created" && listRefetchTimeoutRef.current == null) {
+                  listRefetchTimeoutRef.current = window.setTimeout(() => {
+                    listRefetchTimeoutRef.current = null;
+                    void dispatch(fetchMarkets({ limit: 50, offset: 0 }));
+                  }, LIST_REFETCH_DEBOUNCE_MS);
+                } else if (reason !== "created") {
+                  if (listRefetchTimeoutRef.current != null) {
+                    clearTimeout(listRefetchTimeoutRef.current);
+                    listRefetchTimeoutRef.current = null;
+                  }
+                  void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
+                }
                 if (reason !== "deleted" && p.marketId) {
                   void dispatch(fetchMarketById(p.marketId));
                 }
@@ -256,6 +271,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     }
 
     return () => {
+      if (listRefetchTimeoutRef.current != null) {
+        clearTimeout(listRefetchTimeoutRef.current);
+        listRefetchTimeoutRef.current = null;
+      }
       const toUnsub = new Set(subscribedRoomsRef.current);
       for (const room of toUnsub) {
         if (marketWebSocketService.getReadyState() === WebSocket.OPEN) {

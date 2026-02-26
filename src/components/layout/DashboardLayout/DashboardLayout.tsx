@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets } from "@/store/slices/marketsSlice";
+import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 // import { RegistrationRedirect } from "@/components/auth/RegistrationRedirect";
 import { TopNav } from "@/components/layout/TopNav";
 import { TopNavSkeleton } from "@/components/layout/TopNav/TopNavSkeleton";
@@ -11,6 +12,7 @@ import { FilterBarSkeleton } from "@/components/layout/FilterBar/FilterBarSkelet
 import { DraggableColumns } from "@/components/layout/DraggableColumns";
 import { DraggableColumnsSkeleton } from "@/components/layout/DraggableColumns/DraggableColumnsSkeleton";
 import { TrackerLayout } from "@/components/layout/TrackerLayout";
+import { TradeTab } from "@/components/layout/TradeTab/TradeTab";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BottomNavSkeleton } from "@/components/layout/BottomNav/BottomNavSkeleton";
 import type { PrimaryTabId } from "@/types/layout.types";
@@ -32,6 +34,12 @@ function TabPlaceholder({ title }: { title: string }) {
  * Trading dashboard shell: top nav (tabs, search, account), filter bar,
  * main area (tab-dependent: Markets = columns, Trade = recent, Tracker = columns layout, Chat/Settings = placeholders), bottom nav.
  */
+/** Keeps WebSocket connected across all tabs (Markets, Trade, Tracker) so status shows Live. */
+function WebSocketKeeper() {
+  useMarketSocket({ subscribeToList: true, enabled: true });
+  return null;
+}
+
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const dispatch = useAppDispatch();
   const listLength = useAppSelector((state) => state.markets.list.length);
@@ -50,7 +58,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       case "markets":
         return <DraggableColumns />;
       case "trade":
-        return <TabPlaceholder title="Recent trade" />;
+        return <TradeTab isActive />;
       case "tracker":
         return <TrackerLayout />;
       case "earn":
@@ -75,6 +83,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </>
       ) : (
         <>
+          <WebSocketKeeper />
           {/* <RegistrationRedirect /> */}
           <TopNav />
           <FilterBar />

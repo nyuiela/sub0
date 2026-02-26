@@ -188,6 +188,7 @@ export function TrackerAgentColumn({
                         else setAgentForGetWallet(agent);
                       }}
                       className="shrink-0 rounded-md border border-transparent px-2 py-1 text-xs font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                      style={{ backgroundColor: "var(--color-success)" }}
                       aria-label={
                         agent.walletAddress?.trim()
                           ? `Deposit to ${agent.name || "agent"}`
