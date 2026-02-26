@@ -30,6 +30,11 @@ const DEFAULT_RECONNECT_INTERVAL_MS = 2000;
 /** Debounce list refetch when many markets are created in a burst (e.g. CRE creates 20–30). */
 const LIST_REFETCH_DEBOUNCE_MS = 600;
 
+const DEBUG_LIVE_STATS =
+  typeof process !== "undefined" && process.env.NODE_ENV === "development"
+  && typeof window !== "undefined"
+  && (window as unknown as { __DEBUG_MARKET_LIVE?: boolean }).__DEBUG_MARKET_LIVE === true;
+
 function toReduxStatus(s: MarketSocketStatus): WebSocketStatus {
   if (s === "connecting") return "connecting";
   if (s === "open") return "open";
@@ -237,6 +242,9 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
             } else if (type === "TRADE_EXECUTED") {
               const p = payload as TradeExecutedPayload | undefined;
               if (p?.marketId && p?.executedAt != null) {
+                if (DEBUG_LIVE_STATS) {
+                  console.debug("[useMarketSocket] TRADE_EXECUTED", p.marketId, { size: p.size, price: p.price });
+                }
                 ensureThrottle().pushTrade(p);
                 dispatch(addRecentTrade(p));
                 optionsRef.current.onTradeExecuted?.(p);
@@ -245,6 +253,9 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               const p = payload as MarketUpdatedPayload | undefined;
               if (!p?.marketId) return;
               const reason = p.reason;
+              if (DEBUG_LIVE_STATS && reason === "stats") {
+                console.debug("[useMarketSocket] MARKET_UPDATED stats", p.marketId, { volume: p.volume });
+              }
 
               if (reason === "created" || reason === "updated" || reason === "deleted") {
                 if (reason === "created" && listRefetchTimeoutRef.current == null) {

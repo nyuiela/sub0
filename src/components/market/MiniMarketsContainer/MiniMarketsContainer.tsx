@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets } from "@/store/slices/marketsSlice";
 import {
@@ -9,7 +9,6 @@ import {
   setAgentsForMarket,
   setByMarketFromAgents,
 } from "@/store/slices/marketAgentsSlice";
-import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import { getMyAgents, enqueueAgentMarket, deleteAgentEnqueuedMarket } from "@/lib/api/agents";
 import { MiniMarketCard } from "../MiniMarketCard";
 import { MiniMarketCardSkeleton } from "../MiniMarketCard";
@@ -33,18 +32,11 @@ export function MiniMarketsContainer({
   const dispatch = useAppDispatch();
   const { list, listLoading, error } = useAppSelector((state) => state.markets);
   const byMarket = useAppSelector((state) => state.marketAgents.byMarket);
-  const marketIds = useMemo(() => list.map((m) => m.id), [list]);
   const [marketToAddToAgent, setMarketToAddToAgent] = useState<Market | null>(null);
   const [agentsForPicker, setAgentsForPicker] = useState<Agent[]>([]);
   const [pickerLoading, setPickerLoading] = useState(false);
   const [enqueueLoading, setEnqueueLoading] = useState(false);
   const [selectedAgentIds, setSelectedAgentIds] = useState<Set<string>>(new Set());
-
-  useMarketSocket({
-    marketIds,
-    subscribeToList: true,
-    enabled: true,
-  });
 
   useEffect(() => {
     if (list.length === 0) {

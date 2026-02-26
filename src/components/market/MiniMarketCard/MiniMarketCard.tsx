@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -9,6 +10,11 @@ import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
 import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { Market } from "@/types/market.types";
+
+const DEBUG_LIVE_STATS =
+  typeof process !== "undefined" && process.env.NODE_ENV === "development"
+  && typeof window !== "undefined"
+  && (window as unknown as { __DEBUG_MARKET_LIVE?: boolean }).__DEBUG_MARKET_LIVE === true;
 
 const AVATAR_SIZE = 194;
 
@@ -69,6 +75,19 @@ export function MiniMarketCard({
   const activeOrders = market.activeOrderCount ?? 0;
   const totalTrades = market.totalTrades ?? 0;
   const qDisplay = totalTrades >= 1000 ? `${(totalTrades / 1000).toFixed(2)}K` : String(totalTrades);
+
+  const prevLiveRef = useRef({ volume, totalTrades });
+  useEffect(() => {
+    if (!DEBUG_LIVE_STATS || market.id == null) return;
+    const prev = prevLiveRef.current;
+    if (prev.volume !== volume || prev.totalTrades !== totalTrades) {
+      console.debug("[MiniMarketCard] live stats changed", market.id, {
+        volume: { from: prev.volume, to: volume },
+        totalTrades: { from: prev.totalTrades, to: totalTrades },
+      });
+      prevLiveRef.current = { volume, totalTrades };
+    }
+  }, [market.id, volume, totalTrades]);
 
   return (
     <article
