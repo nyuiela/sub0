@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAppDispatch } from "@/store/hooks";
@@ -18,20 +19,31 @@ function formatMc(value: string | undefined): string {
   return n.toFixed(2);
 }
 
-function formatTimeAgo(iso: string): string {
+function formatTimeAgo(iso: string, now: Date = new Date()): string {
   try {
     const d = new Date(iso);
-    const now = new Date();
     const diffMs = now.getTime() - d.getTime();
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
-    if (diffSec < 60) return `${diffSec}s`;
-    if (diffMin < 60) return `${diffMin}m`;
-    if (diffHour < 24) return `${diffHour}h`;
-    if (diffDay < 7) return `${diffDay}d`;
-    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    const totalSec = Math.floor(diffMs / 1000);
+    if (totalSec < 0) return "0s";
+
+    const diffDay = Math.floor(totalSec / 86400);
+    const diffHour = Math.floor((totalSec % 86400) / 3600);
+    const diffMin = Math.floor((totalSec % 3600) / 60);
+    const sec = totalSec % 60;
+
+    if (diffDay >= 7) {
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+    if (diffDay > 0) {
+      return `${diffDay}d ${diffHour}h ${diffMin}m ${sec}s`;
+    }
+    if (diffHour > 0) {
+      return `${diffHour}h ${diffMin}m ${sec}s`;
+    }
+    if (diffMin > 0) {
+      return `${diffMin}m ${sec}s`;
+    }
+    return `${sec}s`;
   } catch {
     return "";
   }
@@ -40,6 +52,36 @@ function formatTimeAgo(iso: string): string {
 function truncateAddress(addr: string, head = 4, tail = 4): string {
   if (addr.length <= head + tail + 2) return addr;
   return `${addr.slice(0, head)}..${addr.slice(-tail)}`;
+}
+
+interface LiveTimeDisplayProps {
+  createdAt?: string;
+  fallbackAddress?: string;
+}
+
+function LiveTimeDisplay({ createdAt, fallbackAddress }: LiveTimeDisplayProps) {
+  const timeRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!createdAt) return;
+
+    const updateTime = () => {
+      if (timeRef.current) {
+        timeRef.current.textContent = formatTimeAgo(createdAt, new Date());
+      }
+    };
+
+    updateTime();
+    const intervalId = setInterval(updateTime, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [createdAt]);
+
+  if (!createdAt) {
+    return <span>{truncateAddress(fallbackAddress ?? "", 4, 6)}</span>;
+  }
+
+  return <span ref={timeRef} />;
 }
 
 export interface MiniMarketCardProps {
@@ -68,6 +110,7 @@ export function MiniMarketCard({
 }: MiniMarketCardProps) {
   const addedCount = addedAgentIds.length;
   const dispatch = useAppDispatch();
+
   const volume = market.totalVolume ?? market.volume ?? "0";
   const mcFormatted = formatMc(volume);
   const vFormatted = volume && !Number.isNaN(Number(volume))
@@ -76,9 +119,6 @@ export function MiniMarketCard({
   const outcomes = Array.isArray(market.outcomes)
     ? market.outcomes.map((o) => (typeof o === "string" ? o : String(o)))
     : ["Yes", "No"];
-  const timeOrId = market.createdAt
-    ? formatTimeAgo(market.createdAt)
-    : truncateAddress(market.creatorAddress, 4, 6);
   const activeOrders = market.activeOrderCount ?? 0;
   const totalTrades = market.totalTrades ?? 0;
   const qDisplay = totalTrades >= 1000 ? `${(totalTrades / 1000).toFixed(2)}K` : String(totalTrades);
@@ -103,12 +143,12 @@ export function MiniMarketCard({
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- DiceBear data URI */}
             <img
-            src={getDiceBearAvatarUrl(market.id, "market")}
-            alt=""
-            width={AVATAR_SIZE}
-            height={AVATAR_SIZE}
-            className="h-12 w-12 rounded-sm object-cover"
-            loading="lazy"
+              src={getDiceBearAvatarUrl(market.id, "market")}
+              alt=""
+              width={AVATAR_SIZE}
+              height={AVATAR_SIZE}
+              className="h-12 w-12 rounded-sm object-cover"
+              loading="lazy"
             />
           </>
         )}
@@ -127,7 +167,10 @@ export function MiniMarketCard({
           </h2>
         </div>
         <p className="text-xs text-success" aria-label="Time or countdown">
-          {timeOrId}
+          <LiveTimeDisplay
+            createdAt={market.createdAt}
+            fallbackAddress={market.creatorAddress}
+          />
         </p>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
           <span className="text-muted" aria-label="Orders and trades">
@@ -185,15 +228,19 @@ export function MiniMarketCard({
         </div>
         {showActions && (
           <div className="mt-auto flex flex-col items-stretch gap-1.5">
+
             <button
               type="button"
               onClick={() => onAddToAgent?.(market)}
               disabled={market.status !== "OPEN"}
-              className={`cursor-pointer rounded-lg px-4 py-2.5 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
-                addedCount > 0
+              className={`cursor-pointer rounded-md border border-transparent bg-success 
+              px-3 py-1.5 text-xs font-medium text-white transition-opacity 
+              hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 
+              focus-visible:ring-primary focus-visible:ring-offset-2
+                ${addedCount > 0
                   ? "border border-success bg-success/10 text-success focus-visible:ring-success"
                   : "border border-transparent bg-success text-white focus-visible:ring-success"
-              }`}
+                }`}
               aria-label={addedCount > 0 ? `${market.name}: ${addedCount} agent(s) added` : `Add ${market.name} to agent`}
             >
               {addedCount > 0 ? `Added (${addedCount})` : "Add to agent"}
