@@ -7,6 +7,7 @@ import { AgentStudioForm } from "@/components/settings/AgentStudioForm";
 import { VaultTab } from "@/components/settings/VaultTab";
 import { DeveloperApiTab } from "@/components/settings/DeveloperApiTab";
 import { ClaimAgentTab } from "@/components/settings/ClaimAgentTab/ClaimAgentTab";
+import { LayoutTab } from "@/components/settings/LayoutTab";
 import {
   SETTINGS_SECTIONS,
   type SettingsSectionId,
@@ -32,6 +33,7 @@ function SettingsContent({ sectionId }: { sectionId: SettingsSectionId }) {
         {sectionId === "claim-agent" && <ClaimAgentTab />}
         {sectionId === "vault" && <VaultTab />}
         {sectionId === "developer-api" && <DeveloperApiTab />}
+        {sectionId === "layout" && <LayoutTab />}
       </div>
     </>
   );

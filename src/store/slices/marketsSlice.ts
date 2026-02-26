@@ -191,11 +191,11 @@ const marketsSlice = createSlice({
     setMarketVolumeFromStats: (state, action: { payload: MarketStatsUpdatedPayload }) => {
       const { marketId, volume } = action.payload;
       if (state.selectedMarket?.id === marketId) {
-        state.selectedMarket = { ...state.selectedMarket, volume };
+        state.selectedMarket = { ...state.selectedMarket, volume, totalVolume: volume };
       }
       const idx = state.list.findIndex((m) => m.id === marketId);
       if (idx >= 0) {
-        state.list[idx] = { ...state.list[idx], volume };
+        state.list[idx] = { ...state.list[idx], volume, totalVolume: volume };
       }
     },
     clearSelectedMarket: (state) => {

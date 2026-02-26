@@ -2,7 +2,7 @@ import type { RootState } from "./index";
 import type { LayoutSliceState } from "./slices/layoutSlice";
 import { setColumnOrder, setColumnSizePrefs } from "./slices/layoutSlice";
 import type { AppDispatch } from "./index";
-import { DEFAULT_COLUMN_IDS } from "@/types/layout.types";
+import { DEFAULT_COLUMN_IDS, DEFAULT_COLUMN_SIZE_PREFS } from "@/types/layout.types";
 
 const STORAGE_KEY = "sub0-layout-prefs";
 
@@ -17,14 +17,20 @@ function parseStored(): Partial<LayoutSliceState> | null {
       Array.isArray(parsed.columnOrder) &&
       parsed.columnOrder.length > 0
     ) {
-      const validOrder = parsed.columnOrder.filter((id) =>
-        DEFAULT_COLUMN_IDS.includes(id as (typeof DEFAULT_COLUMN_IDS)[number])
-      );
-      const uniqueOrder = [...new Set(validOrder)];
-      if (uniqueOrder.length > 0 && parsed.columnSizePrefs && typeof parsed.columnSizePrefs === "object") {
+      const validIds = new Set(DEFAULT_COLUMN_IDS as unknown as string[]);
+      const migratedOrder = parsed.columnOrder
+        .map((id) => (id === "positions" || id === "trades" ? "portfolio" : id))
+        .filter((id) => validIds.has(id));
+      const uniqueOrder = [...new Set(migratedOrder)];
+      const hasPortfolio = uniqueOrder.includes("portfolio");
+      if (uniqueOrder.length > 0 && hasPortfolio && parsed.columnSizePrefs && typeof parsed.columnSizePrefs === "object") {
+        const prefs = { ...parsed.columnSizePrefs } as LayoutSliceState["columnSizePrefs"];
+        if (!prefs.portfolio && (prefs.positions || prefs.trades)) {
+          prefs.portfolio = DEFAULT_COLUMN_SIZE_PREFS.portfolio ?? prefs.positions ?? prefs.trades;
+        }
         return {
           columnOrder: uniqueOrder,
-          columnSizePrefs: parsed.columnSizePrefs as LayoutSliceState["columnSizePrefs"],
+          columnSizePrefs: prefs,
         };
       }
     }

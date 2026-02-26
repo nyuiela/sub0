@@ -1,5 +1,6 @@
 "use client";
 
+import { formatOutcomePrice } from "@/lib/formatNumbers";
 import type { Market } from "@/types/market.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
 
@@ -45,7 +46,7 @@ export function MarketInfoPanel({ market, marketPrices, className = "" }: Market
               <dd className="flex flex-wrap gap-x-3 gap-y-1">
                 {marketPrices.options.map((o) => (
                   <span key={o.outcomeIndex} className="tabular-nums text-foreground">
-                    {o.label}: {Number(o.instantPrice).toFixed(4)}
+                    {o.label}: {formatOutcomePrice(o.instantPrice)}
                   </span>
                 ))}
               </dd>

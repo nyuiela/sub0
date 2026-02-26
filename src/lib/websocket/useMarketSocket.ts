@@ -9,6 +9,8 @@ import {
 } from "@/store/slices/marketsSlice";
 import { fetchMarkets, fetchMarketById } from "@/store/slices/marketsSlice";
 import { setStatus } from "@/store/slices/websocketSlice";
+import { requestPositionsRefetch } from "@/store/slices/positionsSlice";
+import { addRecentTrade } from "@/store/slices/recentTradesSlice";
 import type { OrderBookSnapshot } from "@/types/market.types";
 import type { WebSocketStatus } from "@/types/websocket.types";
 import {
@@ -27,6 +29,11 @@ const DEFAULT_RECONNECT_MAX_ATTEMPTS = 10;
 const DEFAULT_RECONNECT_INTERVAL_MS = 2000;
 /** Debounce list refetch when many markets are created in a burst (e.g. CRE creates 20–30). */
 const LIST_REFETCH_DEBOUNCE_MS = 600;
+
+const DEBUG_LIVE_STATS =
+  typeof process !== "undefined" && process.env.NODE_ENV === "development"
+  && typeof window !== "undefined"
+  && (window as unknown as { __DEBUG_MARKET_LIVE?: boolean }).__DEBUG_MARKET_LIVE === true;
 
 function toReduxStatus(s: MarketSocketStatus): WebSocketStatus {
   if (s === "connecting") return "connecting";
@@ -235,13 +242,20 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
             } else if (type === "TRADE_EXECUTED") {
               const p = payload as TradeExecutedPayload | undefined;
               if (p?.marketId && p?.executedAt != null) {
+                if (DEBUG_LIVE_STATS) {
+                  console.debug("[useMarketSocket] TRADE_EXECUTED", p.marketId, { size: p.size, price: p.price });
+                }
                 ensureThrottle().pushTrade(p);
+                dispatch(addRecentTrade(p));
                 optionsRef.current.onTradeExecuted?.(p);
               }
             } else if (type === "MARKET_UPDATED") {
               const p = payload as MarketUpdatedPayload | undefined;
               if (!p?.marketId) return;
               const reason = p.reason;
+              if (DEBUG_LIVE_STATS && reason === "stats") {
+                console.debug("[useMarketSocket] MARKET_UPDATED stats", p.marketId, { volume: p.volume });
+              }
 
               if (reason === "created" || reason === "updated" || reason === "deleted") {
                 if (reason === "created" && listRefetchTimeoutRef.current == null) {
@@ -261,6 +275,9 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
                 }
               } else if (reason === "stats" && typeof p.volume === "string") {
                 dispatch(setMarketVolumeFromStats({ marketId: p.marketId, volume: p.volume }));
+              } else if (reason === "position") {
+                dispatch(requestPositionsRefetch());
+                void dispatch(fetchMarketById(p.marketId));
               }
             }
           },

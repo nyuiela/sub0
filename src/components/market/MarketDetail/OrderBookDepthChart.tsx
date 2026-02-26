@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { selectOrderBookByMarketId } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
+import { formatOutcomePrice } from "@/lib/formatNumbers";
 import type { OrderBookLevel } from "@/types/market.types";
 
 const DEPTH_CHART_HEIGHT = 200;
@@ -143,7 +144,7 @@ export function OrderBookDepthChart({
             className="fill-muted-foreground text-[10px]"
             textAnchor="end"
           >
-            Price {priceMin.toFixed(3)} – {priceMax.toFixed(3)}
+            Price {formatOutcomePrice(priceMin)} – {formatOutcomePrice(priceMax)}
           </text>
         </svg>
       ) : (

@@ -232,6 +232,59 @@ body {
   outline-offset: 2px;
 }
 
+/* ==========================================================================
+   Live data animations: shimmer (new data), flip (numerical tick)
+   ========================================================================== */
+
+@keyframes shimmer-pass {
+  0% {
+    transform: translateX(-100%) skewX(-12deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateX(200%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes flip-tick {
+  0% {
+    transform: perspective(120px) rotateX(-90deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(120px) rotateX(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-shimmer-pass {
+  position: relative;
+  overflow: hidden;
+}
+.animate-shimmer-pass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 40%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.12) 60%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: shimmer-pass 0.6s ease-out forwards;
+}
+
+.animate-flip-tick {
+  animation: flip-tick 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
 /* Reduce motion when user prefers it. */
 @media (prefers-reduced-motion: reduce) {
   *,

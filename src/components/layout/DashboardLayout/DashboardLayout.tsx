@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
@@ -34,9 +34,11 @@ function TabPlaceholder({ title }: { title: string }) {
  * Trading dashboard shell: top nav (tabs, search, account), filter bar,
  * main area (tab-dependent: Markets = columns, Trade = recent, Tracker = columns layout, Chat/Settings = placeholders), bottom nav.
  */
-/** Keeps WebSocket connected across all tabs (Markets, Trade, Tracker) so status shows Live. */
+/** Keeps WebSocket connected and subscribed to list + per-market rooms so trade/orderbook/stats updates are received even when Markets column is unmounted. */
 function WebSocketKeeper() {
-  useMarketSocket({ subscribeToList: true, enabled: true });
+  const list = useAppSelector((state) => state.markets.list);
+  const marketIds = useMemo(() => list.map((m) => m.id), [list]);
+  useMarketSocket({ marketIds, subscribeToList: true, enabled: true });
   return null;
 }
 

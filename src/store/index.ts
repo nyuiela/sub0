@@ -5,6 +5,8 @@ import layoutReducer from "./slices/layoutSlice";
 import marketsReducer from "./slices/marketsSlice";
 import recentReducer from "./slices/recentSlice";
 import marketAgentsReducer from "./slices/marketAgentsSlice";
+import positionsReducer from "./slices/positionsSlice";
+import recentTradesReducer from "./slices/recentTradesSlice";
 import { saveThemeToStorage } from "./themePersist";
 import { saveLayoutToStorage } from "./layoutPersist";
 import { saveRecentToStorage } from "./recentPersist";
@@ -14,6 +16,8 @@ import type { LayoutSliceState } from "./slices/layoutSlice";
 import type { MarketsSliceState } from "./slices/marketsSlice";
 import type { RecentSliceState } from "./slices/recentSlice";
 import type { MarketAgentsSliceState } from "./slices/marketAgentsSlice";
+import type { PositionsSliceState } from "./slices/positionsSlice";
+import type { RecentTradesSliceState } from "./slices/recentTradesSlice";
 
 export type RootState = {
   theme: ThemeSliceState;
@@ -22,6 +26,8 @@ export type RootState = {
   markets: MarketsSliceState;
   recent: RecentSliceState;
   marketAgents: MarketAgentsSliceState;
+  positions: PositionsSliceState;
+  recentTrades: RecentTradesSliceState;
 };
 
 const persistMiddleware: Middleware<object, RootState> = (storeApi) => (next) => (action) => {
@@ -56,6 +62,8 @@ export const store = configureStore({
     markets: marketsReducer,
     recent: recentReducer,
     marketAgents: marketAgentsReducer,
+    positions: positionsReducer,
+    recentTrades: recentTradesReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true }).concat(persistMiddleware),

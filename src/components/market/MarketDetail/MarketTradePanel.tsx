@@ -8,6 +8,7 @@ import {
   clearOrderSuccess,
   selectOrderBookByMarketId,
 } from "@/store/slices/marketsSlice";
+import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral } from "@/lib/formatNumbers";
 import type { MarketPricesResponse } from "@/types/prices.types";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
@@ -15,9 +16,9 @@ const FLASH_NOTIONALS = [50, 100] as const;
 const FLASH_PERCENTS = [25, 50, 100] as const;
 
 function formatBalance(value: number): string {
-  if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)}M`;
-  if (value >= 1_000) return `${(value / 1_000).toFixed(2)}K`;
-  return value.toFixed(2);
+  if (value >= 1_000_000) return `${formatCollateral(value / 1_000_000)}M`;
+  if (value >= 1_000) return `${formatCollateral(value / 1_000)}K`;
+  return formatCollateral(value);
 }
 
 export interface MarketTradePanelProps {
@@ -140,7 +141,7 @@ export function MarketTradePanel({
     (pct: number) => {
       if (!hasBalance) return;
       const value = (availableBalance * pct) / 100;
-      setAmount(value <= 0 ? "" : value.toFixed(6));
+      setAmount(value <= 0 ? "" : formatCollateral(value));
     },
     [availableBalance, hasBalance]
   );
@@ -149,7 +150,7 @@ export function MarketTradePanel({
     const p = Number(referencePrice);
     if (!p || p <= 0) return;
     const qty = dollars / p;
-    setAmount(qty.toFixed(6));
+    setAmount(formatOutcomeQuantity(qty));
   }, [referencePrice]);
 
   const clearError = useCallback(() => dispatch(clearMarketsError()), [dispatch]);
@@ -193,7 +194,7 @@ export function MarketTradePanel({
                   setOrderType(id);
                   if ((id === "limit" || id === "ioc") && !price.trim()) {
                     const mid = (priceMin + priceMax) / 2;
-                    setPrice(mid.toFixed(4));
+                    setPrice(formatOutcomePrice(mid));
                   }
                 }}
               >
@@ -210,7 +211,7 @@ export function MarketTradePanel({
                 Price
               </label>
               <span className="tabular-nums text-sm font-medium text-foreground">
-                {priceNum.toFixed(4)}
+                {formatOutcomePrice(priceNum)}
               </span>
             </div>
             <input
@@ -231,8 +232,8 @@ export function MarketTradePanel({
               aria-valuenow={priceNum}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{priceMin.toFixed(4)}</span>
-              <span>{priceMax.toFixed(4)}</span>
+              <span>{formatOutcomePrice(priceMin)}</span>
+              <span>{formatOutcomePrice(priceMax)}</span>
             </div>
           </div>
         )}

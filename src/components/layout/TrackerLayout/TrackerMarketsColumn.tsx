@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAppSelector } from "@/store/hooks";
 import { getPositions } from "@/lib/api/positions";
 import type { Position, PositionMarket } from "@/types/position.types";
 import type { Market } from "@/types/market.types";
@@ -41,6 +42,7 @@ export function TrackerMarketsColumn({
   selectedAgentId,
   className = "",
 }: TrackerMarketsColumnProps) {
+  const refetchTrigger = useAppSelector((state) => state.positions.refetchTrigger);
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -67,7 +69,7 @@ export function TrackerMarketsColumn({
     return () => {
       cancelled = true;
     };
-  }, [selectedAgentId]);
+  }, [selectedAgentId, refetchTrigger]);
 
   const marketEntries = Array.from(
     new Map(positions.map((p) => [p.marketId, p.market])).entries()
