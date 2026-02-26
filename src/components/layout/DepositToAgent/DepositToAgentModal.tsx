@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getContract, prepareContractCall } from "thirdweb";
-import { useSendTransaction, useActiveAccount } from "thirdweb/react";
+import { useSendTransaction } from "thirdweb/react";
 import { baseSepolia } from "thirdweb/chains";
 import { toast } from "sonner";
 import { thirdwebClient } from "@/lib/thirdweb/client";
@@ -17,6 +17,8 @@ const USDC_DECIMALS =
 export interface DepositToAgentModalProps {
   agent: Agent;
   onClose: () => void;
+  /** Called after a successful transfer so the parent can refresh agent list/balance. */
+  onTransferSuccess?: () => void;
 }
 
 function parseAmount(value: string): number {
@@ -29,13 +31,12 @@ function truncateAddress(addr: string, head = 6, tail = 4): string {
   return `${addr.slice(0, head)}...${addr.slice(-tail)}`;
 }
 
-export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps) {
-  const activeAccount = useActiveAccount();
+const BALANCE_REFRESH_MS = 5000;
+
+export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: DepositToAgentModalProps) {
   const [amountInput, setAmountInput] = useState("100");
   const [balances, setBalances] = useState<{ eth: string; usdc: string } | null>(null);
-  const [senderBalance, setSenderBalance] = useState<{ usdc: string } | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(false);
-  const [senderBalanceLoading, setSenderBalanceLoading] = useState(false);
   const { mutate: sendTransaction, isPending } = useSendTransaction({
     payModal: false,
   });
@@ -43,7 +44,6 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
   const address = agent.walletAddress ?? agent.owner ?? null;
   const hasCompleteWallet = agent.hasCompleteWallet === true;
   const hasAddress = Boolean(address && String(address).trim().length > 0);
-  const senderAddress = activeAccount?.address ?? null;
 
   useEffect(() => {
     if (!address) {
@@ -51,43 +51,26 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
       return;
     }
     let cancelled = false;
-    setBalancesLoading(true);
-    getWalletBalances(address)
-      .then((b) => {
-        if (!cancelled) setBalances({ eth: b.eth, usdc: b.usdc });
-      })
-      .catch(() => {
-        if (!cancelled) setBalances({ eth: "—", usdc: "—" });
-      })
-      .finally(() => {
-        if (!cancelled) setBalancesLoading(false);
-      });
+    const fetchBalances = () => {
+      setBalancesLoading(true);
+      getWalletBalances(address)
+        .then((b) => {
+          if (!cancelled) setBalances({ eth: b.eth, usdc: b.usdc });
+        })
+        .catch(() => {
+          if (!cancelled) setBalances({ eth: "—", usdc: "—" });
+        })
+        .finally(() => {
+          if (!cancelled) setBalancesLoading(false);
+        });
+    };
+    fetchBalances();
+    const interval = setInterval(fetchBalances, BALANCE_REFRESH_MS);
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, [address]);
-
-  useEffect(() => {
-    if (!senderAddress) {
-      setSenderBalance(null);
-      return;
-    }
-    let cancelled = false;
-    setSenderBalanceLoading(true);
-    getWalletBalances(senderAddress)
-      .then((b) => {
-        if (!cancelled) setSenderBalance({ usdc: b.usdc });
-      })
-      .catch(() => {
-        if (!cancelled) setSenderBalance(null);
-      })
-      .finally(() => {
-        if (!cancelled) setSenderBalanceLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [senderAddress]);
 
   const amount = useMemo(() => parseAmount(amountInput), [amountInput]);
 
@@ -112,20 +95,19 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
     sendTransaction(transaction, {
       onSuccess: () => {
         toast.success(`Transferred ${amount} USDC to ${agent.name ?? "agent"}`);
+        onTransferSuccess?.();
         onClose();
       },
       onError: (err) => {
-        const msg = err?.message ?? "Transfer failed";
-        const isBalanceRelated =
-          /insufficient|exceeds balance|not enough balance|balance too low/i.test(String(msg));
-        toast.error(
-          isBalanceRelated
-            ? "Your connected wallet has no USDC or not enough. The header balance is for this same wallet; mint test USDC from the header if needed."
-            : msg
-        );
+        const msg = String(err?.message ?? "Transfer failed");
+        const needGas = /insufficient funds for gas|need.*eth|not enough.*eth|gas|execution reverted/i.test(msg);
+        const needUsdc = /insufficient|exceeds balance|not enough balance|balance too low/i.test(msg);
+        if (needGas) toast.error("Need ETH for network fee.");
+        else if (needUsdc) toast.error("Insufficient USDC.");
+        else toast.error(msg);
       },
     });
-  }, [agent.walletAddress, agent.name, amount, onClose, sendTransaction]);
+  }, [agent.walletAddress, agent.name, amount, onClose, onTransferSuccess, sendTransaction]);
 
   const canTransferUsdc = Boolean(hasCompleteWallet && agent.walletAddress && amount > 0);
 
@@ -163,18 +145,18 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
                 This agent&apos;s wallet is not ready. Get wallet for this agent first to enable deposits.
               </p>
             )}
-            {balancesLoading ? (
-              <p className="mb-3 text-xs text-muted">
-                {agent.walletAddress ? "Loading agent balance…" : "Loading balance…"}
-              </p>
-            ) : balances ? (
-              <p className="mb-3 text-xs text-muted">
-                <span className="font-medium text-foreground">
-                  {agent.walletAddress ? "Agent balance:" : "Balance at this address:"}
-                </span>{" "}
-                USDC {balances.usdc}
-              </p>
-            ) : null}
+            <p className="mb-3 text-xs text-muted">
+              <span className="font-medium text-foreground">
+                {agent.walletAddress ? "Agent balance:" : "Balance at this address:"}
+              </span>{" "}
+              {balancesLoading ? (
+                <span className="inline-block h-3.5 w-14 animate-pulse rounded bg-muted align-middle" aria-hidden />
+              ) : balances ? (
+                `USDC ${balances.usdc}`
+              ) : (
+                "—"
+              )}
+            </p>
           </>
         ) : (
           <p className="mb-3 text-sm text-muted">
@@ -191,18 +173,6 @@ export function DepositToAgentModal({ agent, onClose }: DepositToAgentModalProps
             )}
 
             <p className="mb-2 text-xs font-medium text-foreground">Send USDC</p>
-            {senderAddress && (
-              <p className="mb-2 text-xs text-muted">
-                Sending from: <span className="font-mono" title={senderAddress}>{truncateAddress(senderAddress)}</span>
-                {senderBalanceLoading ? " (loading…)" : senderBalance != null ? ` (${senderBalance.usdc} USDC)` : ""}
-                . This is the same wallet shown in the header.
-              </p>
-            )}
-            {!senderAddress && (
-              <p className="mb-2 text-xs text-muted">
-                Connect a wallet to send USDC. The header balance is for your connected wallet.
-              </p>
-            )}
             <label className="mb-1 block text-xs text-muted">Amount (USDC)</label>
             <input
               type="text"

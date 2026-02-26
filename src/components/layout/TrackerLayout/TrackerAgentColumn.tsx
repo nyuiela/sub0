@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
@@ -10,8 +10,25 @@ import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModa
 import { useAppDispatch } from "@/store/hooks";
 import { addRecent } from "@/store/slices/recentSlice";
 import { formatCollateral } from "@/lib/formatNumbers";
+import { getWalletBalances } from "@/lib/balances";
 
 const AGENTS_LIMIT = 50;
+const BALANCE_REFRESH_MS = 50000;
+
+async function fetchOnChainBalances(agents: Agent[]): Promise<Record<string, string>> {
+  const withWallet = agents.filter((a) => a.walletAddress && String(a.walletAddress).trim());
+  if (withWallet.length === 0) return {};
+  const results = await Promise.allSettled(
+    withWallet.map((a) =>
+      getWalletBalances(a.walletAddress!).then((b) => ({ id: a.id, usdc: b.usdc }))
+    )
+  );
+  const map: Record<string, string> = {};
+  results.forEach((r) => {
+    if (r.status === "fulfilled" && r.value) map[r.value.id] = r.value.usdc;
+  });
+  return map;
+}
 
 export interface TrackerAgentColumnProps {
   selectedAgentId: string | null;
@@ -42,10 +59,29 @@ export function TrackerAgentColumn({
 }: TrackerAgentColumnProps) {
   const dispatch = useAppDispatch();
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [onChainBalances, setOnChainBalances] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
   const [agentForGetWallet, setAgentForGetWallet] = useState<Agent | null>(null);
+
+  const refetchAgents = useCallback(() => {
+    setRefreshing(true);
+    getMyAgents({ limit: AGENTS_LIMIT })
+      .then((res) => {
+        const list = res.data ?? [];
+        setAgents(list);
+        return fetchOnChainBalances(list);
+      })
+      .then((balances) => {
+        setOnChainBalances(balances);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setRefreshing(false);
+      });
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -59,21 +95,32 @@ export function TrackerAgentColumn({
           if (list.length > 0 && selectedAgentId == null) {
             onSelectAgent(list[0] ?? null);
           }
-          setLoading(false);
+          return fetchOnChainBalances(list);
         }
+      })
+      .then((balances) => {
+        if (!cancelled && balances != null) setOnChainBalances(balances);
       })
       .catch((err) => {
         if (!cancelled) {
           const message = err instanceof Error ? err.message : "Sign in to see your agents.";
           setError(message);
           setAgents([]);
-          setLoading(false);
         }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
   }, [onSelectAgent, selectedAgentId]);
+
+  useEffect(() => {
+    if (!agents.length) return;
+    const interval = setInterval(refetchAgents, BALANCE_REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [agents.length, refetchAgents]);
 
   if (error != null) {
     const isUnauth = error.includes("401") || error.toLowerCase().includes("unauthorized");
@@ -177,7 +224,14 @@ export function TrackerAgentColumn({
                         <span className={statusColor(agent.status)}>
                           {agent.status}
                         </span>
-                        <span className="text-muted">Bal {formatCollateral(agent.balance)}</span>
+                        <span className="text-muted">
+                          Bal{" "}
+                          {refreshing ? (
+                            <span className="inline-block h-3.5 w-10 animate-pulse rounded bg-muted" aria-hidden />
+                          ) : (
+                            onChainBalances[agent.id] ?? formatCollateral(agent.balance)
+                          )}
+                        </span>
                         <span className={pnlClass}>PnL {formatPnl(pnl)}</span>
                       </div>
                     </div>
@@ -210,6 +264,7 @@ export function TrackerAgentColumn({
         <DepositToAgentModal
           agent={agentForDeposit}
           onClose={() => setAgentForDeposit(null)}
+          onTransferSuccess={refetchAgents}
         />
       )}
       {agentForGetWallet != null && (
@@ -218,9 +273,7 @@ export function TrackerAgentColumn({
           onClose={() => setAgentForGetWallet(null)}
           onSuccess={() => {
             setAgentForGetWallet(null);
-            getMyAgents({ limit: AGENTS_LIMIT }).then((res) =>
-              setAgents(res.data ?? [])
-            );
+            refetchAgents();
           }}
         />
       )}

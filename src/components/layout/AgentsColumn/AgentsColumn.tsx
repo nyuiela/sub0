@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getAgentsPublic, getMyAgents } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent, AgentPublic } from "@/types/agent.types";
@@ -11,6 +11,7 @@ import { formatCollateral } from "@/lib/formatNumbers";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
+const BALANCE_REFRESH_MS = 5000;
 
 /** Display row: full agent when owned, minimal when from public list only. */
 export type AgentRowDisplay = Agent & { isMine: boolean };
@@ -118,9 +119,41 @@ export function AgentsColumn({
 }: AgentsColumnProps) {
   const [agents, setAgents] = useState<AgentRowDisplay[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
   const [agentForGetWallet, setAgentForGetWallet] = useState<Agent | null>(null);
+
+  const mergeAndSetAgents = useCallback(
+    (publicList: AgentPublic[], myList: Agent[]) => {
+      const myMap = new Map(myList.map((a) => [a.id, a]));
+      const merged: AgentRowDisplay[] = publicList.map((ap) => {
+        const mine = myMap.get(ap.id);
+        if (mine) return { ...mine, isMine: true };
+        return publicToRow(ap);
+      });
+      merged.sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0));
+      setAgents(merged);
+    },
+    []
+  );
+
+  const refetchAgents = useCallback(() => {
+    setRefreshing(true);
+    Promise.all([
+      getAgentsPublic({ limit, status }),
+      getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
+    ])
+      .then(([publicRes, myRes]) => {
+        const publicList = publicRes.data ?? [];
+        const myList = myRes.data ?? [];
+        mergeAndSetAgents(publicList, myList);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setRefreshing(false);
+      });
+  }, [limit, status, mergeAndSetAgents]);
 
   useEffect(() => {
     let cancelled = false;
@@ -135,14 +168,7 @@ export function AgentsColumn({
         if (cancelled) return;
         const publicList = publicRes.data ?? [];
         const myList = myRes.data ?? [];
-        const myMap = new Map(myList.map((a) => [a.id, a]));
-        const merged: AgentRowDisplay[] = publicList.map((ap) => {
-          const mine = myMap.get(ap.id);
-          if (mine) return { ...mine, isMine: true };
-          return publicToRow(ap);
-        });
-        merged.sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0));
-        setAgents(merged);
+        mergeAndSetAgents(publicList, myList);
       })
       .catch((err) => {
         if (!cancelled) {
@@ -157,7 +183,13 @@ export function AgentsColumn({
     return () => {
       cancelled = true;
     };
-  }, [limit, status]);
+  }, [limit, status, mergeAndSetAgents]);
+
+  useEffect(() => {
+    if (agents.length === 0) return;
+    const interval = setInterval(refetchAgents, BALANCE_REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [agents.length, refetchAgents]);
 
   if (loading && agents.length === 0) {
     return (
@@ -226,7 +258,14 @@ export function AgentsColumn({
                       )}
                     </div>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                      <span><span className="text-foreground font-medium">Bal</span> {isMine ? formatCollateral(agent.balance) : "-"}</span>
+                      <span>
+                        <span className="text-foreground font-medium">Bal</span>{" "}
+                        {isMine
+                          ? refreshing
+                            ? <span className="inline-block h-3.5 w-10 animate-pulse rounded bg-muted align-middle" aria-hidden />
+                            : formatCollateral(agent.balance)
+                          : "-"}
+                      </span>
                       <span><span className="text-foreground font-medium">Vol</span> {formatCollateral(agent.tradedAmount)}</span>
                       <span><span className="text-foreground font-medium">Trades</span> {agent.totalTrades}</span>
                       <span className={pnlClass}><span className="text-muted font-normal">PnL</span> {formatPnl(pnl)}</span>
@@ -268,6 +307,7 @@ export function AgentsColumn({
         <DepositToAgentModal
           agent={agentForDeposit}
           onClose={() => setAgentForDeposit(null)}
+          onTransferSuccess={refetchAgents}
         />
       )}
       {agentForGetWallet != null && (
@@ -276,21 +316,7 @@ export function AgentsColumn({
           onClose={() => setAgentForGetWallet(null)}
           onSuccess={() => {
             setAgentForGetWallet(null);
-            Promise.all([
-              getAgentsPublic({ limit, status }),
-              getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
-            ]).then(([publicRes, myRes]) => {
-              const publicList = publicRes.data ?? [];
-              const myList = myRes.data ?? [];
-              const myMap = new Map(myList.map((a) => [a.id, a]));
-              const merged: AgentRowDisplay[] = publicList.map((ap) => {
-                const mine = myMap.get(ap.id);
-                if (mine) return { ...mine, isMine: true };
-                return publicToRow(ap);
-              });
-              merged.sort((a, b) => (b.tradedAmount ?? 0) - (a.tradedAmount ?? 0));
-              setAgents(merged);
-            });
+            refetchAgents();
           }}
         />
       )}
