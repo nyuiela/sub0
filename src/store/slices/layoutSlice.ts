@@ -12,6 +12,8 @@ export interface LayoutSliceState {
   columnSizePrefs: Record<string, ColumnSizePrefs>;
   /** Agent id to select when opening Tracker tab (e.g. from FilterBar). */
   selectedTrackerAgentId: string | null;
+  /** Agent id selected in Simulate tab for sandbox testing. */
+  selectedSimulateAgentId: string | null;
 }
 
 function initialSizePrefs(): Record<string, ColumnSizePrefs> {
@@ -27,6 +29,7 @@ const initialState: LayoutSliceState = {
   columnOrder: [...DEFAULT_COLUMN_IDS],
   columnSizePrefs: initialSizePrefs(),
   selectedTrackerAgentId: null,
+  selectedSimulateAgentId: null,
 };
 
 const layoutSlice = createSlice({
@@ -82,6 +85,9 @@ const layoutSlice = createSlice({
     setSelectedTrackerAgentId: (state, action: { payload: string | null }) => {
       state.selectedTrackerAgentId = action.payload;
     },
+    setSelectedSimulateAgentId: (state, action: { payload: string | null }) => {
+      state.selectedSimulateAgentId = action.payload;
+    },
   },
 });
 
@@ -93,5 +99,6 @@ export const {
   resizeColumns,
   resetColumnOrder,
   setSelectedTrackerAgentId,
+  setSelectedSimulateAgentId,
 } = layoutSlice.actions;
 export default layoutSlice.reducer;

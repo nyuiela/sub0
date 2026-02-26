@@ -12,6 +12,7 @@ import { FilterBarSkeleton } from "@/components/layout/FilterBar/FilterBarSkelet
 import { DraggableColumns } from "@/components/layout/DraggableColumns";
 import { DraggableColumnsSkeleton } from "@/components/layout/DraggableColumns/DraggableColumnsSkeleton";
 import { TrackerLayout } from "@/components/layout/TrackerLayout";
+import { SimulateLayout } from "@/components/layout/SimulateLayout/SimulateLayout";
 import { TradeTab } from "@/components/layout/TradeTab/TradeTab";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BottomNavSkeleton } from "@/components/layout/BottomNav/BottomNavSkeleton";
@@ -32,7 +33,7 @@ function TabPlaceholder({ title }: { title: string }) {
 
 /**
  * Trading dashboard shell: top nav (tabs, search, account), filter bar,
- * main area (tab-dependent: Markets = columns, Trade = recent, Tracker = columns layout, Chat/Settings = placeholders), bottom nav.
+ * main area (tab-dependent: Markets = columns, Trade = recent, Tracker = columns layout, Simulate = sandbox, Settings = placeholders), bottom nav.
  */
 /** Keeps WebSocket connected and subscribed to list + per-market rooms so trade/orderbook/stats updates are received even when Markets column is unmounted. */
 function WebSocketKeeper() {
@@ -64,7 +65,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       case "tracker":
         return <TrackerLayout />;
       case "earn":
-        return <TabPlaceholder title="Chat" />;
+        return <SimulateLayout />;
       case "wallet":
         return <TabPlaceholder title="Settings" />;
       default:

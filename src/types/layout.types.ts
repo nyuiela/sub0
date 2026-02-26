@@ -45,6 +45,6 @@ export const PRIMARY_TAB_LABELS: Record<PrimaryTabId, string> = {
   markets: "Markets",
   trade: "Trade",
   tracker: "Tracker",
-  earn: "Chat",
+  earn: "Simulate",
   wallet: "Settings",
 };
