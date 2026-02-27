@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { incrementSimulateBalanceVersion } from "@/store/slices/layoutSlice";
 import { getEnqueuedMarkets, triggerAgentRun } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ export function SimulateDiscoveredColumn({
   const [loadingMore, setLoadingMore] = useState(false);
   const [triggering, setTriggering] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
   const enqueuedListVersion = useAppSelector(
     (state) => state.layout.simulateEnqueuedListVersion
   );
@@ -77,15 +79,17 @@ export function SimulateDiscoveredColumn({
     if (!selectedAgentId || triggering) return;
     setTriggering(true);
     try {
-      const res = await triggerAgentRun(selectedAgentId);
+      const res = await triggerAgentRun(selectedAgentId, { chainKey: "tenderly" });
       toast.success(`Triggered analysis for ${res.triggered} market(s)`);
       void fetchPage(0, false);
+      const delayMs = 4000;
+      setTimeout(() => dispatch(incrementSimulateBalanceVersion()), delayMs);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Trigger failed");
     } finally {
       setTriggering(false);
     }
-  }, [selectedAgentId, triggering, fetchPage]);
+  }, [selectedAgentId, triggering, fetchPage, dispatch]);
 
   if (selectedAgentId == null) {
     return (

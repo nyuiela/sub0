@@ -356,12 +356,16 @@ export async function syncAgentBalance(agentId: string): Promise<SyncAgentBalanc
   };
 }
 
+/** Trading place: main chain or Tenderly simulate. Pass "tenderly" when on Simulate page. */
+export type AgentChainKey = "main" | "tenderly";
+
 /**
  * Enqueue a market for an agent (add market to agent so agent trades on it).
  * Requires auth; agent must belong to current user.
+ * Pass chainKey: "tenderly" when adding from the Simulate page.
  */
 export async function enqueueAgentMarket(
-  params: { marketId: string; agentId: string }
+  params: { marketId: string; agentId: string; chainKey?: AgentChainKey }
 ): Promise<{ jobId: string }> {
   const res = await fetch("/api/agent/enqueue", {
     method: "POST",
@@ -487,11 +491,17 @@ export async function getEnqueuedMarkets(
 
 /**
  * Manually trigger analysis for all enqueued markets (one-off jobs).
+ * Pass chainKey: "tenderly" when on the Simulate page so the worker uses Tenderly balance.
  */
-export async function triggerAgentRun(agentId: string): Promise<{ triggered: number; jobIds: string[] }> {
+export async function triggerAgentRun(
+  agentId: string,
+  options?: { chainKey?: AgentChainKey }
+): Promise<{ triggered: number; jobIds: string[] }> {
   const res = await fetch(`/api/agent/${encodeURIComponent(agentId)}/trigger`, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     credentials: "include",
+    body: JSON.stringify(options?.chainKey != null ? { chainKey: options.chainKey } : {}),
   });
   const data = (await res.json().catch(() => ({}))) as {
     triggered?: number;

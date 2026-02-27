@@ -16,6 +16,8 @@ export interface LayoutSliceState {
   selectedSimulateAgentId: string | null;
   /** Incremented when user adds a market to agent so Discovery refetches. */
   simulateEnqueuedListVersion: number;
+  /** Incremented after Run analysis so Simulate balance/eligibility refetch (DB stays in sync with Tenderly). */
+  simulateBalanceVersion: number;
 }
 
 function initialSizePrefs(): Record<string, ColumnSizePrefs> {
@@ -33,6 +35,7 @@ const initialState: LayoutSliceState = {
   selectedTrackerAgentId: null,
   selectedSimulateAgentId: null,
   simulateEnqueuedListVersion: 0,
+  simulateBalanceVersion: 0,
 };
 
 const layoutSlice = createSlice({
@@ -94,6 +97,9 @@ const layoutSlice = createSlice({
     incrementSimulateEnqueuedListVersion: (state) => {
       state.simulateEnqueuedListVersion += 1;
     },
+    incrementSimulateBalanceVersion: (state) => {
+      state.simulateBalanceVersion += 1;
+    },
   },
 });
 
@@ -107,5 +113,6 @@ export const {
   setSelectedTrackerAgentId,
   setSelectedSimulateAgentId,
   incrementSimulateEnqueuedListVersion,
+  incrementSimulateBalanceVersion,
 } = layoutSlice.actions;
 export default layoutSlice.reducer;
