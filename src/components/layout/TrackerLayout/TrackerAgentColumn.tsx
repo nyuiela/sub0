@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getMyAgents, syncAgentBalance } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
@@ -68,6 +68,12 @@ export function TrackerAgentColumn({
   const [error, setError] = useState<string | null>(null);
   const [agentForDeposit, setAgentForDeposit] = useState<Agent | null>(null);
   const [agentForGetWallet, setAgentForGetWallet] = useState<Agent | null>(null);
+  const onSelectAgentRef = useRef(onSelectAgent);
+  const selectedAgentIdRef = useRef(selectedAgentId);
+  useEffect(() => {
+    onSelectAgentRef.current = onSelectAgent;
+    selectedAgentIdRef.current = selectedAgentId;
+  });
 
   const refetchAgents = useCallback(() => {
     setRefreshing(true);
@@ -80,7 +86,7 @@ export function TrackerAgentColumn({
       .then((balances) => {
         setOnChainBalances(balances);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => {
         setRefreshing(false);
       });
@@ -88,15 +94,19 @@ export function TrackerAgentColumn({
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setLoading(true);
+        setError(null);
+      }
+    });
     getMyAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
         if (!cancelled) {
           const list = res.data ?? [];
           setAgents(list);
-          if (list.length > 0 && selectedAgentId == null) {
-            onSelectAgent(list[0] ?? null);
+          if (list.length > 0 && selectedAgentIdRef.current == null) {
+            onSelectAgentRef.current(list[0] ?? null);
           }
           return fetchOnChainBalances(list);
         }
@@ -117,7 +127,7 @@ export function TrackerAgentColumn({
     return () => {
       cancelled = true;
     };
-  }, [onSelectAgent, selectedAgentId]);
+  }, []);
 
   useEffect(() => {
     if (!agents.length) return;
@@ -138,7 +148,7 @@ export function TrackerAgentColumn({
           dispatch(setAgentBalance({ agentId: selectedAgentId, balance: res.balance }));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [selectedAgentId, dispatch]);
 
   if (error != null) {
@@ -221,11 +231,10 @@ export function TrackerAgentColumn({
                         onSelectAgent(isSelected ? null : agent);
                       }
                     }}
-                    className={`flex w-full gap-3 border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset cursor-pointer ${
-                      isSelected
-                        ? "bg-primary-muted text-primary"
-                        : ""
-                    }`}
+                    className={`flex w-full gap-3 border-b border-border bg-surface p-3 text-left transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset cursor-pointer ${isSelected
+                      ? "bg-primary-muted text-primary"
+                      : ""
+                      }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element -- DiceBear data URI */}
                     <img

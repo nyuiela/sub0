@@ -48,11 +48,15 @@ export function TrackerMarketsColumn({
 
   useEffect(() => {
     if (selectedAgentId == null) {
-      setPositions([]);
+      queueMicrotask(() => {
+        setPositions([]);
+      });
       return;
     }
     let cancelled = false;
-    setLoading(true);
+    queueMicrotask(() => {
+      if (!cancelled) setLoading(true);
+    });
     getPositions({ agentId: selectedAgentId, limit: 100 })
       .then((res) => {
         if (!cancelled) {

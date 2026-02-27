@@ -26,8 +26,12 @@ export function AgentEditSection({ agentId }: AgentEditSectionProps) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setLoading(true);
+        setError(null);
+      }
+    });
     getAgent(agentId)
       .then((a) => {
         if (!cancelled) setAgent(a);

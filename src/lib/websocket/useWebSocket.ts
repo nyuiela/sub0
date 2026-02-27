@@ -43,7 +43,7 @@ export function useWebSocket(options: UseWebSocketOptions): void {
 
   useEffect(() => {
     if (!enabled || !url) {
-      dispatch(resetWebSocket());
+      queueMicrotask(() => dispatch(resetWebSocket()));
       return;
     }
 

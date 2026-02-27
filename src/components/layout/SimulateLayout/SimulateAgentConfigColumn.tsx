@@ -150,14 +150,20 @@ export function SimulateAgentConfigColumn({
 
   useEffect(() => {
     if (!selectedAgentId?.trim()) {
-      setBalance(null);
-      setEligibility(null);
+      queueMicrotask(() => {
+        setBalance(null);
+        setEligibility(null);
+      });
       return;
     }
     let cancelled = false;
-    setBalanceLoading(true);
-    setBalance(null);
-    setEligibility(null);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setBalanceLoading(true);
+        setBalance(null);
+        setEligibility(null);
+      }
+    });
     Promise.all([
       getSimulateBalance(selectedAgentId),
       getSimulateEligibility(selectedAgentId),
@@ -199,7 +205,7 @@ export function SimulateAgentConfigColumn({
       next > 0 &&
       selectedAgentId != null;
     if (!inCooldown) {
-      setCountdownLabel(null);
+      queueMicrotask(() => setCountdownLabel(null));
       return;
     }
     let intervalId: ReturnType<typeof setInterval> | null = null;
@@ -222,7 +228,7 @@ export function SimulateAgentConfigColumn({
       }
       setCountdownLabel(`Refill in ${formatCountdown(remaining)}`);
     };
-    tick();
+    queueMicrotask(() => tick());
     intervalId = setInterval(tick, 1000);
     return () => {
       if (intervalId != null) clearInterval(intervalId);

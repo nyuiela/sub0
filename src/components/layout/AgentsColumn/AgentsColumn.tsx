@@ -160,8 +160,12 @@ export function AgentsColumn({
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
-    setError(null);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setLoading(true);
+        setError(null);
+      }
+    });
 
     Promise.all([
       getAgentsPublic({ limit, status }),

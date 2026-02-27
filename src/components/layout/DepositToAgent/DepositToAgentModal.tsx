@@ -51,12 +51,14 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
 
   useEffect(() => {
     if (!address) {
-      setBalances(null);
+      queueMicrotask(() => setBalances(null));
       return;
     }
     let cancelled = false;
     const fetchBalances = () => {
-      setBalancesLoading(true);
+      queueMicrotask(() => {
+        if (!cancelled) setBalancesLoading(true);
+      });
       getWalletBalances(address)
         .then((b) => {
           if (!cancelled) setBalances({ eth: b.eth, usdc: b.usdc });

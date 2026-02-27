@@ -45,3 +45,26 @@ export function buildBackendAuthHeaders(jwt: string): Record<string, string> {
 export function getBackendBase(): string {
   return process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 }
+
+/**
+ * Fetch from backend; on network failure (e.g. ECONNREFUSED) returns null so
+ * routes can respond with 503 and fallback data instead of throwing.
+ */
+export async function fetchFromBackend(
+  path: string,
+  init?: RequestInit
+): Promise<{ ok: true; res: Response } | { ok: false; res: null }> {
+  const base = getBackendBase();
+  if (!base?.trim()) {
+    return { ok: false, res: null };
+  }
+  try {
+    const res = await fetch(`${base}${path}`, {
+      ...init,
+      credentials: init?.credentials ?? "include",
+    });
+    return { ok: true, res };
+  } catch {
+    return { ok: false, res: null };
+  }
+}

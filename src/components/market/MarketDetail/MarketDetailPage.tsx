@@ -75,14 +75,18 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   }, [marketId]);
 
   useEffect(() => {
-    fetchDetails();
+    queueMicrotask(() => fetchDetails());
   }, [fetchDetails]);
 
   const market = selectedMarket?.id === marketId ? selectedMarket : null;
 
   useEffect(() => {
     if (market?.id != null && market?.name != null) {
-      dispatch(addRecent({ type: "market", id: market.id, label: market.name }));
+      const id = market.id;
+      const label = market.name;
+      queueMicrotask(() =>
+        dispatch(addRecent({ type: "market", id, label }))
+      );
     }
   }, [market?.id, market?.name, dispatch]);
 

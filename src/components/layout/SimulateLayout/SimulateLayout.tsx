@@ -10,6 +10,7 @@ import { SimulateDiscoveredColumn } from "./SimulateDiscoveredColumn";
 import { SimulatePositionsColumn } from "./SimulatePositionsColumn";
 import { SimulateAgentConfigColumn } from "./SimulateAgentConfigColumn";
 import { TrackerResizeHandle } from "../TrackerLayout/TrackerResizeHandle";
+import { MiniMarketsContainer } from "@/components/market/MiniMarketsContainer/MiniMarketsContainer";
 
 const SIMULATE_COLUMN_IDS = ["markets", "discovered", "positions", "agentConfig"] as const;
 type SimulateColumnId = (typeof SIMULATE_COLUMN_IDS)[number];
@@ -196,9 +197,8 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, columnId)}
               aria-label={`Column ${SIMULATE_LABELS[columnId as SimulateColumnId] ?? columnId}. Drag to reorder.`}
-              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-surface transition-shadow duration-200 ${
-                dropTargetId === columnId ? "ring-2 ring-primary" : ""
-              } ${draggedId === columnId ? "opacity-60" : ""}`}
+              className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-lg bg-surface transition-shadow duration-200 ${dropTargetId === columnId ? "ring-2 ring-primary" : ""
+                } ${draggedId === columnId ? "opacity-60" : ""}`}
             >
               <header
                 className="flex cursor-grab active:cursor-grabbing items-center gap-2 px-4 py-3"
@@ -213,6 +213,7 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
               </header>
               <div className="scrollbar-hidden min-h-0 flex-1 overflow-auto p-1">
                 {renderColumnContent(columnId)}
+                {/* <MiniMarketsContainer /> */}
               </div>
             </section>
           );

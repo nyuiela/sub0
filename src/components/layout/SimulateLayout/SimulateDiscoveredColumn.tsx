@@ -59,8 +59,10 @@ export function SimulateDiscoveredColumn({
 
   useEffect(() => {
     if (!selectedAgentId) {
-      setItems([]);
-      setTotal(0);
+      queueMicrotask(() => {
+        setItems([]);
+        setTotal(0);
+      });
       return;
     }
     void fetchPage(0, false);
