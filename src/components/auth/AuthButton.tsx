@@ -87,7 +87,7 @@ export function AuthButton() {
         connectedAccountName: user?.username ?? "",
         // showBalanceInFiat: "USD",
         displayBalanceToken: {
-          [baseSepolia.id]: contracts.usdc,
+          [sepolia.id]: contracts.usdc,
         } as Record<string, string>,
 
       }}
