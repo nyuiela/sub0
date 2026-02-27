@@ -25,7 +25,7 @@ export function FlipNumber({
   useEffect(() => {
     if (prevValueRef.current !== displayValue) {
       prevValueRef.current = displayValue;
-      setFlip(true);
+      queueMicrotask(() => setFlip(true));
       const t = window.setTimeout(() => setFlip(false), 400);
       return () => clearTimeout(t);
     }

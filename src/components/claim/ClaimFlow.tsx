@@ -28,7 +28,9 @@ export function ClaimFlow({ claimCode }: ClaimFlowProps) {
 
   useEffect(() => {
     let cancelled = false;
-    setError(null);
+    queueMicrotask(() => {
+      if (!cancelled) setError(null);
+    });
     getClaimInfo(claimCode)
       .then((data) => {
         if (!cancelled) setInfo(data);

@@ -41,7 +41,6 @@ export function SimulateMarketsColumn({
   const loadMoreLoading = useAppSelector((state) => state.markets.loadMoreLoading);
   const total = useAppSelector((state) => state.markets.total);
   const byMarket = useAppSelector((state) => state.marketAgents.byMarket);
-  const hasTriggeredInitialFetch = useRef(false);
 
   const baseParams = useMemo(
     () => ({
@@ -53,6 +52,7 @@ export function SimulateMarketsColumn({
     }),
     [dateFrom, dateTo]
   );
+  const hasTriggeredInitialFetch = useRef(false);
 
   // useEffect(() => {
   //   if (list.length > 0 || listLoading || marketsError != null) return;
@@ -75,12 +75,12 @@ export function SimulateMarketsColumn({
   }, [dateFrom, dateTo, dispatch]);
 
   useEffect(() => {
-    if (list.length === 0) return;
+    if (list.length === 0 || marketsError != null) return;
     const id = setInterval(() => {
       void dispatch(fetchMarketsSilent(baseParams));
     }, SILENT_REFRESH_INTERVAL_MS);
     return () => clearInterval(id);
-  }, [dispatch, list.length, baseParams]);
+  }, [dispatch, list.length, marketsError, baseParams]);
 
   const handleAddToAgent = useCallback(
     async (market: Market) => {

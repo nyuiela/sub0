@@ -96,6 +96,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {renderMainContent()}
           </main>
           <BottomNav />
+
         </>
       )}
     </div>

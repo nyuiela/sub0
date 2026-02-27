@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets } from "@/store/slices/marketsSlice";
 import {
@@ -12,6 +12,7 @@ import {
 import { getMyAgents, enqueueAgentMarket, deleteAgentEnqueuedMarket } from "@/lib/api/agents";
 import { MiniMarketCard } from "../MiniMarketCard";
 import { MiniMarketCardSkeleton } from "../MiniMarketCard";
+import { MOCK_MARKET } from "@/lib/mockMarket";
 import type { Market } from "@/types/market.types";
 import type { Agent } from "@/types/agent.types";
 import { toast } from "sonner";
@@ -37,12 +38,14 @@ export function MiniMarketsContainer({
   const [pickerLoading, setPickerLoading] = useState(false);
   const [enqueueLoading, setEnqueueLoading] = useState(false);
   const [selectedAgentIds, setSelectedAgentIds] = useState<Set<string>>(new Set());
+  const hasTriggeredInitialFetch = useRef(false);
 
-  useEffect(() => {
-    if (list.length === 0) {
-      void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
-    }
-  }, [dispatch, list.length]);
+  // useEffect(() => {
+  //   if (list.length > 0) return;
+  //   if (hasTriggeredInitialFetch.current) return;
+  //   hasTriggeredInitialFetch.current = true;
+  //   void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
+  // }, [dispatch, list.length]);
 
   useEffect(() => {
     if (list.length === 0) return;
@@ -53,7 +56,7 @@ export function MiniMarketsContainer({
           dispatch(setByMarketFromAgents({ agents: res.data }));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
     return () => {
       cancelled = true;
     };
@@ -61,14 +64,20 @@ export function MiniMarketsContainer({
 
   useEffect(() => {
     if (marketToAddToAgent == null) {
-      setAgentsForPicker([]);
-      setSelectedAgentIds(new Set());
+      queueMicrotask(() => {
+        setAgentsForPicker([]);
+        setSelectedAgentIds(new Set());
+      });
       return;
     }
     const current = byMarket[marketToAddToAgent.id] ?? [];
-    setSelectedAgentIds(new Set(current));
     let cancelled = false;
-    setPickerLoading(true);
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setSelectedAgentIds(new Set(current));
+        setPickerLoading(true);
+      }
+    });
     getMyAgents({ limit: 50 })
       .then((res) => {
         if (!cancelled) setAgentsForPicker(res.data);
@@ -163,9 +172,13 @@ export function MiniMarketsContainer({
 
   if (list.length === 0) {
     return (
-      <p className={`text-sm text-muted ${className}`}>
-        No open markets.
-      </p>
+      <div className={`${className}`} aria-label="Markets list">
+        <MiniMarketCard
+          market={MOCK_MARKET}
+          addedAgentIds={[]}
+          showActions={false}
+        />
+      </div>
     );
   }
 
