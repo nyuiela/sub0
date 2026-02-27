@@ -14,6 +14,16 @@ function validateBody(body: unknown): body is SubmitOrderBody {
   if (b.quantity == null || (typeof b.quantity !== "string" && typeof b.quantity !== "number"))
     return false;
   if (b.type === "LIMIT" && b.price == null) return false;
+  const isUserOrder = b.agentId == null || b.agentId === "";
+  if (isUserOrder) {
+    if (typeof b.userSignature !== "string" || !b.userSignature?.startsWith("0x")) return false;
+    if (b.tradeCostUsdc == null || (typeof b.tradeCostUsdc !== "string" && typeof b.tradeCostUsdc !== "number"))
+      return false;
+    if (b.nonce == null || (typeof b.nonce !== "string" && typeof b.nonce !== "number"))
+      return false;
+    if (b.deadline == null || (typeof b.deadline !== "string" && typeof b.deadline !== "number"))
+      return false;
+  }
   return true;
 }
 

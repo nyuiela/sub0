@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useActiveAccount } from "thirdweb/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   submitOrder,
@@ -9,6 +10,15 @@ import {
   selectOrderBookByMarketId,
 } from "@/store/slices/marketsSlice";
 import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral } from "@/lib/formatNumbers";
+import { getOrderNonce } from "@/lib/api/orders";
+import {
+  buildUserTradeTypedData,
+  serializeTypedDataForSigning,
+  signUserTradeTypedData,
+  defaultDeadline,
+  type EIP1193Provider,
+} from "@/lib/userTradeSignature";
+import { toast } from "sonner";
 import type { MarketPricesResponse } from "@/types/prices.types";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
@@ -42,6 +52,12 @@ function parseOutcomeLabels(outcomes: unknown[]): [string, string] {
   ];
 }
 
+function getEthereumProvider(): EIP1193Provider | null {
+  if (typeof window === "undefined") return null;
+  const w = window as Window & { ethereum?: EIP1193Provider };
+  return w.ethereum ?? null;
+}
+
 export function MarketTradePanel({
   marketId,
   marketStatus = "OPEN",
@@ -50,6 +66,7 @@ export function MarketTradePanel({
   availableBalance = 0,
   className = "",
 }: MarketTradePanelProps) {
+  const account = useActiveAccount();
   const dispatch = useAppDispatch();
   const orderBook = useAppSelector((state) => selectOrderBookByMarketId(state, marketId, 0));
   const { orderSubmitLoading, error, lastOrderSuccess } = useAppSelector((state) => state.markets);
@@ -62,7 +79,7 @@ export function MarketTradePanel({
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
 
-  const canTrade = marketStatus === "OPEN";
+  const canTrade = marketStatus === "OPEN" && !!account?.address;
   const needsPrice = orderType === "limit" || orderType === "ioc";
   const hasBalance = availableBalance > 0;
   const bestAsk = orderBook?.asks?.[0]?.price;
@@ -106,35 +123,80 @@ export function MarketTradePanel({
 
 
   const handleSubmit = useCallback(
-    (side: "BID" | "ASK", outcomeIndex: number) => {
+    async (side: "BID" | "ASK", outcomeIndex: number) => {
       const quantity = amount.trim();
       if (!quantity || Number(quantity) <= 0) return;
-      if (needsPrice) {
-        const p = price.trim();
-        if (!p || Number(p) <= 0) return;
-        dispatch(
-          submitOrder({
-            marketId,
-            outcomeIndex,
-            side,
-            type: orderType === "ioc" ? "IOC" : "LIMIT",
-            price: p,
-            quantity,
-          })
-        );
-      } else {
-        dispatch(
-          submitOrder({
-            marketId,
-            outcomeIndex,
-            side,
-            type: "MARKET",
-            quantity,
-          })
-        );
+      if (!account?.address) {
+        toast.error("Connect your wallet to place orders.");
+        return;
       }
+      const provider = getEthereumProvider();
+      if (!provider) {
+        toast.error("Wallet provider not available. Use an injected wallet (e.g. MetaMask).");
+        return;
+      }
+      const priceVal = needsPrice ? price.trim() : String(referencePrice);
+      const pNum = Number(priceVal) || 0;
+      const qNum = Number(quantity) || 0;
+      const buy = side === "BID";
+      const maxCostUsdc = buy ? qNum * (pNum || 0.99) : 0;
+      const deadline = defaultDeadline();
+      let nonce: string;
+      try {
+        nonce = await getOrderNonce();
+      } catch {
+        nonce = "0";
+      }
+      const typedData = buildUserTradeTypedData({
+        marketId,
+        outcomeIndex,
+        buy,
+        quantity,
+        maxCostUsdc,
+        nonce,
+        deadline,
+      });
+      const serialized = serializeTypedDataForSigning(typedData);
+      let signature: string;
+      try {
+        signature = await signUserTradeTypedData(provider, account.address, serialized);
+      } catch (err) {
+        console.error(err);
+        const msg = err instanceof Error ? err.message : "Signature rejected";
+        toast.error(msg);
+        return;
+      }
+      if (!signature?.startsWith("0x")) {
+        toast.error("Invalid signature");
+        return;
+      }
+      const tradeCostUsdc = String(maxCostUsdc);
+      const orderTypeVal = needsPrice ? (orderType === "ioc" ? "IOC" as const : "LIMIT" as const) : "MARKET" as const;
+      dispatch(
+        submitOrder({
+          marketId,
+          outcomeIndex,
+          side,
+          type: orderTypeVal,
+          quantity,
+          ...(needsPrice && { price: priceVal }),
+          userSignature: signature,
+          tradeCostUsdc,
+          nonce,
+          deadline: String(deadline),
+        })
+      );
     },
-    [marketId, amount, price, orderType, needsPrice, dispatch]
+    [
+      account?.address,
+      amount,
+      price,
+      orderType,
+      needsPrice,
+      referencePrice,
+      marketId,
+      dispatch,
+    ]
   );
 
   const setAmountFromPercent = useCallback(

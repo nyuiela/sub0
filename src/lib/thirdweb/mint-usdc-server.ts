@@ -1,6 +1,6 @@
 /**
  * Server-only USDC mint using THIRDWEB_AUTH_PRIVATE_KEY.
- * Mints test USDC to the given address on Base Sepolia (chainId 84532).
+ * Mints test USDC to the given address on Base Sepolia (chainId 11155111).
  * Import only from server actions or API routes.
  *
  * Supports both mint(address,uint256) and mintTo(address,uint256).
@@ -112,8 +112,8 @@ export async function mintUsdcToAddress(
       });
       const txHash =
         typeof result === "object" &&
-        result !== null &&
-        "transactionHash" in result
+          result !== null &&
+          "transactionHash" in result
           ? (result as { transactionHash: string }).transactionHash
           : String(result);
       return { success: true, transactionHash: txHash };

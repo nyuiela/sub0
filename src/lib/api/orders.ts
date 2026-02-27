@@ -4,6 +4,14 @@
 
 import type { SubmitOrderBody, SubmitOrderResponse, OrderErrorResponse } from "@/types/order.types";
 
+/** GET /api/user/nonce – user order nonce for EIP-712 UserTrade. */
+export async function getOrderNonce(): Promise<string> {
+  const res = await fetch("/api/user/nonce", { credentials: "include", cache: "no-store" });
+  const data = await res.json().catch(() => ({}));
+  const nonce = (data as { nonce?: string }).nonce;
+  return nonce != null ? String(nonce) : "0";
+}
+
 export async function submitOrder(body: SubmitOrderBody): Promise<SubmitOrderResponse> {
   const res = await fetch("/api/orders", {
     method: "POST",
