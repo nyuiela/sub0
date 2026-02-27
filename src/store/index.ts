@@ -47,6 +47,7 @@ const persistMiddleware: Middleware<object, RootState> = (storeApi) => (next) =>
     saveThemeToStorage(storeApi.getState());
   }
   if (
+    type === "layout/setActivePrimaryTab" ||
     type === "layout/setColumnOrder" ||
     type === "layout/setColumnSizePrefs" ||
     type === "layout/resizeColumns" ||
