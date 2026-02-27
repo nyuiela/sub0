@@ -14,7 +14,7 @@ import {
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWalletBalanceRefresh } from "@/contexts/WalletBalanceRefreshContext";
-import { baseSepolia } from "thirdweb/chains";
+import { baseSepolia, sepolia } from "thirdweb/chains";
 import { contracts } from "@/contract/contracts.json";
 
 type SessionResponse = { loggedIn: boolean; registered?: boolean };
@@ -79,7 +79,7 @@ export function AuthButton() {
         className: connectButtonClassName,
         style: connectButtonStyle,
       }}
-      chain={baseSepolia}
+      chain={sepolia}
       detailsButton={{
         className: detailsButtonClassName,
         style: connectButtonStyle,

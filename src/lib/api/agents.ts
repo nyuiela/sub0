@@ -328,6 +328,34 @@ export async function createAgentWallet(id: string): Promise<Agent> {
   return normalizeAgent(data as Record<string, unknown>);
 }
 
+export interface SyncAgentBalanceResponse {
+  balance: string;
+  updated: boolean;
+  previousBalance?: string;
+  error?: string;
+}
+
+/**
+ * Trigger agent balance sync (POST /api/agents/:id/sync-balance).
+ * Call after deposit/transfer or when opening agent view so DB and UI match chain.
+ */
+export async function syncAgentBalance(agentId: string): Promise<SyncAgentBalanceResponse> {
+  const res = await fetch(`/api/agents/${encodeURIComponent(agentId)}/sync-balance`, {
+    method: "POST",
+    credentials: "include",
+  });
+  const data = (await res.json().catch(() => ({}))) as SyncAgentBalanceResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Sync balance failed");
+  }
+  return {
+    balance: data.balance ?? "0",
+    updated: data.updated === true,
+    previousBalance: data.previousBalance,
+    error: data.error,
+  };
+}
+
 /**
  * Enqueue a market for an agent (add market to agent so agent trades on it).
  * Requires auth; agent must belong to current user.

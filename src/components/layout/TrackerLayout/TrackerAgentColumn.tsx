@@ -1,16 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getMyAgents } from "@/lib/api/agents";
+import { getMyAgents, syncAgentBalance } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
 import { AgentTreemap } from "@/components/layout/AgentsColumn/AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setAgentBalance } from "@/store/slices/agentsSlice";
 import { addRecent } from "@/store/slices/recentSlice";
 import { formatCollateral } from "@/lib/formatNumbers";
 import { getWalletBalances } from "@/lib/balances";
+import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 
 const AGENTS_LIMIT = 50;
 const BALANCE_REFRESH_MS = 50000;
@@ -58,6 +60,7 @@ export function TrackerAgentColumn({
   className = "",
 }: TrackerAgentColumnProps) {
   const dispatch = useAppDispatch();
+  const liveBalances = useAppSelector((state) => state.agents.balanceByAgentId);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [onChainBalances, setOnChainBalances] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -121,6 +124,22 @@ export function TrackerAgentColumn({
     const interval = setInterval(refetchAgents, BALANCE_REFRESH_MS);
     return () => clearInterval(interval);
   }, [agents.length, refetchAgents]);
+
+  useMarketSocket({
+    agentIds: agents.map((a) => a.id),
+    enabled: agents.length > 0,
+  });
+
+  useEffect(() => {
+    if (selectedAgentId == null) return;
+    syncAgentBalance(selectedAgentId)
+      .then((res) => {
+        if (res.balance != null) {
+          dispatch(setAgentBalance({ agentId: selectedAgentId, balance: res.balance }));
+        }
+      })
+      .catch(() => {});
+  }, [selectedAgentId, dispatch]);
 
   if (error != null) {
     const isUnauth = error.includes("401") || error.toLowerCase().includes("unauthorized");
@@ -229,7 +248,7 @@ export function TrackerAgentColumn({
                           {refreshing ? (
                             <span className="inline-block h-3.5 w-10 animate-pulse rounded bg-muted" aria-hidden />
                           ) : (
-                            onChainBalances[agent.id] ?? formatCollateral(agent.balance)
+                            formatCollateral(liveBalances[agent.id] ?? onChainBalances[agent.id] ?? agent.balance)
                           )}
                         </span>
                         <span className={pnlClass}>PnL {formatPnl(pnl)}</span>

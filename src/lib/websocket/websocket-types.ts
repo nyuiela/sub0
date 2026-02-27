@@ -5,9 +5,14 @@
 
 export const WS_ROOM_MARKETS = "markets" as const;
 export const WS_ROOM_PREFIX = "market:" as const;
+export const WS_ROOM_AGENT_PREFIX = "agent:" as const;
 
 export function marketRoom(marketId: string): string {
   return `${WS_ROOM_PREFIX}${marketId}`;
+}
+
+export function agentRoom(agentId: string): string {
+  return `${WS_ROOM_AGENT_PREFIX}${agentId}`;
 }
 
 /** Server -> client: MARKET_UPDATED payload */
@@ -49,6 +54,13 @@ export interface TradeExecutedPayload {
   executedAt: string;
   userId?: string;
   agentId?: string;
+}
+
+/** Server -> client: AGENT_UPDATED payload (room agent:{agentId}) */
+export interface AgentUpdatedPayload {
+  agentId: string;
+  balance?: string;
+  reason?: "balance";
 }
 
 /** Server -> client: ERROR payload */

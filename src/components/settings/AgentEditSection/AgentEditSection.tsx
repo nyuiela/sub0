@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getAgent } from "@/lib/api/agents";
+import { getAgent, syncAgentBalance } from "@/lib/api/agents";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { setAgentBalance } from "@/store/slices/agentsSlice";
+import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
+import { formatCollateral } from "@/lib/formatNumbers";
 import type { Agent } from "@/types/agent.types";
 
 export interface AgentEditSectionProps {
@@ -9,9 +13,16 @@ export interface AgentEditSectionProps {
 }
 
 export function AgentEditSection({ agentId }: AgentEditSectionProps) {
+  const dispatch = useAppDispatch();
+  const liveBalance = useAppSelector((state) => state.agents.balanceByAgentId[agentId]);
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useMarketSocket({
+    agentIds: agentId ? [agentId] : [],
+    enabled: Boolean(agentId),
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -31,6 +42,17 @@ export function AgentEditSection({ agentId }: AgentEditSectionProps) {
       cancelled = true;
     };
   }, [agentId]);
+
+  useEffect(() => {
+    if (!agentId) return;
+    syncAgentBalance(agentId)
+      .then((res) => {
+        if (res.balance != null) {
+          dispatch(setAgentBalance({ agentId, balance: res.balance }));
+        }
+      })
+      .catch(() => {});
+  }, [agentId, dispatch]);
 
   if (loading) {
     return (
@@ -83,7 +105,9 @@ export function AgentEditSection({ agentId }: AgentEditSectionProps) {
           )}
           <div>
             <dt className="text-muted">Balance</dt>
-            <dd className="text-foreground">{agent.balance}</dd>
+            <dd className="text-foreground">
+              {formatCollateral(liveBalance ?? agent.balance)}
+            </dd>
           </div>
           <div>
             <dt className="text-muted">Trades</dt>

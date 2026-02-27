@@ -7,7 +7,9 @@ import type { Agent, AgentPublic } from "@/types/agent.types";
 import { AgentTreemap } from "./AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
+import { useAppSelector } from "@/store/hooks";
 import { formatCollateral } from "@/lib/formatNumbers";
+import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
@@ -117,6 +119,7 @@ export function AgentsColumn({
   status = "ACTIVE",
   className = "",
 }: AgentsColumnProps) {
+  const liveBalances = useAppSelector((state) => state.agents.balanceByAgentId);
   const [agents, setAgents] = useState<AgentRowDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -191,6 +194,12 @@ export function AgentsColumn({
     return () => clearInterval(interval);
   }, [agents.length, refetchAgents]);
 
+  const myAgentIds = agents.filter((a) => a.isMine).map((a) => a.id);
+  useMarketSocket({
+    agentIds: myAgentIds,
+    enabled: myAgentIds.length > 0,
+  });
+
   if (loading && agents.length === 0) {
     return (
       <div className={className}>
@@ -263,7 +272,7 @@ export function AgentsColumn({
                         {isMine
                           ? refreshing
                             ? <span className="inline-block h-3.5 w-10 animate-pulse rounded bg-muted align-middle" aria-hidden />
-                            : formatCollateral(agent.balance)
+                            : formatCollateral(liveBalances[agent.id] ?? agent.balance)
                           : "-"}
                       </span>
                       <span><span className="text-foreground font-medium">Vol</span> {formatCollateral(agent.tradedAmount)}</span>

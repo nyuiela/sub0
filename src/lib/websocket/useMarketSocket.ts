@@ -8,6 +8,7 @@ import {
   setMarketVolumeFromStats,
 } from "@/store/slices/marketsSlice";
 import { fetchMarkets, fetchMarketById } from "@/store/slices/marketsSlice";
+import { setAgentBalance } from "@/store/slices/agentsSlice";
 import { setStatus } from "@/store/slices/websocketSlice";
 import { requestPositionsRefetch } from "@/store/slices/positionsSlice";
 import { addRecentTrade } from "@/store/slices/recentTradesSlice";
@@ -15,10 +16,12 @@ import type { OrderBookSnapshot } from "@/types/market.types";
 import type { WebSocketStatus } from "@/types/websocket.types";
 import {
   marketRoom,
+  agentRoom,
   WS_ROOM_MARKETS,
   type MarketUpdatedPayload,
   type OrderBookUpdatePayload,
   type TradeExecutedPayload,
+  type AgentUpdatedPayload,
   ORDER_BOOK_THROTTLE_MS,
   type MarketSocketStatus,
 } from "./websocket-types";
@@ -47,6 +50,8 @@ export interface UseMarketSocketOptions {
   marketId?: string | null;
   /** Subscribe to each market for order book/trades (e.g. list view). */
   marketIds?: string[];
+  /** Subscribe to agent:{id} for each id to receive AGENT_UPDATED (balance). */
+  agentIds?: string[];
   /** Subscribe to the "markets" room for create/delete list updates. */
   subscribeToList?: boolean;
   /** When false, no connection or subscriptions. */
@@ -133,6 +138,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
   const {
     marketId,
     marketIds: marketIdsOption,
+    agentIds: agentIdsOption,
     subscribeToList = false,
     enabled = true,
     reconnectMaxAttempts = DEFAULT_RECONNECT_MAX_ATTEMPTS,
@@ -156,7 +162,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
 
   const hasRoomsIntent =
     enabled &&
-    (!!marketId || subscribeToList || (marketIdsOption != null && marketIdsOption.length > 0));
+    (!!marketId ||
+      subscribeToList ||
+      (marketIdsOption != null && marketIdsOption.length > 0) ||
+      (agentIdsOption != null && agentIdsOption.length > 0));
 
   useEffect(() => {
     if (!enabled || !hasRoomsIntent) return;
@@ -182,6 +191,8 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     if (marketId) roomsToSubscribe.push(marketRoom(marketId));
     const ids = marketIdsOption ?? [];
     for (const id of ids) roomsToSubscribe.push(marketRoom(id));
+    const aIds = agentIdsOption ?? [];
+    for (const id of aIds) roomsToSubscribe.push(agentRoom(id));
     if (subscribeToList) roomsToSubscribe.push(WS_ROOM_MARKETS);
     roomsRef.current = roomsToSubscribe;
 
@@ -279,6 +290,11 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
                 dispatch(requestPositionsRefetch());
                 void dispatch(fetchMarketById(p.marketId));
               }
+            } else if (type === "AGENT_UPDATED") {
+              const p = payload as AgentUpdatedPayload | undefined;
+              if (p?.agentId != null && p.balance !== undefined) {
+                dispatch(setAgentBalance({ agentId: p.agentId, balance: String(p.balance) }));
+              }
             }
           },
         });
@@ -306,6 +322,8 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     marketId ?? "",
     marketIdsOption?.length ?? 0,
     marketIdsOption?.join(",") ?? "",
+    agentIdsOption?.length ?? 0,
+    agentIdsOption?.join(",") ?? "",
     subscribeToList,
     reconnectMaxAttempts,
     reconnectIntervalMs,
@@ -319,6 +337,8 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     if (marketId) nextRooms.push(marketRoom(marketId));
     const ids = marketIdsOption ?? [];
     for (const id of ids) nextRooms.push(marketRoom(id));
+    const aIds = agentIdsOption ?? [];
+    for (const id of aIds) nextRooms.push(agentRoom(id));
     if (subscribeToList) nextRooms.push(WS_ROOM_MARKETS);
     roomsRef.current = nextRooms;
 
@@ -328,5 +348,5 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
       marketWebSocketService.send({ type: "SUBSCRIBE", payload: { room } });
       subscribedRoomsRef.current.add(room);
     }
-  }, [enabled, marketId ?? "", marketIdsOption?.join(",") ?? "", subscribeToList]);
+  }, [enabled, marketId ?? "", marketIdsOption?.join(",") ?? "", agentIdsOption?.join(",") ?? "", subscribeToList]);
 }

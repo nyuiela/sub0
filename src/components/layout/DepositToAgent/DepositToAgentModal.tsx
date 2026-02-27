@@ -2,12 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getContract, prepareContractCall } from "thirdweb";
-import { useSendTransaction } from "thirdweb/react";
-import { baseSepolia } from "thirdweb/chains";
+import { useSendTransaction, useActiveWalletChain } from "thirdweb/react";
 import { toast } from "sonner";
 import { thirdwebClient } from "@/lib/thirdweb/client";
 import { getWalletBalances } from "@/lib/balances";
 import contractsData from "@/contract/contracts.json";
+import { syncAgentBalance } from "@/lib/api/agents";
+import { useAppDispatch } from "@/store/hooks";
+import { setAgentBalance } from "@/store/slices/agentsSlice";
 import type { Agent } from "@/types/agent.types";
 
 const USDC_DECIMALS =
@@ -34,9 +36,11 @@ function truncateAddress(addr: string, head = 6, tail = 4): string {
 const BALANCE_REFRESH_MS = 5000;
 
 export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: DepositToAgentModalProps) {
+  const dispatch = useAppDispatch();
   const [amountInput, setAmountInput] = useState("100");
   const [balances, setBalances] = useState<{ eth: string; usdc: string } | null>(null);
   const [balancesLoading, setBalancesLoading] = useState(false);
+  const activeChain = useActiveWalletChain();
   const { mutate: sendTransaction, isPending } = useSendTransaction({
     payModal: false,
   });
@@ -78,13 +82,17 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
   const handleTransfer = useCallback(() => {
     const toAddress = agent.walletAddress ?? null;
     if (!toAddress || amount <= 0 || thirdwebClient == null) return;
+    if (activeChain == null) {
+      toast.error("Connect your wallet and switch to the correct network.");
+      return;
+    }
     const raw = BigInt(Math.floor(amount * 10 ** USDC_DECIMALS));
     if (raw <= BigInt(0)) return;
     const usdcAddress = (contractsData as { contracts?: { usdc?: string } }).contracts?.usdc;
     if (usdcAddress == null) return;
     const contract = getContract({
       client: thirdwebClient,
-      chain: baseSepolia,
+      chain: activeChain,
       address: usdcAddress,
     });
     const transaction = prepareContractCall({
@@ -93,8 +101,16 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
       params: [toAddress as `0x${string}`, raw],
     });
     sendTransaction(transaction, {
-      onSuccess: () => {
+      onSuccess: async () => {
         toast.success(`Transferred ${amount} USDC to ${agent.name ?? "agent"}`);
+        try {
+          const res = await syncAgentBalance(agent.id);
+          if (res.balance != null) {
+            dispatch(setAgentBalance({ agentId: agent.id, balance: res.balance }));
+          }
+        } catch {
+          // Sync failed; onTransferSuccess refetch will still update list
+        }
         onTransferSuccess?.();
         onClose();
       },
@@ -107,9 +123,21 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
         else toast.error(msg);
       },
     });
-  }, [agent.walletAddress, agent.name, amount, onClose, onTransferSuccess, sendTransaction]);
+  }, [
+    agent.id,
+    agent.walletAddress,
+    agent.name,
+    amount,
+    activeChain,
+    dispatch,
+    onClose,
+    onTransferSuccess,
+    sendTransaction,
+  ]);
 
-  const canTransferUsdc = Boolean(hasCompleteWallet && agent.walletAddress && amount > 0);
+  const canTransferUsdc = Boolean(
+    hasCompleteWallet && agent.walletAddress && amount > 0 && activeChain != null
+  );
 
   return (
     <section
