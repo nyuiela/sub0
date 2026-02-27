@@ -14,6 +14,8 @@ export interface LayoutSliceState {
   selectedTrackerAgentId: string | null;
   /** Agent id selected in Simulate tab for sandbox testing. */
   selectedSimulateAgentId: string | null;
+  /** Incremented when user adds a market to agent so Discovery refetches. */
+  simulateEnqueuedListVersion: number;
 }
 
 function initialSizePrefs(): Record<string, ColumnSizePrefs> {
@@ -30,6 +32,7 @@ const initialState: LayoutSliceState = {
   columnSizePrefs: initialSizePrefs(),
   selectedTrackerAgentId: null,
   selectedSimulateAgentId: null,
+  simulateEnqueuedListVersion: 0,
 };
 
 const layoutSlice = createSlice({
@@ -88,6 +91,9 @@ const layoutSlice = createSlice({
     setSelectedSimulateAgentId: (state, action: { payload: string | null }) => {
       state.selectedSimulateAgentId = action.payload;
     },
+    incrementSimulateEnqueuedListVersion: (state) => {
+      state.simulateEnqueuedListVersion += 1;
+    },
   },
 });
 
@@ -100,5 +106,6 @@ export const {
   resetColumnOrder,
   setSelectedTrackerAgentId,
   setSelectedSimulateAgentId,
+  incrementSimulateEnqueuedListVersion,
 } = layoutSlice.actions;
 export default layoutSlice.reducer;

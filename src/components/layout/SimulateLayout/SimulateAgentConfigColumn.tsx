@@ -1,13 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useAppDispatch } from "@/store/hooks";
+import { setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
 import { getMyAgents } from "@/lib/api/agents";
+import { toast } from "sonner";
 import {
   getSimulateConfig,
   getSimulateBalance,
   getSimulateEligibility,
   requestSimulateFund,
 } from "@/lib/api/simulate";
+import { getBlockExplorerBaseUrl, getBlockExplorerTxUrl } from "@/lib/blockExplorer";
+import { SimulateConfigEditor } from "./SimulateConfigEditor";
 import type { Agent } from "@/types/agent.types";
 
 export interface SimulateAgentConfigColumnProps {
@@ -43,11 +48,31 @@ function truncateAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+const MS_PER_DAY = 86400000;
+const MS_PER_HOUR = 3600000;
+const MS_PER_MINUTE = 60000;
+const MS_PER_SECOND = 1000;
+
+function formatCountdown(remainingMs: number): string {
+  if (remainingMs <= 0) return "";
+  const d = Math.floor(remainingMs / MS_PER_DAY);
+  const h = Math.floor((remainingMs % MS_PER_DAY) / MS_PER_HOUR);
+  const m = Math.floor((remainingMs % MS_PER_HOUR) / MS_PER_MINUTE);
+  const s = Math.floor((remainingMs % MS_PER_MINUTE) / MS_PER_SECOND);
+  const parts: string[] = [];
+  if (d > 0) parts.push(`${d}d`);
+  if (h > 0) parts.push(`${h}h`);
+  if (m > 0) parts.push(`${m}m`);
+  parts.push(`${s}s`);
+  return parts.join(" ");
+}
+
 export function SimulateAgentConfigColumn({
   selectedAgentId,
   onSelectAgent,
   className = "",
 }: SimulateAgentConfigColumnProps) {
+  const dispatch = useAppDispatch();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,6 +88,7 @@ export function SimulateAgentConfigColumn({
   } | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [funding, setFunding] = useState(false);
+  const [countdownLabel, setCountdownLabel] = useState<string | null>(null);
   const [simulateConfig, setSimulateConfig] = useState<{
     configured: boolean;
     name?: string;
@@ -89,6 +115,8 @@ export function SimulateAgentConfigColumn({
     };
   }, []);
 
+  const hasAutoSelectedRef = useRef(false);
+
   useEffect(() => {
     let cancelled = false;
     getMyAgents({ limit: AGENTS_LIMIT })
@@ -96,10 +124,7 @@ export function SimulateAgentConfigColumn({
         if (!cancelled) {
           const list = res.data ?? [];
           setAgents(list);
-          if (list.length > 0 && selectedAgentId == null) {
-            const first = list[0];
-            if (first) onSelectAgent(first);
-          }
+          dispatch(setByMarketFromAgents({ agents: list }));
         }
       })
       .catch(() => {
@@ -114,7 +139,14 @@ export function SimulateAgentConfigColumn({
     return () => {
       cancelled = true;
     };
-  }, [onSelectAgent, selectedAgentId]);
+  }, []);
+
+  useEffect(() => {
+    if (agents.length > 0 && selectedAgentId == null && !hasAutoSelectedRef.current) {
+      hasAutoSelectedRef.current = true;
+      onSelectAgent(agents[0] ?? null);
+    }
+  }, [agents, selectedAgentId, onSelectAgent]);
 
   useEffect(() => {
     if (!selectedAgentId?.trim()) {
@@ -158,11 +190,78 @@ export function SimulateAgentConfigColumn({
     };
   }, [selectedAgentId]);
 
+  useEffect(() => {
+    const next = eligibility?.nextRequestAt;
+    const inCooldown =
+      eligibility != null &&
+      !eligibility.eligible &&
+      typeof next === "number" &&
+      next > 0 &&
+      selectedAgentId != null;
+    if (!inCooldown) {
+      setCountdownLabel(null);
+      return;
+    }
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const tick = () => {
+      const remaining = Math.max(0, (next as number) - Date.now());
+      if (remaining <= 0) {
+        setCountdownLabel(null);
+        if (intervalId != null) clearInterval(intervalId);
+        getSimulateEligibility(selectedAgentId!)
+          .then((elig) => {
+            setEligibility({
+              eligible: elig.eligible,
+              firstTime: elig.firstTime,
+              nextRequestAt: elig.nextRequestAt,
+              reason: elig.reason,
+            });
+          })
+          .catch(() => {});
+        return;
+      }
+      setCountdownLabel(`Refill in ${formatCountdown(remaining)}`);
+    };
+    tick();
+    intervalId = setInterval(tick, 1000);
+    return () => {
+      if (intervalId != null) clearInterval(intervalId);
+    };
+  }, [eligibility?.nextRequestAt, eligibility?.eligible, selectedAgentId]);
+
   const handleRequestFund = useCallback(() => {
     if (!selectedAgentId || funding) return;
     setFunding(true);
     requestSimulateFund(selectedAgentId)
-      .then(() => {
+      .then((fundRes) => {
+        const baseUrl = simulateConfig?.blockExplorerUrl;
+        if (fundRes.nativeTxHash && getBlockExplorerTxUrl(baseUrl, fundRes.nativeTxHash)) {
+          toast.success("Funded", {
+            description: (
+              <a
+                href={getBlockExplorerTxUrl(baseUrl, fundRes.nativeTxHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                View ETH tx
+              </a>
+            ),
+          });
+        } else if (fundRes.usdcTxHash && getBlockExplorerTxUrl(baseUrl, fundRes.usdcTxHash)) {
+          toast.success("Funded", {
+            description: (
+              <a
+                href={getBlockExplorerTxUrl(baseUrl, fundRes.usdcTxHash)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline"
+              >
+                View USDC tx
+              </a>
+            ),
+          });
+        }
         return getSimulateBalance(selectedAgentId);
       })
       .then((bal) => {
@@ -188,7 +287,7 @@ export function SimulateAgentConfigColumn({
         }));
       })
       .finally(() => setFunding(false));
-  }, [selectedAgentId, funding]);
+  }, [selectedAgentId, funding, simulateConfig?.blockExplorerUrl]);
 
   const selectedAgent =
     selectedAgentId != null
@@ -208,7 +307,7 @@ export function SimulateAgentConfigColumn({
 
   return (
     <aside
-      className={`flex flex-col gap-4 overflow-auto ${className}`.trim()}
+      className={`scrollbar-hidden flex flex-col gap-4 overflow-auto ${className}`.trim()}
       aria-label="Agent configuration for simulate"
     >
       <section aria-labelledby="simulate-agent-heading">
@@ -271,11 +370,11 @@ export function SimulateAgentConfigColumn({
               {simulateConfig?.configured && simulateConfig.name && (
                 <p className="mb-1 text-xs text-muted-foreground">
                   Network: {simulateConfig.name}
-                  {simulateConfig.blockExplorerUrl && (
+                  {getBlockExplorerBaseUrl(simulateConfig.blockExplorerUrl) && (
                     <>
                       {" "}
                       <a
-                        href={simulateConfig.blockExplorerUrl}
+                        href={getBlockExplorerBaseUrl(simulateConfig.blockExplorerUrl)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary underline"
@@ -318,7 +417,9 @@ export function SimulateAgentConfigColumn({
                   className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50"
                   onClick={handleRequestFund}
                 >
-                  {funding ? "Requesting..." : "Request funding"}
+                  {funding
+                    ? "Refilling..."
+                    : countdownLabel ?? "Request funding"}
                 </button>
                 {eligibility != null && !eligibility.eligible && eligibility.reason && (
                   <p className="mt-2 text-xs text-muted-foreground">
@@ -335,17 +436,27 @@ export function SimulateAgentConfigColumn({
         </section>
       )}
 
-      <section aria-labelledby="simulate-config-note">
+      <section aria-labelledby="simulate-config-heading">
         <h2
-          id="simulate-config-note"
-          className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted"
+          id="simulate-config-heading"
+          className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted"
         >
           Config
         </h2>
-        <p className="text-xs text-muted-foreground">
-          Name, model, strategy, tools and md files (soul, persona, skill, etc.)
-          can be edited in Agent Studio. Re-simulate after saving changes.
-        </p>
+        {selectedAgent != null ? (
+          <SimulateConfigEditor
+            agent={selectedAgent}
+            onAgentUpdated={(updated) => {
+              setAgents((prev) =>
+                prev.map((a) => (a.id === updated.id ? updated : a))
+              );
+            }}
+          />
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Select an agent to see config.
+          </p>
+        )}
       </section>
     </aside>
   );

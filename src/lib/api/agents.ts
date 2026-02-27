@@ -349,6 +349,137 @@ export async function enqueueAgentMarket(
 }
 
 /**
+ * List enqueued markets for an agent (status, market name, discard reason). For Discovery.
+ */
+export async function getAgentEnqueuedMarkets(
+  agentId: string,
+  params: { limit?: number; offset?: number } = {}
+): Promise<{
+  data: Array<{
+    marketId: string;
+    marketName: string;
+    status: string;
+    discardReason?: string;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  total: number;
+  limit: number;
+  offset: number;
+}> {
+  const qs = new URLSearchParams();
+  if (params.limit != null) qs.set("limit", String(params.limit));
+  if (params.offset != null) qs.set("offset", String(params.offset));
+  const query = qs.toString();
+  const res = await fetch(
+    `/api/agents/${encodeURIComponent(agentId)}/enqueued-markets${query ? `?${query}` : ""}`,
+    { credentials: "include" }
+  );
+  const data = (await res.json().catch(() => ({}))) as {
+    data?: unknown[];
+    total?: number;
+    limit?: number;
+    offset?: number;
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Enqueued markets fetch failed");
+  }
+  return {
+    data: Array.isArray(data.data) ? (data.data as Awaited<ReturnType<typeof getAgentEnqueuedMarkets>>["data"]) : [],
+    total: data.total ?? 0,
+    limit: data.limit ?? 50,
+    offset: data.offset ?? 0,
+  };
+}
+
+/**
+ * Manually trigger analysis for all enqueued markets (one-off jobs run soon).
+ */
+export async function triggerAgentAnalysis(agentId: string): Promise<{
+  triggered: number;
+  jobIds: string[];
+}> {
+  const res = await fetch(`/api/agent/${encodeURIComponent(agentId)}/trigger`, {
+    method: "POST",
+    credentials: "include",
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    triggered?: number;
+    jobIds?: string[];
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Trigger failed");
+  }
+  return {
+    triggered: data.triggered ?? 0,
+    jobIds: Array.isArray(data.jobIds) ? data.jobIds : [],
+  };
+}
+
+/** Enqueued market with status from agent analysis (for Discovery). */
+export interface EnqueuedMarketItem {
+  marketId: string;
+  marketName: string;
+  status: string;
+  discardReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface EnqueuedMarketsResponse {
+  data: EnqueuedMarketItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/**
+ * List enqueued markets for an agent with status and market name (Discovery).
+ */
+export async function getEnqueuedMarkets(
+  agentId: string,
+  params: { limit?: number; offset?: number } = {}
+): Promise<EnqueuedMarketsResponse> {
+  const qs = new URLSearchParams();
+  if (params.limit != null) qs.set("limit", String(params.limit));
+  if (params.offset != null) qs.set("offset", String(params.offset));
+  const query = qs.toString();
+  const res = await fetch(
+    `/api/agents/${encodeURIComponent(agentId)}/enqueued-markets${query ? `?${query}` : ""}`,
+    { credentials: "include" }
+  );
+  const data = (await res.json().catch(() => ({}))) as EnqueuedMarketsResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Enqueued markets fetch failed");
+  }
+  return data;
+}
+
+/**
+ * Manually trigger analysis for all enqueued markets (one-off jobs).
+ */
+export async function triggerAgentRun(agentId: string): Promise<{ triggered: number; jobIds: string[] }> {
+  const res = await fetch(`/api/agent/${encodeURIComponent(agentId)}/trigger`, {
+    method: "POST",
+    credentials: "include",
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    triggered?: number;
+    jobIds?: string[];
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Trigger failed");
+  }
+  return {
+    triggered: data.triggered ?? 0,
+    jobIds: data.jobIds ?? [],
+  };
+}
+
+/**
  * Remove a market from an agent's enqueued list (stops showing "Added" for that market for this agent).
  * Requires auth; agent must belong to current user.
  */

@@ -211,7 +211,7 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
                   {SIMULATE_LABELS[columnId as SimulateColumnId] ?? columnId}
                 </h3>
               </header>
-              <div className="min-h-0 flex-1 overflow-auto p-1">
+              <div className="scrollbar-hidden min-h-0 flex-1 overflow-auto p-1">
                 {renderColumnContent(columnId)}
               </div>
             </section>

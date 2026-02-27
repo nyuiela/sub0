@@ -19,6 +19,7 @@ export interface MarketsSliceState {
   orderBookByMarketId: Record<string, OrderBookSnapshot>;
   loading: boolean;
   listLoading: boolean;
+  loadMoreLoading: boolean;
   detailLoading: boolean;
   orderSubmitLoading: boolean;
   lastOrderSuccess: string | null;
@@ -34,6 +35,7 @@ const initialState: MarketsSliceState = {
   orderBookByMarketId: {},
   loading: false,
   listLoading: false,
+  loadMoreLoading: false,
   detailLoading: false,
   orderSubmitLoading: false,
   lastOrderSuccess: null,
@@ -47,6 +49,30 @@ export const fetchMarkets = createAsyncThunk(
       return await marketsApi.listMarkets(params);
     } catch (e) {
       return rejectWithValue(e instanceof Error ? e.message : "Failed to fetch markets");
+    }
+  }
+);
+
+/** Same as fetchMarkets but does not set listLoading; use for silent background refresh. */
+export const fetchMarketsSilent = createAsyncThunk(
+  "markets/fetchListSilent",
+  async (params: MarketListParams = {}, { rejectWithValue }) => {
+    try {
+      return await marketsApi.listMarkets(params);
+    } catch (e) {
+      return rejectWithValue(e instanceof Error ? e.message : "Failed to fetch markets");
+    }
+  }
+);
+
+/** Load more markets (append to list). Use offset = current list length, limit = 10. */
+export const fetchMarketsMore = createAsyncThunk(
+  "markets/fetchMore",
+  async (params: MarketListParams, { rejectWithValue }) => {
+    try {
+      return await marketsApi.listMarkets(params);
+    } catch (e) {
+      return rejectWithValue(e instanceof Error ? e.message : "Failed to load more markets");
     }
   }
 );
@@ -279,6 +305,53 @@ const marketsSlice = createSlice({
       .addCase(fetchMarkets.rejected, (state, action) => {
         state.listLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchMarketsSilent.fulfilled, (state, action) => {
+        const list = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        state.list = list;
+        state.total = action.payload?.total ?? 0;
+        state.limit = action.payload?.limit ?? state.limit;
+        state.offset = action.payload?.offset ?? state.offset;
+        for (const m of list) {
+          const snap = m.orderBookSnapshot;
+          if (snap?.bids != null && snap?.asks != null) {
+            const key = `${m.id}-${snap.outcomeIndex ?? 0}`;
+            state.orderBookByMarketId[key] = {
+              marketId: m.id,
+              outcomeIndex: snap.outcomeIndex ?? 0,
+              bids: snap.bids,
+              asks: snap.asks,
+              timestamp: typeof snap.timestamp === "number" ? snap.timestamp : Date.now(),
+            };
+          }
+        }
+      })
+      .addCase(fetchMarketsMore.pending, (state) => {
+        state.loadMoreLoading = true;
+      })
+      .addCase(fetchMarketsMore.fulfilled, (state, action) => {
+        state.loadMoreLoading = false;
+        const list = Array.isArray(action.payload?.data) ? action.payload.data : [];
+        state.list = [...state.list, ...list];
+        state.total = action.payload?.total ?? state.total;
+        state.limit = action.payload?.limit ?? state.limit;
+        state.offset = state.list.length;
+        for (const m of list) {
+          const snap = m.orderBookSnapshot;
+          if (snap?.bids != null && snap?.asks != null) {
+            const key = `${m.id}-${snap.outcomeIndex ?? 0}`;
+            state.orderBookByMarketId[key] = {
+              marketId: m.id,
+              outcomeIndex: snap.outcomeIndex ?? 0,
+              bids: snap.bids,
+              asks: snap.asks,
+              timestamp: typeof snap.timestamp === "number" ? snap.timestamp : Date.now(),
+            };
+          }
+        }
+      })
+      .addCase(fetchMarketsMore.rejected, (state) => {
+        state.loadMoreLoading = false;
       })
       .addCase(fetchMarketById.pending, (state) => {
         state.detailLoading = true;

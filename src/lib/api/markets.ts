@@ -20,6 +20,8 @@ function buildQuery(params: MarketListParams): string {
   if (params.platform != null) search.set("platform", params.platform);
   if (params.limit != null) search.set("limit", String(params.limit));
   if (params.offset != null) search.set("offset", String(params.offset));
+  if (params.createdAtFrom != null) search.set("createdAtFrom", params.createdAtFrom);
+  if (params.createdAtTo != null) search.set("createdAtTo", params.createdAtTo);
   const qs = search.toString();
   return qs ? `?${qs}` : "";
 }

@@ -67,7 +67,7 @@ export function ThemeSwitcher() {
           height={16}
           alt=""
           aria-hidden
-          className={`shrink-0 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+          className={`shrink-0 transition-transform duration-200 ${themeId === "dark" || themeId === "trading" ? "invert" : ""} ${open ? "rotate-180" : ""}`}
         />
       </button>
 

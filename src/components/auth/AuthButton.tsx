@@ -11,9 +11,8 @@ import {
   login as doLoginAction,
   logout as doLogoutAction,
 } from "@/app/actions/auth";
-import { useEffect, useState } from "react";
-import { getCurrentUser } from "@/lib/api/auth";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 import { useWalletBalanceRefresh } from "@/contexts/WalletBalanceRefreshContext";
 import { baseSepolia } from "thirdweb/chains";
 import { contracts } from "@/contract/contracts.json";
@@ -59,21 +58,8 @@ type User = {
 export function AuthButton() {
   const themeId = useAppSelector((state) => state.theme.themeId);
   const { refreshKey } = useWalletBalanceRefresh();
-  const [user, setUser] = useState<User | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    getCurrentUser()
-      .then((user) => {
-        console.log("user", user);
-        if (!cancelled) setUser(user as User);
-      })
-      .catch(() => {
-        if (!cancelled) setUser(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const { user: authUser, refetch: refetchAuth } = useAuth();
+  const user = authUser as User | null;
 
   if (!thirdwebClient) {
     return (
@@ -123,19 +109,14 @@ export function AuthButton() {
           if (!result.success) {
             throw new Error("Login failed");
           }
-          // const sessionRes = await fetch("/api/auth/session", {
-          //   credentials: "include",
-          // });
-          // const data = (await sessionRes.json()) as SessionResponse;
-          // if (data.loggedIn === true && data.registered === false) {
-          //   router.replace("/register");
-          // }
+          await refetchAuth();
         },
         getLoginPayload: async ({ address }) => {
           return generatePayload({ address });
         },
         doLogout: async () => {
           await doLogoutAction();
+          await refetchAuth();
         },
       }}
     />

@@ -12,7 +12,7 @@ export function SimulatePositionsColumn({
   return (
     <section className={className} aria-label="Markets with positions">
       <p className="text-xs text-muted-foreground">
-        Markets with positions. Payout and reason per position. Live balance via WebSocket.
+        Positions will appear here when the agent has opened positions (after analysis and trade execution).
       </p>
     </section>
   );

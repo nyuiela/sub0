@@ -1,31 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { PrimaryTabs } from "@/components/layout/PrimaryTabs";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { AccountBar } from "@/components/layout/AccountBar";
 import { AuthButton } from "@/components/auth";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { getCurrentUser } from "@/lib/api/auth";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function TopNav() {
-  const [isRegistered, setIsRegistered] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    getCurrentUser()
-      .then((user) => {
-        if (!cancelled) setIsRegistered(user != null && (user.id != null || user.address != null));
-      })
-      .catch(() => {
-        if (!cancelled) setIsRegistered(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
+  const { user, loading } = useAuth();
+  const isRegistered =
+    loading ? null : user != null && (user.id != null || user.address != null);
   const showRegister = isRegistered === false;
 
   return (

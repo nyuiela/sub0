@@ -68,6 +68,10 @@ export interface MarketListParams {
   platform?: MarketPlatform;
   limit?: number;
   offset?: number;
+  /** ISO date; markets created on or after (Simulate date filter). */
+  createdAtFrom?: string;
+  /** ISO date; markets created before; agent info cutoff for Simulate. */
+  createdAtTo?: string;
 }
 
 export interface MarketListResponse {

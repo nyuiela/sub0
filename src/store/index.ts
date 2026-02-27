@@ -5,6 +5,7 @@ import layoutReducer from "./slices/layoutSlice";
 import marketsReducer from "./slices/marketsSlice";
 import recentReducer from "./slices/recentSlice";
 import marketAgentsReducer from "./slices/marketAgentsSlice";
+import simulateDiscardedReducer from "./slices/simulateDiscardedSlice";
 import positionsReducer from "./slices/positionsSlice";
 import recentTradesReducer from "./slices/recentTradesSlice";
 import { saveThemeToStorage } from "./themePersist";
@@ -16,6 +17,7 @@ import type { LayoutSliceState } from "./slices/layoutSlice";
 import type { MarketsSliceState } from "./slices/marketsSlice";
 import type { RecentSliceState } from "./slices/recentSlice";
 import type { MarketAgentsSliceState } from "./slices/marketAgentsSlice";
+import type { SimulateDiscardedSliceState } from "./slices/simulateDiscardedSlice";
 import type { PositionsSliceState } from "./slices/positionsSlice";
 import type { RecentTradesSliceState } from "./slices/recentTradesSlice";
 
@@ -26,6 +28,7 @@ export type RootState = {
   markets: MarketsSliceState;
   recent: RecentSliceState;
   marketAgents: MarketAgentsSliceState;
+  simulateDiscarded: SimulateDiscardedSliceState;
   positions: PositionsSliceState;
   recentTrades: RecentTradesSliceState;
 };
@@ -62,6 +65,7 @@ export const store = configureStore({
     markets: marketsReducer,
     recent: recentReducer,
     marketAgents: marketAgentsReducer,
+    simulateDiscarded: simulateDiscardedReducer,
     positions: positionsReducer,
     recentTrades: recentTradesReducer,
   },

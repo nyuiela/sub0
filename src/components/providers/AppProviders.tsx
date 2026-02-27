@@ -1,6 +1,7 @@
 "use client";
 
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { WalletBalanceRefreshProvider } from "@/contexts/WalletBalanceRefreshContext";
 import { ReduxProvider } from "./ReduxProvider";
 import { ThemeProvider } from "./ThemeProvider";
@@ -11,6 +12,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <ReduxProvider>
       <ThirdwebProvider>
+        <AuthProvider>
         <WalletBalanceRefreshProvider>
           <ThemeProvider>
             <WebSocketConnector />
@@ -18,6 +20,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             <Toaster position="top-right" richColors closeButton />
           </ThemeProvider>
         </WalletBalanceRefreshProvider>
+        </AuthProvider>
       </ThirdwebProvider>
     </ReduxProvider>
   );

@@ -10,31 +10,29 @@ import {
 export async function GET(request: NextRequest) {
   const base = getBackendBase();
   if (!base) {
-    return NextResponse.json(
-      { error: "Backend not configured" },
-      { status: 503 }
-    );
+    return NextResponse.json({ user: null });
   }
   const cookieHeader = request.headers.get("cookie");
   const jwtFromRequest = getJwtFromCookieHeader(cookieHeader);
   const headers = jwtFromRequest
     ? buildBackendAuthHeaders(jwtFromRequest)
     : await getBackendAuthHeaders();
-  const res = await fetch(`${base}/api/auth/me`, {
-    method: "GET",
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${base}/api/auth/me`, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+    });
+  } catch {
+    return NextResponse.json({ user: null });
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    const err = data as { error?: string; message?: string };
-    return NextResponse.json(
-      { error: err?.error ?? err?.message ?? "Failed to get current user" },
-      { status: res.status }
-    );
+    return NextResponse.json({ user: null });
   }
   return NextResponse.json(data);
 }

@@ -19,7 +19,8 @@ const DEBUG_LIVE_STATS =
   && typeof window !== "undefined"
   && (window as unknown as { __DEBUG_MARKET_LIVE?: boolean }).__DEBUG_MARKET_LIVE === true;
 
-const AVATAR_SIZE = 194;
+const AVATAR_SIZE_DEFAULT = 194;
+const AVATAR_SIZE_SMALL = 64;
 
 function formatMc(value: string | undefined): string {
   if (value == null || value === "") return "0";
@@ -46,6 +47,10 @@ export interface MiniMarketCardProps {
   quickBuyAmount?: string;
   /** When false, Buy/Sell actions are hidden (e.g. tracker column). Default true. */
   showActions?: boolean;
+  /** Smaller image for Simulate column. Default "default". */
+  imageSize?: "default" | "small";
+  /** Simulate only: show "Discarded" when agent discarded this market. */
+  simulateButtonState?: "added" | "discarded";
   className?: string;
 }
 
@@ -57,9 +62,13 @@ export function MiniMarketCard({
   addedAgentIds = [],
   quickBuyAmount = "$100",
   showActions = true,
+  imageSize = "default",
+  simulateButtonState,
   className = "",
 }: MiniMarketCardProps) {
   const addedCount = addedAgentIds.length;
+  const avatarSize = imageSize === "small" ? AVATAR_SIZE_SMALL : AVATAR_SIZE_DEFAULT;
+  const avatarClass = imageSize === "small" ? "h-14 w-14 rounded-sm object-cover" : "h-24 w-24 rounded-sm object-cover";
   const dispatch = useAppDispatch();
   const orderBook = useAppSelector((state) =>
     selectOrderBookByMarketId(state, market.id, 0)
@@ -107,9 +116,9 @@ export function MiniMarketCard({
           <Image
             src={market.imageUrl}
             alt=""
-            width={AVATAR_SIZE}
-            height={AVATAR_SIZE}
-            className="h-24 w-24 rounded-sm object-cover"
+            width={avatarSize}
+            height={avatarSize}
+            className={avatarClass}
             loading="lazy"
             unoptimized
           />
@@ -119,9 +128,9 @@ export function MiniMarketCard({
             <img
               src={getDiceBearAvatarUrl(market.id, "market")}
               alt=""
-              width={AVATAR_SIZE}
-              height={AVATAR_SIZE}
-              className="h-24 w-24 rounded-sm object-cover"
+              width={avatarSize}
+              height={avatarSize}
+              className={avatarClass}
               loading="lazy"
             />
           </>
@@ -222,18 +231,28 @@ export function MiniMarketCard({
             <button
               type="button"
               onClick={() => onAddToAgent?.(market)}
-              disabled={market.status !== "OPEN"}
-              className={`cursor-pointer rounded-md border border-transparent bg-success 
-              px-3 py-1.5 text-xs font-medium text-white transition-opacity 
-              hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 
-              focus-visible:ring-primary focus-visible:ring-offset-2
-                ${addedCount > 0
-                  ? "border border-success bg-success/10 text-success focus-visible:ring-success"
-                  : "border border-transparent bg-success text-white focus-visible:ring-success"
+              disabled={market.status !== "OPEN" || simulateButtonState === "discarded"}
+              className={`cursor-pointer rounded-md border px-3 py-1.5 text-xs font-medium transition-opacity 
+              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                ${simulateButtonState === "discarded"
+                  ? "border-border bg-muted/50 text-muted cursor-default focus-visible:ring-muted"
+                  : addedCount > 0
+                    ? "border border-success bg-success/10 text-success focus-visible:ring-success hover:opacity-90"
+                    : "border border-transparent bg-success text-white focus-visible:ring-success hover:opacity-90"
                 }`}
-              aria-label={addedCount > 0 ? `${market.name}: ${addedCount} agent(s) added` : `Add ${market.name} to agent`}
+              aria-label={
+                simulateButtonState === "discarded"
+                  ? `${market.name}: discarded`
+                  : addedCount > 0
+                    ? `${market.name}: ${addedCount} agent(s) added`
+                    : `Add ${market.name} to agent`
+              }
             >
-              {addedCount > 0 ? `Added (${addedCount})` : "Add to agent"}
+              {simulateButtonState === "discarded"
+                ? "Discarded"
+                : addedCount > 0
+                  ? `Added (${addedCount})`
+                  : "Add to agent"}
             </button>
             {onBuy != null && (
               <button
