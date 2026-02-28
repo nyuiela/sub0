@@ -24,6 +24,8 @@ export interface Market {
   status: MarketStatus;
   collateralToken: string;
   conditionId: string;
+  /** Bytes32 (hex) used for EIP-712 and contract; from backend. */
+  questionId?: string;
   platform?: MarketPlatform;
   liquidity?: number | null;
   confidence?: number | null;

@@ -11,14 +11,14 @@ export interface SubmitOrderBody {
   outcomeIndex: number;
   side: OrderSide;
   type: OrderType;
-  price?: string | number;
-  quantity: string | number;
+  price?: string;
+  quantity: string;
   userId?: string;
   agentId?: string;
   /** Required for user orders (no agentId): EIP-712 UserTrade signature (0x-prefixed hex). */
   userSignature?: string;
   /** Required for user orders: trade cost in USDC (decimal string), must match signed maxCostUsdc. */
-  tradeCostUsdc?: string;
+  tradeCostUsdc?: bigint | number | string;
   /** Required for user orders: nonce used in the EIP-712 message. */
   nonce?: string;
   /** Required for user orders: EIP-712 deadline (unix timestamp string). */

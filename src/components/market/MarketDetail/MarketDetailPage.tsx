@@ -207,6 +207,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     <div className="flex min-w-0 flex-1 flex-col overflow-auto gap-3 p-2">
       <MarketTradePanel
         marketId={marketId}
+        questionId={market.questionId ?? market.conditionId}
         marketStatus={market.status}
         outcomes={market.outcomes}
         marketPrices={marketPrices}

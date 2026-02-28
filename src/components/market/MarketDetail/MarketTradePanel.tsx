@@ -9,21 +9,47 @@ import {
   clearOrderSuccess,
   selectOrderBookByMarketId,
 } from "@/store/slices/marketsSlice";
-import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral } from "@/lib/formatNumbers";
+import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral, USDC_DECIMALS, OUTCOME_TOKEN_DECIMALS } from "@/lib/formatNumbers";
 import { getOrderNonce } from "@/lib/api/orders";
 import {
   buildUserTradeTypedData,
   serializeTypedDataForSigning,
   signUserTradeTypedData,
+  recoverUserTradeSigner,
   defaultDeadline,
   type EIP1193Provider,
 } from "@/lib/userTradeSignature";
 import { toast } from "sonner";
 import type { MarketPricesResponse } from "@/types/prices.types";
+import { toIntegerString } from "@/lib/utils";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
 const FLASH_PERCENTS = [25, 50, 100] as const;
+
+// #region agent log
+function debugLog(
+  location: string,
+  message: string,
+  data: Record<string, unknown>,
+  hypothesisId: string
+) {
+  const payload = {
+    sessionId: "44a402",
+    runId: "signature-debug",
+    hypothesisId,
+    location,
+    message,
+    data,
+    timestamp: Date.now(),
+  };
+  fetch("http://127.0.0.1:7916/ingest/6bd2cfb3-987f-41c0-b780-8a7f894a6c2e", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "44a402" },
+    body: JSON.stringify(payload),
+  }).catch(() => { });
+}
+// #endregion
 
 function formatBalance(value: number): string {
   if (value >= 1_000_000) return `${formatCollateral(value / 1_000_000)}M`;
@@ -33,6 +59,8 @@ function formatBalance(value: number): string {
 
 export interface MarketTradePanelProps {
   marketId: string;
+  /** Bytes32 questionId used for EIP-712 signing (e.g. market.conditionId). Must match backend/contract. */
+  questionId: string;
   marketStatus?: string;
   /** Outcome labels for this prediction market, e.g. ["Yes", "No"]. Used for Buy/Sell button labels. */
   outcomes?: unknown[];
@@ -60,6 +88,7 @@ function getEthereumProvider(): EIP1193Provider | null {
 
 export function MarketTradePanel({
   marketId,
+  questionId,
   marketStatus = "OPEN",
   outcomes: outcomesProp = [],
   marketPrices,
@@ -124,8 +153,9 @@ export function MarketTradePanel({
 
   const handleSubmit = useCallback(
     async (side: "BID" | "ASK", outcomeIndex: number) => {
-      const quantity = amount;
-      if (!quantity || Number(quantity) <= 0) return;
+      const tradeCostUsdc = BigInt(amount * 10 ** USDC_DECIMALS);
+      // const tradeCostUsdc = BigInt(amount);
+      if (!tradeCostUsdc || tradeCostUsdc <= 0) return;
       if (!account?.address) {
         toast.error("Connect your wallet to place orders.");
         return;
@@ -135,11 +165,14 @@ export function MarketTradePanel({
         toast.error("Wallet provider not available. Use an injected wallet (e.g. MetaMask).");
         return;
       }
-      const priceVal = needsPrice ? price.trim() : String(referencePrice);
-      const pNum = Number(priceVal) || 0;
-      const qNum = Number(quantity) || 0;
+      const pricePerToken = BigInt(1);
+      // const priceVal = needsPrice ? BigInt(price.trim()) : BigInt(referencePrice);
+
+      // const pNum = BigInt(Number(priceVal));
+      // const qNum = BigInt(Number(quantity));
       const buy = side === "BID";
-      const maxCostUsdc = buy ? qNum * (pNum || 0.99) : qNum * pNum;
+      // const quantity = buy ? qNum * (pNum || BigInt(0.99)) : qNum * pNum;
+      const quantity = BigInt(tradeCostUsdc * pricePerToken);
       const deadline = defaultDeadline();
       let nonce: string;
       try {
@@ -148,11 +181,11 @@ export function MarketTradePanel({
         nonce = "0";
       }
       const typedData = buildUserTradeTypedData({
-        marketId,
+        questionId,
         outcomeIndex,
         buy,
-        quantity: maxCostUsdc,
-        maxCostUsdc: quantity,
+        quantity: quantity,
+        maxCostUsdc: tradeCostUsdc,
         nonce,
         deadline,
       });
@@ -170,7 +203,35 @@ export function MarketTradePanel({
         toast.error("Invalid signature");
         return;
       }
-      const tradeCostUsdc = String(maxCostUsdc);
+      const expectedSigner = account.address;
+      console.log("questionId", questionId);
+      const recoveredSigner = await recoverUserTradeSigner(serialized, signature);
+      const match =
+        expectedSigner != null &&
+        recoveredSigner != null &&
+        expectedSigner.toLowerCase() === recoveredSigner.toLowerCase();
+      // #region agent log
+      debugLog(
+        "MarketTradePanel.tsx:afterRecovery",
+        "Recovery result vs expected",
+        {
+          expectedSigner: expectedSigner ?? null,
+          recoveredSigner: recoveredSigner ?? null,
+          match,
+          recoveryUsedSameDomain: !!serialized.domain,
+          recoveryUsedSameMessageKeys: serialized.message
+            ? Object.keys(serialized.message as object).sort().join(",")
+            : "",
+        },
+        "H3-H5"
+      );
+      // #endregion
+      console.log("[UserTrade signature debug]", {
+        expectedSigner,
+        recoveredSigner,
+        match,
+        hint: match ? "Signer matches wallet." : "Signer does not match wallet; contract may reject.",
+      });
       const orderTypeVal = needsPrice ? (orderType === "ioc" ? "IOC" as const : "LIMIT" as const) : "MARKET" as const;
       dispatch(
         submitOrder({
@@ -178,10 +239,11 @@ export function MarketTradePanel({
           outcomeIndex,
           side,
           type: orderTypeVal,
-          quantity,
-          ...(needsPrice && { price: priceVal }),
+          quantity: String(quantity),
+          // ...(needsPrice && { price: priceVal }),
+          price: String(pricePerToken),
           userSignature: signature,
-          tradeCostUsdc,
+          tradeCostUsdc: String(tradeCostUsdc),
           nonce,
           deadline: String(deadline),
         })
@@ -190,11 +252,10 @@ export function MarketTradePanel({
     [
       account,
       amount,
-      price,
-      orderType,
       needsPrice,
-      referencePrice,
+      orderType,
       marketId,
+      questionId,
       dispatch,
     ]
   );

@@ -52,7 +52,7 @@ export function SimulateMarketsColumn({
     }),
     [dateFrom, dateTo]
   );
-  const hasTriggeredInitialFetch = useRef(false);
+  // const hasTriggeredInitialFetch = useRef(false);
 
   // useEffect(() => {
   //   if (list.length > 0 || listLoading || marketsError != null) return;
