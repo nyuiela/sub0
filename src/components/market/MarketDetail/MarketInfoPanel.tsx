@@ -12,6 +12,7 @@ export interface MarketInfoPanelProps {
 }
 
 function truncate(str: string, len: number): string {
+  // if (str == null || str.length === 0) return str ?? "";
   if (str.length <= len) return str;
   return `${str.slice(0, len)}...`;
 }
