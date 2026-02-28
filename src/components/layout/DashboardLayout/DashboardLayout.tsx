@@ -46,8 +46,13 @@ function WebSocketKeeper() {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const dispatch = useAppDispatch();
   const listLoading = useAppSelector((state) => state.markets.listLoading);
+  const listLength = useAppSelector((state) => state.markets.list.length);
   const activeTab = useAppSelector((state) => state.layout.activePrimaryTab);
-  const showSkeleton = listLoading && children == null;
+  const showSkeleton =
+    children == null &&
+    activeTab === "markets" &&
+    listLoading &&
+    listLength === 0;
 
   useEffect(() => {
     if (children == null && activeTab === "markets") {

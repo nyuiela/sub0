@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarketById } from "@/store/slices/marketsSlice";
@@ -20,6 +20,8 @@ import { MarketInfoPanel } from "./MarketInfoPanel";
 import { MarketOrderBook } from "../MarketOrderBook";
 import Image from "next/image";
 import { formatCollateral } from "@/lib/formatNumbers";
+import { useActiveAccount } from "thirdweb/react";
+import { getWalletBalances } from "@/lib/balances";
 
 export interface MarketDetailPageProps {
   marketId: string;
@@ -41,6 +43,21 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const [holders, setHolders] = useState<MarketHolderItem[]>([]);
   const [traders, setTraders] = useState<MarketTraderItem[]>([]);
   const [marketPrices, setMarketPrices] = useState<MarketPricesResponse | null>(null);
+  const [availableBalance, setAvailableBalance] = useState<number>(0);
+  const account = useActiveAccount();
+  // const availableBalanceUsdc = useMemo(() => getWalletBalances(account?.address ?? ""), [account?.address]);
+  // console.log("availableBalanceUsdc", availableBalanceUsdc);
+  useEffect(() => {
+    const fetchAvailableBalance = async () => {
+      if (account?.address) {
+        const balances = await getWalletBalances(account?.address ?? "");
+        setAvailableBalance(Number(balances.usdc));
+        setAvailableBalance(Number(balances.usdc));
+      }
+    };
+    fetchAvailableBalance();
+  }, [account?.address]);
+
 
   useMarketSocket({ marketId, enabled: Boolean(marketId) });
 
@@ -194,6 +211,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
         marketStatus={market.status}
         outcomes={market.outcomes}
         marketPrices={marketPrices}
+        availableBalance={availableBalance}
       />
       <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
       <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />

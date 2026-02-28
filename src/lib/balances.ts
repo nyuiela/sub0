@@ -7,7 +7,7 @@ import { createPublicClient, http } from "viem";
 import { baseSepolia as baseSepoliaViem } from "viem/chains";
 import { getContract } from "thirdweb";
 import { balanceOf } from "thirdweb/extensions/erc20";
-import { baseSepolia } from "thirdweb/chains";
+import { baseSepolia, sepolia } from "thirdweb/chains";
 import { thirdwebClient } from "@/lib/thirdweb/client";
 import contractsData from "@/contract/contracts.json";
 
@@ -35,7 +35,7 @@ export async function getWalletBalances(address: string): Promise<WalletBalances
   if (usdcAddress && thirdwebClient) {
     const contract = getContract({
       client: thirdwebClient,
-      chain: baseSepolia,
+      chain: sepolia,
       address: usdcAddress,
     });
     const result = await balanceOf({

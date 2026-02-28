@@ -75,7 +75,7 @@ export function MarketTradePanel({
 
   const [amount, setAmount] = useState("");
   const [price, setPrice] = useState("");
-  const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("market");
+  const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("limit");
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
 
@@ -234,8 +234,8 @@ export function MarketTradePanel({
         <nav role="tablist" aria-label="Order type" className="flex rounded-lg p-0.5">
           {(
             [
-              { id: "market" as const, label: "Market" },
               { id: "limit" as const, label: "Limit" },
+              { id: "market" as const, label: "Market" },
               { id: "ioc" as const, label: "IOC" },
             ] as const
           ).map(({ id, label }) => {
@@ -345,7 +345,7 @@ export function MarketTradePanel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("BID", 0)}
                 aria-label={`Buy ${yesLabel}`}
@@ -354,7 +354,7 @@ export function MarketTradePanel({
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("ASK", 0)}
                 aria-label={`Sell ${yesLabel}`}
@@ -368,7 +368,7 @@ export function MarketTradePanel({
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-success py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("BID", 1)}
                 aria-label={`Buy ${noLabel}`}
@@ -377,7 +377,7 @@ export function MarketTradePanel({
               </button>
               <button
                 type="button"
-                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-danger py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("ASK", 1)}
                 aria-label={`Sell ${noLabel}`}
