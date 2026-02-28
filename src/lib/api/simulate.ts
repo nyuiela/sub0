@@ -89,3 +89,33 @@ export async function requestSimulateFund(
   }
   return data;
 }
+
+export interface SimulateStartParams {
+  agentId: string;
+  dateRange: { start: string; end: string };
+}
+
+export interface SimulateStartResponse {
+  enqueued: number;
+  jobIds: string[];
+}
+
+/**
+ * Start simulation: discover markets in date range, enqueue for agent (tenderly), and trigger analysis.
+ * Agent limits itself to information within the date range (as-of simulation).
+ */
+export async function startSimulation(
+  params: SimulateStartParams
+): Promise<SimulateStartResponse> {
+  const res = await fetch("/api/simulate/start", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(params),
+  });
+  const data = (await res.json().catch(() => ({}))) as SimulateStartResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Start simulation failed");
+  }
+  return data;
+}
