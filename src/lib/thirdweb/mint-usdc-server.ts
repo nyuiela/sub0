@@ -8,7 +8,7 @@
  */
 
 import { getContract, prepareContractCall, sendTransaction } from "thirdweb";
-import { baseSepolia } from "thirdweb/chains";
+import { baseSepolia, sepolia } from "thirdweb/chains";
 import { createThirdwebClient } from "thirdweb";
 import { privateKeyToAccount } from "thirdweb/wallets";
 
@@ -84,7 +84,7 @@ export async function mintUsdcToAddress(
 
   const contract = getContract({
     client: serverClient!,
-    chain: baseSepolia,
+    chain: sepolia,
     address: usdcAddress as `0x${string}`,
   });
 
