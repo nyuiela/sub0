@@ -91,3 +91,31 @@
   border-color: var(--reg-neon-violet);
   box-shadow: 0 0 24px rgba(139, 92, 246, 0.25);
 }
+
+/* Model dropdown: theme-adaptable selector */
+.register-model-select-trigger {
+  appearance: none;
+}
+
+.register-model-select-list {
+  background: var(--reg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--reg-border);
+}
+
+.register-model-select-option:hover:not([aria-disabled="true"]) {
+  background: rgba(139, 92, 246, 0.12);
+}
+
+[data-theme="light"] .register-model-select-option:hover:not([aria-disabled="true"]) {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.register-model-select-option-selected {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+[data-theme="light"] .register-model-select-option-selected {
+  background: rgba(14, 165, 233, 0.12);
+}

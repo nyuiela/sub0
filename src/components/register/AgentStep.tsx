@@ -6,7 +6,8 @@ import {
   type AgentCreatePayload,
   type AgentTemplatePayload,
 } from "@/types/register.types";
-import { MODEL_OPTIONS, getDefaultModelOption } from "@/lib/settings.schema";
+import { getDefaultModelOption } from "@/lib/settings.schema";
+import { ModelSelect } from "./ModelSelect/ModelSelect";
 
 export type AgentChoice = "create" | "template";
 
@@ -152,22 +153,11 @@ export function AgentStep({
             <span className="text-sm text-(--reg-muted)">
               Model
             </span>
-            <select
+            <ModelSelect
               value={createModel}
-              onChange={(e) => setCreateModel(e.target.value)}
-              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) focus:border-(--reg-neon-violet) focus:outline-none"
+              onChange={setCreateModel}
               aria-label="Select model for new agent"
-            >
-              {MODEL_OPTIONS.map((o) => (
-                <option
-                  key={o.value}
-                  value={o.value}
-                  disabled={o.comingSoon === true}
-                >
-                  {o.comingSoon === true ? `${o.label} (Coming soon)` : o.label}
-                </option>
-              ))}
-            </select>
+            />
           </label>
         </div>
       )}
@@ -217,22 +207,11 @@ export function AgentStep({
             <span className="text-sm text-(--reg-muted)">
               Model
             </span>
-            <select
+            <ModelSelect
               value={templateModel}
-              onChange={(e) => setTemplateModel(e.target.value)}
-              className="register-glass rounded-lg border border-(--reg-border) bg-transparent px-4 py-3 text-(--reg-text) focus:border-(--reg-neon-violet) focus:outline-none"
+              onChange={setTemplateModel}
               aria-label="Select model for agent from template"
-            >
-              {MODEL_OPTIONS.map((o) => (
-                <option
-                  key={o.value}
-                  value={o.value}
-                  disabled={o.comingSoon === true}
-                >
-                  {o.comingSoon === true ? `${o.label} (Coming soon)` : o.label}
-                </option>
-              ))}
-            </select>
+            />
           </label>
         </div>
       )}
