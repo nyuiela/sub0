@@ -9,16 +9,16 @@ export async function POST(request: Request) {
       { status: 503 }
     );
   }
-  let body: { marketId?: string; agentId?: string };
+  let body: { marketId?: string; agentId?: string; chainKey?: string };
   try {
-    body = (await request.json()) as { marketId?: string; agentId?: string };
+    body = (await request.json()) as { marketId?: string; agentId?: string; chainKey?: string };
   } catch {
     return NextResponse.json(
       { error: "Invalid JSON body" },
       { status: 400 }
     );
   }
-  const { marketId, agentId } = body;
+  const { marketId, agentId, chainKey } = body;
   if (!marketId || !agentId) {
     return NextResponse.json(
       { error: "marketId and agentId required" },
@@ -26,13 +26,17 @@ export async function POST(request: Request) {
     );
   }
   const headers = await getBackendAuthHeaders();
+  const payload =
+    chainKey === "main" || chainKey === "tenderly"
+      ? { marketId, agentId, chainKey }
+      : { marketId, agentId };
   const res = await fetch(`${base}/api/agent/enqueue`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...headers,
     },
-    body: JSON.stringify({ marketId, agentId }),
+    body: JSON.stringify(payload),
   });
   const data = (await res.json().catch(() => ({}))) as { jobId?: string; error?: string };
   if (!res.ok) {

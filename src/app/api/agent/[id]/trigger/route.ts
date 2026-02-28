@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getBackendBase, getBackendAuthHeaders } from "@/lib/api/backendAuth";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   context: { params: Promise<{ id: string }> }
 ) {
   const base = getBackendBase();
@@ -13,11 +13,25 @@ export async function POST(
     );
   }
   const { id } = await context.params;
+  let body: { chainKey?: string } = {};
+  try {
+    const text = await request.text();
+    if (text) body = (JSON.parse(text) as { chainKey?: string }) ?? {};
+  } catch {
+    // ignore
+  }
   const headers = await getBackendAuthHeaders();
   const res = await fetch(`${base}/api/agent/${encodeURIComponent(id)}/trigger`, {
     method: "POST",
     credentials: "include",
-    headers: { ...headers },
+    headers: {
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body:
+      body.chainKey === "main" || body.chainKey === "tenderly"
+        ? JSON.stringify({ chainKey: body.chainKey })
+        : "{}",
   });
   const data = (await res.json().catch(() => ({}))) as {
     triggered?: number;

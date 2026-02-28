@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
 import { getMyAgents } from "@/lib/api/agents";
 import { toast } from "sonner";
@@ -73,6 +73,9 @@ export function SimulateAgentConfigColumn({
   className = "",
 }: SimulateAgentConfigColumnProps) {
   const dispatch = useAppDispatch();
+  const simulateBalanceVersion = useAppSelector(
+    (state) => state.layout.simulateBalanceVersion
+  );
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -194,7 +197,7 @@ export function SimulateAgentConfigColumn({
     return () => {
       cancelled = true;
     };
-  }, [selectedAgentId]);
+  }, [selectedAgentId, simulateBalanceVersion]);
 
   useEffect(() => {
     const next = eligibility?.nextRequestAt;

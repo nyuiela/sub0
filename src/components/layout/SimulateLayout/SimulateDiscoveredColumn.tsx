@@ -1,8 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  incrementSimulateBalanceVersion,
+  incrementSimulateEnqueuedListVersion,
+} from "@/store/slices/layoutSlice";
 import { getEnqueuedMarkets, triggerAgentRun } from "@/lib/api/agents";
+import { startSimulation } from "@/lib/api/simulate";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
 import type { EnqueuedMarketItem } from "@/lib/api/agents";
@@ -24,7 +29,11 @@ export function SimulateDiscoveredColumn({
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [triggering, setTriggering] = useState(false);
+  const [startingSimulation, setStartingSimulation] = useState(false);
+  const [dateRangeStart, setDateRangeStart] = useState("");
+  const [dateRangeEnd, setDateRangeEnd] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
   const enqueuedListVersion = useAppSelector(
     (state) => state.layout.simulateEnqueuedListVersion
   );
@@ -79,15 +88,49 @@ export function SimulateDiscoveredColumn({
     if (!selectedAgentId || triggering) return;
     setTriggering(true);
     try {
-      const res = await triggerAgentRun(selectedAgentId);
+      const res = await triggerAgentRun(selectedAgentId, { chainKey: "tenderly" });
       toast.success(`Triggered analysis for ${res.triggered} market(s)`);
       void fetchPage(0, false);
+      const delayMs = 4000;
+      setTimeout(() => dispatch(incrementSimulateBalanceVersion()), delayMs);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Trigger failed");
     } finally {
       setTriggering(false);
     }
-  }, [selectedAgentId, triggering, fetchPage]);
+  }, [selectedAgentId, triggering, fetchPage, dispatch]);
+
+  const handleStartSimulation = useCallback(async () => {
+    if (!selectedAgentId || startingSimulation) return;
+    const start = dateRangeStart.trim();
+    const end = dateRangeEnd.trim();
+    if (!start || !end) {
+      toast.error("Select start and end date for simulation");
+      return;
+    }
+    if (new Date(start) > new Date(end)) {
+      toast.error("Start date must be before end date");
+      return;
+    }
+    setStartingSimulation(true);
+    setError(null);
+    try {
+      const res = await startSimulation({
+        agentId: selectedAgentId,
+        dateRange: { start: `${start}T00:00:00.000Z`, end: `${end}T23:59:59.999Z` },
+      });
+      toast.success(`Simulation started: ${res.enqueued} market(s) enqueued`);
+      dispatch(incrementSimulateEnqueuedListVersion());
+      void fetchPage(0, false);
+      setTimeout(() => dispatch(incrementSimulateBalanceVersion()), 4000);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Start simulation failed";
+      setError(msg);
+      toast.error(msg);
+    } finally {
+      setStartingSimulation(false);
+    }
+  }, [selectedAgentId, startingSimulation, dateRangeStart, dateRangeEnd, fetchPage, dispatch]);
 
   if (selectedAgentId == null) {
     return (
@@ -101,6 +144,42 @@ export function SimulateDiscoveredColumn({
 
   return (
     <section className={className} aria-label="Discovered markets and analysis">
+      <section className="mb-4" aria-labelledby="simulate-date-range-heading">
+        <h3 id="simulate-date-range-heading" className="mb-2 text-xs font-semibold text-muted-foreground">
+          Start simulation (date range)
+        </h3>
+        <p className="mb-2 text-[10px] text-muted-foreground">
+          Discover markets that were active or resolved in this range. The agent will only use information available within the range (as-of simulation).
+        </p>
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <label className="sr-only" htmlFor="simulate-date-start">Simulation start date</label>
+          <input
+            id="simulate-date-start"
+            type="date"
+            value={dateRangeStart}
+            onChange={(e) => setDateRangeStart(e.target.value)}
+            className="rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground"
+            aria-label="Start date"
+          />
+          <label className="sr-only" htmlFor="simulate-date-end">Simulation end date</label>
+          <input
+            id="simulate-date-end"
+            type="date"
+            value={dateRangeEnd}
+            onChange={(e) => setDateRangeEnd(e.target.value)}
+            className="rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground"
+            aria-label="End date"
+          />
+          <button
+            type="button"
+            onClick={handleStartSimulation}
+            disabled={startingSimulation || !dateRangeStart || !dateRangeEnd}
+            className="shrink-0 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
+          >
+            {startingSimulation ? "Starting..." : "Start simulation"}
+          </button>
+        </div>
+      </section>
       <div className="mb-2 flex flex-wrap items-center gap-2">
         <p className="text-xs text-muted-foreground">
           Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED.
