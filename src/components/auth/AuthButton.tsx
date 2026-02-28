@@ -14,7 +14,7 @@ import {
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWalletBalanceRefresh } from "@/contexts/WalletBalanceRefreshContext";
-import { baseSepolia, sepolia } from "thirdweb/chains";
+import { sepolia } from "thirdweb/chains";
 import { contracts } from "@/contract/contracts.json";
 
 type SessionResponse = { loggedIn: boolean; registered?: boolean };

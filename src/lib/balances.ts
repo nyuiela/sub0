@@ -4,7 +4,7 @@
  */
 
 import { createPublicClient, http } from "viem";
-import { baseSepolia as baseSepoliaViem } from "viem/chains";
+import { baseSepolia as baseSepoliaViem, sepolia as sepoliaViem } from "viem/chains";
 import { getContract } from "thirdweb";
 import { balanceOf } from "thirdweb/extensions/erc20";
 import { baseSepolia, sepolia } from "thirdweb/chains";
@@ -21,7 +21,7 @@ export interface WalletBalances {
 }
 
 const publicClient = createPublicClient({
-  chain: baseSepoliaViem,
+  chain: sepoliaViem,
   transport: http(),
 });
 
