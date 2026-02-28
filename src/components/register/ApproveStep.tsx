@@ -3,7 +3,7 @@
 import { useCallback, useState } from "react";
 import { getContract, prepareContractCall } from "thirdweb";
 import { useSendTransaction } from "thirdweb/react";
-import { baseSepolia } from "thirdweb/chains";
+import { sepolia } from "thirdweb/chains";
 import { toast } from "sonner";
 import { thirdwebClient } from "@/lib/thirdweb/client";
 import contractsData from "@/contract/contracts.json";
@@ -38,7 +38,7 @@ export function ApproveStep({ onNext }: ApproveStepProps) {
     }
     const contract = getContract({
       client: thirdwebClient,
-      chain: baseSepolia,
+      chain: sepolia,
       address: usdcAddress as `0x${string}`,
     });
     const tx = prepareContractCall({
@@ -71,7 +71,7 @@ export function ApproveStep({ onNext }: ApproveStepProps) {
     }
     const contract = getContract({
       client: thirdwebClient,
-      chain: baseSepolia,
+      chain: sepolia,
       address: conditionalTokensAddress as `0x${string}`,
     });
     const tx = prepareContractCall({

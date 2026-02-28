@@ -8,7 +8,7 @@
  */
 
 import { getContract, prepareContractCall, sendTransaction } from "thirdweb";
-import { baseSepolia, sepolia } from "thirdweb/chains";
+import { sepolia } from "thirdweb/chains";
 import { createThirdwebClient } from "thirdweb";
 import { privateKeyToAccount } from "thirdweb/wallets";
 
