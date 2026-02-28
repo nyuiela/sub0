@@ -33,6 +33,23 @@ export interface SimulateFundResponse {
   nextRequestAt?: number;
 }
 
+export interface SimulatePaymentConfigResponse {
+  paymentRequired: boolean;
+  paymentChainId: number;
+}
+
+export async function getSimulatePaymentConfig(): Promise<SimulatePaymentConfigResponse> {
+  const res = await fetch("/api/simulate/payment-config", { credentials: "include" });
+  const data = (await res.json().catch(() => ({
+    paymentRequired: false,
+    paymentChainId: 84532,
+  }))) as SimulatePaymentConfigResponse;
+  if (!res.ok) {
+    return { paymentRequired: false, paymentChainId: 84532 };
+  }
+  return data;
+}
+
 export async function getSimulateConfig(): Promise<SimulateConfigResponse> {
   const res = await fetch("/api/simulate/config", { credentials: "include" });
   const data = (await res.json().catch(() => ({ configured: false }))) as SimulateConfigResponse;
@@ -93,6 +110,10 @@ export async function requestSimulateFund(
 export interface SimulateStartParams {
   agentId: string;
   dateRange: { start: string; end: string };
+  /** Cap number of markets to enqueue (default 100, max 500). */
+  maxMarkets?: number;
+  /** Duration in minutes for client-side countdown; backend does not enforce. */
+  durationMinutes?: number;
 }
 
 export interface SimulateStartResponse {
@@ -103,19 +124,31 @@ export interface SimulateStartResponse {
 /**
  * Start simulation: discover markets in date range, enqueue for agent (tenderly), and trigger analysis.
  * Agent limits itself to information within the date range (as-of simulation).
+ * When the backend requires x402 payment, pass a payment-enabled fetch (e.g. from wrapFetchWithPayment) so the client can pay and retry.
  */
 export async function startSimulation(
-  params: SimulateStartParams
+  params: SimulateStartParams,
+  options?: { fetch?: typeof globalThis.fetch }
 ): Promise<SimulateStartResponse> {
-  const res = await fetch("/api/simulate/start", {
+  const fetcher = options?.fetch ?? fetch;
+  const res = await fetcher("/api/simulate/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
     body: JSON.stringify(params),
   });
-  const data = (await res.json().catch(() => ({}))) as SimulateStartResponse & { error?: string };
+  const data = (await res.json().catch(() => ({}))) as SimulateStartResponse & {
+    error?: string;
+    message?: string;
+  };
   if (!res.ok) {
+    if (res.status === 402) {
+      throw new Error("Payment required. Connect your wallet (Base Sepolia or Base) and try again.");
+    }
     throw new Error(data?.error ?? "Start simulation failed");
   }
-  return data;
+  if (data?.message?.toLowerCase().includes("x402")) {
+    throw new Error(data.message);
+  }
+  return data as SimulateStartResponse;
 }

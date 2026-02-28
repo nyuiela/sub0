@@ -13,7 +13,7 @@ import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 
 const AGENTS_LIMIT = 30;
 const TREEMAP_TOP = 12;
-const BALANCE_REFRESH_MS = 5000;
+const BALANCE_REFRESH_MS = 100000;
 
 /** Display row: full agent when owned, minimal when from public list only. */
 export type AgentRowDisplay = Agent & { isMine: boolean };

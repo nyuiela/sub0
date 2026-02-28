@@ -15,7 +15,7 @@ import { getWalletBalances } from "@/lib/balances";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 
 const AGENTS_LIMIT = 50;
-const BALANCE_REFRESH_MS = 50000;
+const BALANCE_REFRESH_MS = 100000;
 
 async function fetchOnChainBalances(agents: Agent[]): Promise<Record<string, string>> {
   const withWallet = agents.filter((a) => a.walletAddress && String(a.walletAddress).trim());

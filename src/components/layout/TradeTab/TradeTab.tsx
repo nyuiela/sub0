@@ -9,6 +9,111 @@ import type { ActivityItem, ActivityTradePayload } from "@/types/activity.types"
 import type { PendingAgentTradeItem } from "@/types/pending-trade.types";
 import type { Agent } from "@/types/agent.types";
 
+function TradeTabSkeleton() {
+  return (
+    <div className="flex flex-col gap-4 p-4" aria-label="Trade loading">
+      <div className="h-4 w-1/3 animate-pulse rounded bg-muted/50" />
+      <div className="space-y-2">
+        <div className="h-3 w-full animate-pulse rounded bg-muted/50" />
+        <div className="h-3 w-4/5 animate-pulse rounded bg-muted/50" />
+        <div className="h-3 w-2/3 animate-pulse rounded bg-muted/50" />
+      </div>
+      <div className="h-32 w-full animate-pulse rounded bg-muted/30" />
+      <div className="h-24 w-full animate-pulse rounded bg-muted/30" />
+    </div>
+  );
+}
+
+function MarketsAddedToAgentsCollapsible({ agents }: { agents: Agent[] }) {
+  const [sectionOpen, setSectionOpen] = useState(false);
+  const [openAgentIds, setOpenAgentIds] = useState<Set<string>>(new Set());
+
+  const toggleAgent = (agentId: string) => {
+    setOpenAgentIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(agentId)) next.delete(agentId);
+      else next.add(agentId);
+      return next;
+    });
+  };
+
+  return (
+    <section className="border-t border-border py-4" aria-label="Markets in queue">
+      <button
+        type="button"
+        onClick={() => setSectionOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-2 rounded border border-border bg-muted/30 px-3 py-2 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        aria-expanded={sectionOpen}
+      >
+        <span>Markets added to agents</span>
+        <span className="shrink-0 text-muted-foreground" aria-hidden>
+          {sectionOpen ? "\u25B2" : "\u25BC"}
+        </span>
+      </button>
+      {sectionOpen && (
+        <p className="mt-2 mb-3 text-xs text-muted-foreground">
+          Queued markets below. Pending analysis and trade when agent has wallet and funds.
+        </p>
+      )}
+      {sectionOpen &&
+        agents.map((agent) => {
+          const ids = agent.enqueuedMarketIds ?? [];
+          const isAgentOpen = openAgentIds.has(agent.id);
+          return (
+            <div key={agent.id} className="mb-3">
+              <button
+                type="button"
+                onClick={() => toggleAgent(agent.id)}
+                className="flex w-full items-center justify-between gap-2 rounded border border-border bg-surface px-3 py-2 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                aria-expanded={isAgentOpen}
+              >
+                <span>
+                  {agent.name ?? agent.id.slice(0, 8)} – {ids.length} market
+                  {ids.length === 1 ? "" : "s"} in queue
+                </span>
+                <span className="shrink-0 text-muted-foreground" aria-hidden>
+                  {isAgentOpen ? "\u25B2" : "\u25BC"}
+                </span>
+              </button>
+              {isAgentOpen && ids.length > 0 && (
+                <div className="mt-1 overflow-x-auto rounded border border-border">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/30 text-left text-muted-foreground">
+                        <th className="px-3 py-2 font-medium">#</th>
+                        <th className="px-3 py-2 font-medium">Market</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ids.map((marketId, idx) => (
+                        <tr
+                          key={marketId}
+                          className="border-b border-border/50 last:border-b-0 hover:bg-muted/20"
+                        >
+                          <td className="px-3 py-2 tabular-nums text-muted-foreground">
+                            {idx + 1}
+                          </td>
+                          <td className="px-3 py-2">
+                            <Link
+                              href={`/market/${marketId}`}
+                              className="font-medium text-primary hover:underline"
+                            >
+                              View market
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          );
+        })}
+    </section>
+  );
+}
+
 function formatTimeAgo(iso: string): string {
   try {
     const d = new Date(iso);
@@ -66,7 +171,9 @@ function PendingTradeRow({ row }: { row: PendingAgentTradeItem }) {
   const reason =
     row.pendingReason === "NO_WALLET"
       ? "Pending (no wallet)"
-      : "Pending (add funds)";
+      : row.pendingReason === "INSUFFICIENT_POSITION"
+        ? "Pending (insufficient position)"
+        : "Pending (add funds)";
   const agentName = row.agent?.name ?? row.agentId.slice(0, 8) + "...";
   const marketId = row.marketId ?? "";
   return (
@@ -172,7 +279,7 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
       </header>
       <div className="min-h-[120px] flex-1 overflow-auto px-4">
         {loading ? (
-          <p className="p-4 text-sm text-muted-foreground">Loading...</p>
+          <TradeTabSkeleton />
         ) : error ? (
           <p className="p-4 text-sm text-destructive">{error}</p>
         ) : isEmpty ? (
@@ -232,36 +339,7 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
               </section>
             )}
             {hasEnqueued && (
-              <section className="border-t border-border py-4" aria-label="Markets in queue">
-                <h3 className="text-sm font-medium text-foreground mb-2">Markets added to agents</h3>
-                <p className="text-xs text-muted-foreground mb-3">
-                  Queued markets below. Pending analysis and trade when agent has wallet and funds.
-                </p>
-                <ul className="space-y-3 text-sm">
-                  {agentsWithQueue.map((agent) => {
-                    const ids = agent.enqueuedMarketIds ?? [];
-                    return (
-                      <li key={agent.id} className="flex flex-col gap-1">
-                        <span className="font-medium text-foreground">
-                          {agent.name} – {ids.length} market{ids.length === 1 ? "" : "s"} in queue
-                        </span>
-                        <ul className="list-inside list-disc space-y-0.5 text-muted-foreground">
-                          {ids.map((marketId, idx) => (
-                            <li key={marketId}>
-                              <Link
-                                href={`/market/${marketId}`}
-                                className="text-primary hover:underline"
-                              >
-                                View market {ids.length > 1 ? idx + 1 : ""}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
+              <MarketsAddedToAgentsCollapsible agents={agentsWithQueue} />
             )}
           </>
         )}

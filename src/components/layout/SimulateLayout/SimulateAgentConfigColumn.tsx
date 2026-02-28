@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { incrementSimulateBalanceVersion } from "@/store/slices/layoutSlice";
 import { setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
 import { getMyAgents } from "@/lib/api/agents";
 import { toast } from "sonner";
@@ -287,6 +288,7 @@ export function SimulateAgentConfigColumn({
           nextRequestAt: elig.nextRequestAt,
           reason: elig.reason,
         });
+        dispatch(incrementSimulateBalanceVersion());
       })
       .catch((err) => {
         const msg = err instanceof Error ? err.message : "Funding failed";
@@ -296,7 +298,7 @@ export function SimulateAgentConfigColumn({
         }));
       })
       .finally(() => setFunding(false));
-  }, [selectedAgentId, funding, simulateConfig?.blockExplorerUrl]);
+  }, [selectedAgentId, funding, simulateConfig?.blockExplorerUrl, dispatch]);
 
   const selectedAgent =
     selectedAgentId != null

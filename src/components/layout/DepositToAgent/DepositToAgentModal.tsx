@@ -33,7 +33,7 @@ function truncateAddress(addr: string, head = 6, tail = 4): string {
   return `${addr.slice(0, head)}...${addr.slice(-tail)}`;
 }
 
-const BALANCE_REFRESH_MS = 5000;
+const BALANCE_REFRESH_MS = 100000;
 
 export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: DepositToAgentModalProps) {
   const dispatch = useAppDispatch();
@@ -115,6 +115,17 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
         }
         onTransferSuccess?.();
         onClose();
+        // Chain/backend may not reflect new balance immediately; sync again after delay so Markets tab (and Tracker) show updated balance without a full navigation
+        const delayedSyncMs = 3000;
+        setTimeout(() => {
+          syncAgentBalance(agent.id)
+            .then((res) => {
+              if (res.balance != null) {
+                dispatch(setAgentBalance({ agentId: agent.id, balance: res.balance }));
+              }
+            })
+            .catch(() => {});
+        }, delayedSyncMs);
       },
       onError: (err) => {
         const msg = String(err?.message ?? "Transfer failed");

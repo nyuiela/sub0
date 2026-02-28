@@ -18,6 +18,10 @@ export interface LayoutSliceState {
   simulateEnqueuedListVersion: number;
   /** Incremented after Run analysis so Simulate balance/eligibility refetch (DB stays in sync with Tenderly). */
   simulateBalanceVersion: number;
+  /** When set, simulation is running for this agent; button shows Stop simulation. */
+  simulationRunningAgentId: string | null;
+  /** When set, simulation run ends at this timestamp (ms); countdown and auto-stop. */
+  simulationEndsAt: number | null;
 }
 
 function initialSizePrefs(): Record<string, ColumnSizePrefs> {
@@ -36,6 +40,8 @@ const initialState: LayoutSliceState = {
   selectedSimulateAgentId: null,
   simulateEnqueuedListVersion: 0,
   simulateBalanceVersion: 0,
+  simulationRunningAgentId: null,
+  simulationEndsAt: null,
 };
 
 const layoutSlice = createSlice({
@@ -100,6 +106,17 @@ const layoutSlice = createSlice({
     incrementSimulateBalanceVersion: (state) => {
       state.simulateBalanceVersion += 1;
     },
+    startSimulationRun: (
+      state,
+      action: { payload: { agentId: string; durationMs: number } }
+    ) => {
+      state.simulationRunningAgentId = action.payload.agentId;
+      state.simulationEndsAt = Date.now() + action.payload.durationMs;
+    },
+    stopSimulationRun: (state) => {
+      state.simulationRunningAgentId = null;
+      state.simulationEndsAt = null;
+    },
   },
 });
 
@@ -114,5 +131,7 @@ export const {
   setSelectedSimulateAgentId,
   incrementSimulateEnqueuedListVersion,
   incrementSimulateBalanceVersion,
+  startSimulationRun,
+  stopSimulationRun,
 } = layoutSlice.actions;
 export default layoutSlice.reducer;

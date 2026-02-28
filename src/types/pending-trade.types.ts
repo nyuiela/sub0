@@ -10,7 +10,7 @@ export interface PendingAgentTradeItem {
   side: string;
   quantity: string;
   status: string;
-  pendingReason: "NO_WALLET" | "INSUFFICIENT_BALANCE";
+  pendingReason: "NO_WALLET" | "INSUFFICIENT_BALANCE" | "INSUFFICIENT_POSITION";
   orderId?: string;
   createdAt: string;
   fulfilledAt?: string;

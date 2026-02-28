@@ -4,6 +4,8 @@ import { getBackendBase, getBackendAuthHeaders } from "@/lib/api/backendAuth";
 type SimulateStartBody = {
   agentId?: string;
   dateRange?: { start?: string; end?: string };
+  maxMarkets?: number;
+  durationMinutes?: number;
 };
 
 export async function POST(request: Request) {
@@ -30,12 +32,23 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  const headers = await getBackendAuthHeaders();
+  const authHeaders = await getBackendAuthHeaders();
+  const paymentSignature = request.headers.get("payment-signature") ?? request.headers.get("x-payment") ?? undefined;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...authHeaders,
+  };
+  if (paymentSignature) headers["payment-signature"] = paymentSignature;
   const res = await fetch(`${base}/api/simulate/start`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...headers },
+    headers,
     credentials: "include",
-    body: JSON.stringify({ agentId, dateRange: { start: startStr, end: endStr } }),
+    body: JSON.stringify({
+      agentId,
+      dateRange: { start: startStr, end: endStr },
+      maxMarkets: body?.maxMarkets,
+      durationMinutes: body?.durationMinutes,
+    }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
