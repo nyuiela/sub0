@@ -19,7 +19,7 @@ import { MarketTradePanel } from "./MarketTradePanel";
 import { MarketInfoPanel } from "./MarketInfoPanel";
 import { MarketOrderBook } from "../MarketOrderBook";
 import Image from "next/image";
-import { formatCollateral } from "@/lib/formatNumbers";
+import { formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
 import { useActiveAccount } from "thirdweb/react";
 import { getWalletBalances } from "@/lib/balances";
 
@@ -51,8 +51,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     const fetchAvailableBalance = async () => {
       if (account?.address) {
         const balances = await getWalletBalances(account?.address ?? "");
-        setAvailableBalance(Number(balances.usdc));
-        setAvailableBalance(Number(balances.usdc));
+        setAvailableBalance(Number(balances.usdc) / 10 ** USDC_DECIMALS);
       }
     };
     fetchAvailableBalance();

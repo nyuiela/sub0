@@ -73,7 +73,7 @@ export function MarketTradePanel({
   const outcomesList = Array.isArray(outcomesProp) ? outcomesProp : [];
   const [yesLabel, noLabel] = parseOutcomeLabels(outcomesList);
 
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState<number>(0);
   const [price, setPrice] = useState("");
   const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("limit");
   const [takeProfit, setTakeProfit] = useState("");
@@ -124,7 +124,7 @@ export function MarketTradePanel({
 
   const handleSubmit = useCallback(
     async (side: "BID" | "ASK", outcomeIndex: number) => {
-      const quantity = amount.trim();
+      const quantity = amount;
       if (!quantity || Number(quantity) <= 0) return;
       if (!account?.address) {
         toast.error("Connect your wallet to place orders.");
@@ -139,7 +139,7 @@ export function MarketTradePanel({
       const pNum = Number(priceVal) || 0;
       const qNum = Number(quantity) || 0;
       const buy = side === "BID";
-      const maxCostUsdc = buy ? qNum * (pNum || 0.99) : 0;
+      const maxCostUsdc = buy ? qNum * (pNum || 0.99) : qNum * pNum;
       const deadline = defaultDeadline();
       let nonce: string;
       try {
@@ -151,8 +151,8 @@ export function MarketTradePanel({
         marketId,
         outcomeIndex,
         buy,
-        quantity,
-        maxCostUsdc,
+        quantity: maxCostUsdc,
+        maxCostUsdc: quantity,
         nonce,
         deadline,
       });
@@ -188,7 +188,7 @@ export function MarketTradePanel({
       );
     },
     [
-      account?.address,
+      account,
       amount,
       price,
       orderType,
@@ -203,7 +203,7 @@ export function MarketTradePanel({
     (pct: number) => {
       if (!hasBalance) return;
       const value = (availableBalance * pct) / 100;
-      setAmount(value <= 0 ? "" : formatCollateral(value));
+      setAmount(value <= 0 ? 0 : value);
     },
     [availableBalance, hasBalance]
   );
@@ -212,7 +212,7 @@ export function MarketTradePanel({
     const p = Number(referencePrice);
     if (!p || p <= 0) return;
     const qty = dollars / p;
-    setAmount(formatOutcomeQuantity(qty));
+    setAmount(dollars);
   }, [referencePrice]);
 
   const clearError = useCallback(() => dispatch(clearMarketsError()), [dispatch]);
