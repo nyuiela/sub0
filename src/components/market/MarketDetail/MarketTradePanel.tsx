@@ -174,12 +174,13 @@ export function MarketTradePanel({
       // const quantity = buy ? qNum * (pNum || BigInt(0.99)) : qNum * pNum;
       const quantity = BigInt(tradeCostUsdc * pricePerToken);
       const deadline = defaultDeadline();
-      let nonce: string;
-      try {
-        nonce = await getOrderNonce();
-      } catch {
-        nonce = "0";
-      }
+      const nonce = Date.now().toString();
+      console.log("nonce", nonce);
+      // try {
+      //   nonce = await getOrderNonce();
+      // } catch {
+      //   nonce = Date.now().toString();
+      // }
       const typedData = buildUserTradeTypedData({
         questionId,
         outcomeIndex,
