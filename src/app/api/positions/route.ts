@@ -22,6 +22,8 @@ export async function GET(request: Request) {
   const agentId = searchParams.get("agentId") ?? undefined;
   const address = searchParams.get("address") ?? undefined;
   const status = searchParams.get("status") ?? undefined;
+  const chainKey = searchParams.get("chainKey") ?? undefined;
+  const includeLatestReason = searchParams.get("includeLatestReason") === "true";
   const limitParam = searchParams.get("limit");
   const offsetParam = searchParams.get("offset");
   const limit =
@@ -41,6 +43,8 @@ export async function GET(request: Request) {
   if (agentId != null && agentId !== "") qs.set("agentId", agentId);
   if (address != null && address !== "") qs.set("address", address);
   if (status != null && status !== "") qs.set("status", status);
+  if (chainKey === "main" || chainKey === "tenderly") qs.set("chainKey", chainKey);
+  if (includeLatestReason) qs.set("includeLatestReason", "true");
 
   const headers = await getBackendAuthHeaders();
   const res = await fetch(`${base}/api/positions?${qs.toString()}`, {

@@ -107,6 +107,10 @@ function SimpleTreemapFallback({ agents, className = "" }: { agents: Agent[]; cl
   );
 }
 
+/**
+ * When simpleOnly is false, SciChart is loaded and may perform license validation (e.g. to
+ * licensing.scichart.com or local ports). Use simpleOnly to avoid that and render a CSS-only treemap.
+ */
 export function AgentTreemap({ agents, className = "", simpleOnly = false }: AgentTreemapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<{ sciChartSurface: { delete: () => void }; wasmContext: unknown } | null>(null);

@@ -13,14 +13,17 @@ export async function POST(
     );
   }
   const { id } = await context.params;
-  let body: { chainKey?: string } = {};
+  let body: { chainKey?: string; simulationId?: string } = {};
   try {
     const text = await request.text();
-    if (text) body = (JSON.parse(text) as { chainKey?: string }) ?? {};
+    if (text) body = (JSON.parse(text) as { chainKey?: string; simulationId?: string }) ?? {};
   } catch {
     // ignore
   }
   const headers = await getBackendAuthHeaders();
+  const backendBody: { chainKey?: string; simulationId?: string } = {};
+  if (body.chainKey === "main" || body.chainKey === "tenderly") backendBody.chainKey = body.chainKey;
+  if (body.simulationId != null && body.simulationId !== "") backendBody.simulationId = body.simulationId;
   const res = await fetch(`${base}/api/agent/${encodeURIComponent(id)}/trigger`, {
     method: "POST",
     credentials: "include",
@@ -28,10 +31,7 @@ export async function POST(
       "Content-Type": "application/json",
       ...headers,
     },
-    body:
-      body.chainKey === "main" || body.chainKey === "tenderly"
-        ? JSON.stringify({ chainKey: body.chainKey })
-        : "{}",
+    body: JSON.stringify(backendBody),
   });
   const data = (await res.json().catch(() => ({}))) as {
     triggered?: number;

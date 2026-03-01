@@ -12,6 +12,7 @@ import {
   SETTINGS_SECTIONS,
   type SettingsSectionId,
 } from "@/types/settings.types";
+import { SimulationsTab } from "@/components/settings/SimulationsTab/SimulationsTab";
 
 function SettingsContent({ sectionId }: { sectionId: SettingsSectionId }) {
   const section = SETTINGS_SECTIONS.find((s) => s.id === sectionId);
@@ -33,6 +34,7 @@ function SettingsContent({ sectionId }: { sectionId: SettingsSectionId }) {
         {sectionId === "claim-agent" && <ClaimAgentTab />}
         {sectionId === "vault" && <VaultTab />}
         {sectionId === "developer-api" && <DeveloperApiTab />}
+        {sectionId === "simulations" && <SimulationsTab />}
         {sectionId === "layout" && <LayoutTab />}
       </div>
     </>

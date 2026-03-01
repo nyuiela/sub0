@@ -16,10 +16,13 @@ export async function GET(
   const { searchParams } = new URL(request.url);
   const limit = searchParams.get("limit") ?? "50";
   const offset = searchParams.get("offset") ?? "0";
-  const qs = new URLSearchParams({ limit, offset }).toString();
+  const chainKey = searchParams.get("chainKey");
+  const qs = new URLSearchParams({ limit, offset });
+  if (chainKey === "main" || chainKey === "tenderly") qs.set("chainKey", chainKey);
+  const query = qs.toString();
   const headers = await getBackendAuthHeaders();
   const res = await fetch(
-    `${base}/api/agents/${encodeURIComponent(id)}/enqueued-markets?${qs}`,
+    `${base}/api/agents/${encodeURIComponent(id)}/enqueued-markets?${query}`,
     { credentials: "include", headers: { ...headers } }
   );
   const data = await res.json().catch(() => ({}));

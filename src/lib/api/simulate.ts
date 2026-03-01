@@ -117,6 +117,7 @@ export interface SimulateStartParams {
 }
 
 export interface SimulateStartResponse {
+  simulationId?: string;
   enqueued: number;
   jobIds: string[];
 }
@@ -124,7 +125,7 @@ export interface SimulateStartResponse {
 /**
  * Start simulation: discover markets in date range, enqueue for agent (tenderly), and trigger analysis.
  * Agent limits itself to information within the date range (as-of simulation).
- * When the backend requires x402 payment, pass a payment-enabled fetch (e.g. from wrapFetchWithPayment) so the client can pay and retry.
+ * Payment (when required) is made by the agent from its wallet on the backend; no user payment flow.
  */
 export async function startSimulation(
   params: SimulateStartParams,
@@ -142,13 +143,38 @@ export async function startSimulation(
     message?: string;
   };
   if (!res.ok) {
-    if (res.status === 402) {
-      throw new Error("Payment required. Connect your wallet (Base Sepolia or Base) and try again.");
-    }
     throw new Error(data?.error ?? "Start simulation failed");
   }
-  if (data?.message?.toLowerCase().includes("x402")) {
-    throw new Error(data.message);
-  }
   return data as SimulateStartResponse;
+}
+
+export interface SimulateStopResponse {
+  ok: boolean;
+  status: string;
+}
+
+/**
+ * Mark simulation as COMPLETED (timer ended) or CANCELLED (user stopped). Keeps Settings list in sync.
+ */
+export async function stopSimulation(
+  simulationId: string,
+  options?: { cancelled?: boolean; fetch?: typeof globalThis.fetch }
+): Promise<SimulateStopResponse> {
+  const fetcher = options?.fetch ?? fetch;
+  const res = await fetcher("/api/simulate/stop", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      simulationId,
+      cancelled: options?.cancelled ?? false,
+    }),
+  });
+  const data = (await res.json().catch(() => ({}))) as SimulateStopResponse & {
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Stop simulation failed");
+  }
+  return data as SimulateStopResponse;
 }

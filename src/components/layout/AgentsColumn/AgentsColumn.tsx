@@ -235,7 +235,7 @@ export function AgentsColumn({
           <p className="mb-2 text-[10px] text-muted-foreground">
             All agents listed. Only yours show Deposit / Get wallet.
           </p>
-          <AgentTreemap agents={topForTreemap} />
+          <AgentTreemap agents={topForTreemap} simpleOnly />
         </section>
       )}
       {agents.length === 0 ? (

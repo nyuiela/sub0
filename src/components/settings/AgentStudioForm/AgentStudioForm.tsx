@@ -359,12 +359,13 @@ export function AgentStudioForm() {
             <div className="flex flex-col">
               <span className="mb-1 text-xs font-medium text-muted-foreground">Edit</span>
               <Controller
+                key={openclawTab}
                 name={`openclaw.${openclawTab}`}
                 control={form.control}
                 render={({ field }) => (
                   <div data-color-mode="dark" className="flex-1 overflow-hidden rounded-lg">
                     <MDEditor
-                      value={field.value}
+                      value={field.value ?? ""}
                       onChange={(v) => field.onChange(v ?? "")}
                       height={280}
                       preview="edit"

@@ -362,10 +362,16 @@ export type AgentChainKey = "main" | "tenderly";
 /**
  * Enqueue a market for an agent (add market to agent so agent trades on it).
  * Requires auth; agent must belong to current user.
- * Pass chainKey: "tenderly" when adding from the Simulate page.
+ * Main: omit chainKey/simulationId. Simulate: pass chainKey "tenderly" and simulationId (current run).
  */
 export async function enqueueAgentMarket(
-  params: { marketId: string; agentId: string; chainKey?: AgentChainKey }
+  params: {
+    marketId: string;
+    agentId: string;
+    chainKey?: AgentChainKey;
+    /** Required when adding from Simulate (scopes to that run; no tie to main). */
+    simulationId?: string | null;
+  }
 ): Promise<{ jobId: string }> {
   const res = await fetch("/api/agent/enqueue", {
     method: "POST",
@@ -383,9 +389,18 @@ export async function enqueueAgentMarket(
 /**
  * List enqueued markets for an agent (status, market name, discard reason). For Discovery.
  */
+/** "main" = live; "tenderly" = simulate. Omit = main. */
+export type EnqueuedMarketsChainKey = "main" | "tenderly";
+
 export async function getAgentEnqueuedMarkets(
   agentId: string,
-  params: { limit?: number; offset?: number } = {}
+  params: {
+    limit?: number;
+    offset?: number;
+    chainKey?: EnqueuedMarketsChainKey;
+    /** For Simulate: current simulation run id (returns only that run's enqueued markets). */
+    simulationId?: string | null;
+  } = {}
 ): Promise<{
   data: Array<{
     marketId: string;
@@ -402,6 +417,10 @@ export async function getAgentEnqueuedMarkets(
   const qs = new URLSearchParams();
   if (params.limit != null) qs.set("limit", String(params.limit));
   if (params.offset != null) qs.set("offset", String(params.offset));
+  if (params.chainKey != null && (params.chainKey === "main" || params.chainKey === "tenderly"))
+    qs.set("chainKey", params.chainKey);
+  if (params.simulationId != null && params.simulationId !== "")
+    qs.set("simulationId", params.simulationId);
   const query = qs.toString();
   const res = await fetch(
     `/api/agents/${encodeURIComponent(agentId)}/enqueued-markets${query ? `?${query}` : ""}`,
@@ -472,11 +491,13 @@ export interface EnqueuedMarketsResponse {
  */
 export async function getEnqueuedMarkets(
   agentId: string,
-  params: { limit?: number; offset?: number } = {}
+  params: { limit?: number; offset?: number; chainKey?: EnqueuedMarketsChainKey } = {}
 ): Promise<EnqueuedMarketsResponse> {
   const qs = new URLSearchParams();
   if (params.limit != null) qs.set("limit", String(params.limit));
   if (params.offset != null) qs.set("offset", String(params.offset));
+  if (params.chainKey != null && (params.chainKey === "main" || params.chainKey === "tenderly"))
+    qs.set("chainKey", params.chainKey);
   const query = qs.toString();
   const res = await fetch(
     `/api/agents/${encodeURIComponent(agentId)}/enqueued-markets${query ? `?${query}` : ""}`,
@@ -490,18 +511,21 @@ export async function getEnqueuedMarkets(
 }
 
 /**
- * Manually trigger analysis for all enqueued markets (one-off jobs).
- * Pass chainKey: "tenderly" when on the Simulate page so the worker uses Tenderly balance.
+ * Manually trigger analysis for enqueued markets.
+ * Main: omit options or use { chainKey: "main" }. Simulate: pass { chainKey: "tenderly", simulationId } so only that run's markets are triggered.
  */
 export async function triggerAgentRun(
   agentId: string,
-  options?: { chainKey?: AgentChainKey }
+  options?: { chainKey?: AgentChainKey; simulationId?: string | null }
 ): Promise<{ triggered: number; jobIds: string[] }> {
+  const body: { chainKey?: AgentChainKey; simulationId?: string } = {};
+  if (options?.chainKey != null) body.chainKey = options.chainKey;
+  if (options?.simulationId != null && options.simulationId !== "") body.simulationId = options.simulationId;
   const res = await fetch(`/api/agent/${encodeURIComponent(agentId)}/trigger`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify(options?.chainKey != null ? { chainKey: options.chainKey } : {}),
+    body: JSON.stringify(body),
   });
   const data = (await res.json().catch(() => ({}))) as {
     triggered?: number;
@@ -519,10 +543,10 @@ export async function triggerAgentRun(
 
 /**
  * Remove a market from an agent's enqueued list (stops showing "Added" for that market for this agent).
- * Requires auth; agent must belong to current user.
+ * Main: omit simulationId. Simulate: pass simulationId to remove only from that run.
  */
 export async function deleteAgentEnqueuedMarket(
-  params: { marketId: string; agentId: string }
+  params: { marketId: string; agentId: string; simulationId?: string | null }
 ): Promise<void> {
   const res = await fetch("/api/agent/enqueue", {
     method: "DELETE",

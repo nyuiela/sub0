@@ -56,7 +56,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   useEffect(() => {
     if (children == null && activeTab === "markets") {
-      void dispatch(fetchMarkets({ status: "OPEN", limit: 24 })).then(() => {
+      void dispatch(fetchMarkets({ limit: 50 })).then(() => {
         void dispatch(fetchOrderBooksForList());
       });
     }

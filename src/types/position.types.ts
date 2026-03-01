@@ -29,7 +29,12 @@ export interface Position {
   createdAt: string;
   updatedAt: string;
   market: PositionMarket;
+  /** Brief agent reason for this position (when requested with includeLatestReason). */
+  lastReason?: string;
 }
+
+/** "main" = live; "tenderly" = simulate. Omit = main. */
+export type PositionChainKey = "main" | "tenderly";
 
 export interface PositionListParams {
   marketId?: string;
@@ -37,6 +42,10 @@ export interface PositionListParams {
   agentId?: string;
   address?: string;
   status?: PositionStatus;
+  /** Filter by chain: main (live) or tenderly (simulate). Omit = main. */
+  chainKey?: PositionChainKey;
+  /** Include brief agent reason per position (when agentId is set). */
+  includeLatestReason?: boolean;
   limit?: number;
   offset?: number;
 }

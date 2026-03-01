@@ -279,7 +279,7 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
                     clearTimeout(listRefetchTimeoutRef.current);
                     listRefetchTimeoutRef.current = null;
                   }
-                  void dispatch(fetchMarkets({ limit: 24, offset: 0 }));
+                  void dispatch(fetchMarkets({ limit: 50, offset: 0 }));
                 }
                 if (reason !== "deleted" && p.marketId) {
                   void dispatch(fetchMarketById(p.marketId));

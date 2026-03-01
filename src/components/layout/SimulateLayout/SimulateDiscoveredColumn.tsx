@@ -1,28 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   incrementSimulateBalanceVersion,
   incrementSimulateEnqueuedListVersion,
+  setSelectedSimulateAgentId,
   startSimulationRun,
   stopSimulationRun,
 } from "@/store/slices/layoutSlice";
 import { getEnqueuedMarkets } from "@/lib/api/agents";
-import {
-  startSimulation,
-  getSimulatePaymentConfig,
-  type SimulatePaymentConfigResponse,
-} from "@/lib/api/simulate";
-import {
-  getPaymentFetch,
-  ensurePaymentChain,
-  getPaymentChainName,
-} from "@/lib/x402/paymentFetch";
-import {
-  isSimulatePaymentSuccess,
-  isSimulatePaymentError,
-} from "@/lib/x402/simulatePayMessages";
+import { startSimulation, stopSimulation } from "@/lib/api/simulate";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
 import type { EnqueuedMarketItem } from "@/lib/api/agents";
@@ -37,6 +25,46 @@ const PAGE_SIZE = 20;
 const DEFAULT_MAX_MARKETS = 100;
 const DEFAULT_DURATION_MINUTES = 60;
 const MAX_MARKETS_CAP = 500;
+
+const STORAGE_KEY_RUNNING = "sub0_simulate_running";
+const STORAGE_KEY_PREFS = "sub0_simulate_prefs";
+
+interface StoredRunning {
+  agentId: string;
+  endsAt: number;
+  simulationId?: string;
+}
+
+interface StoredPrefs {
+  maxMarkets: number;
+  durationMinutes: number;
+}
+
+function getInitialMaxMarkets(): string {
+  if (typeof window === "undefined") return String(DEFAULT_MAX_MARKETS);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PREFS);
+    const parsed = raw ? (JSON.parse(raw) as StoredPrefs) : null;
+    const n = parsed?.maxMarkets;
+    if (typeof n === "number" && n >= 1 && n <= MAX_MARKETS_CAP) return String(Math.floor(n));
+  } catch {
+    // ignore
+  }
+  return String(DEFAULT_MAX_MARKETS);
+}
+
+function getInitialDuration(): string {
+  if (typeof window === "undefined") return String(DEFAULT_DURATION_MINUTES);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_PREFS);
+    const parsed = raw ? (JSON.parse(raw) as StoredPrefs) : null;
+    const n = parsed?.durationMinutes;
+    if (typeof n === "number" && n >= 1) return String(Math.floor(n));
+  } catch {
+    // ignore
+  }
+  return String(DEFAULT_DURATION_MINUTES);
+}
 
 /** Pricing for paid simulation (USDC). Must match backend x402/pricing.ts. */
 const SIMULATE_PRICE_BASE_USDC = 0.5;
@@ -62,12 +90,31 @@ export function SimulateDiscoveredColumn({
   const [startingSimulation, setStartingSimulation] = useState(false);
   const [dateRangeStart, setDateRangeStart] = useState("");
   const [dateRangeEnd, setDateRangeEnd] = useState("");
-  const [maxMarketsInput, setMaxMarketsInput] = useState(String(DEFAULT_MAX_MARKETS));
-  const [durationInput, setDurationInput] = useState(String(DEFAULT_DURATION_MINUTES));
+  const [maxMarketsInput, setMaxMarketsInput] = useState(getInitialMaxMarkets);
+  const [durationInput, setDurationInput] = useState(getInitialDuration);
   const [error, setError] = useState<string | null>(null);
-  const [paymentConfig, setPaymentConfig] = useState<SimulatePaymentConfigResponse | null>(null);
-  const paymentPopupRef = useRef<Window | null>(null);
   const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_RUNNING);
+      const stored = raw ? (JSON.parse(raw) as StoredRunning) : null;
+      if (stored?.agentId && typeof stored.endsAt === "number" && stored.endsAt > Date.now()) {
+        dispatch(setSelectedSimulateAgentId(stored.agentId));
+        dispatch(
+          startSimulationRun({
+            agentId: stored.agentId,
+            durationMs: stored.endsAt - Date.now(),
+            simulationId: stored.simulationId ?? undefined,
+          })
+        );
+      } else if (stored) {
+        localStorage.removeItem(STORAGE_KEY_RUNNING);
+      }
+    } catch {
+      localStorage.removeItem(STORAGE_KEY_RUNNING);
+    }
+  }, [dispatch]);
   const enqueuedListVersion = useAppSelector(
     (state) => state.layout.simulateEnqueuedListVersion
   );
@@ -77,6 +124,7 @@ export function SimulateDiscoveredColumn({
   const simulationEndsAt = useAppSelector(
     (state) => state.layout.simulationEndsAt
   );
+  const simulationId = useAppSelector((state) => state.layout.simulationId);
   const simulationRunning = selectedAgentId != null && simulationRunningAgentId === selectedAgentId;
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -105,6 +153,7 @@ export function SimulateDiscoveredColumn({
         const res = await getEnqueuedMarkets(selectedAgentId, {
           limit: PAGE_SIZE,
           offset,
+          chainKey: "tenderly",
         });
         setTotal(res.total);
         if (append) {
@@ -123,6 +172,53 @@ export function SimulateDiscoveredColumn({
     [selectedAgentId]
   );
 
+  const handleStartSuccess = useCallback(
+    (
+      enqueued: number,
+      cappedDuration: number,
+      simulationId?: string,
+      cappedMarkets?: number
+    ) => {
+      toast.success(`Simulation started: ${enqueued} market(s) enqueued`);
+      if (selectedAgentId) {
+        const durationMs = cappedDuration * 60 * 1000;
+        const endsAt = Date.now() + durationMs;
+        try {
+          localStorage.setItem(
+            STORAGE_KEY_RUNNING,
+            JSON.stringify({
+              agentId: selectedAgentId,
+              endsAt,
+              simulationId,
+            } satisfies StoredRunning)
+          );
+          if (typeof cappedMarkets === "number" && cappedMarkets >= 1) {
+            localStorage.setItem(
+              STORAGE_KEY_PREFS,
+              JSON.stringify({
+                maxMarkets: cappedMarkets,
+                durationMinutes: cappedDuration,
+              } satisfies StoredPrefs)
+            );
+          }
+        } catch {
+          // ignore storage errors
+        }
+        dispatch(incrementSimulateEnqueuedListVersion());
+        dispatch(
+          startSimulationRun({
+            agentId: selectedAgentId,
+            durationMs,
+            simulationId,
+          })
+        );
+      }
+      void fetchPage(0, false);
+      setTimeout(() => dispatch(incrementSimulateBalanceVersion()), 4000);
+    },
+    [selectedAgentId, fetchPage, dispatch]
+  );
+
   useEffect(() => {
     if (!selectedAgentId) {
       queueMicrotask(() => {
@@ -135,11 +231,12 @@ export function SimulateDiscoveredColumn({
   }, [selectedAgentId, enqueuedListVersion, fetchPage]);
 
   useEffect(() => {
-    if (!selectedAgentId) return;
-    getSimulatePaymentConfig()
-      .then(setPaymentConfig)
-      .catch(() => setPaymentConfig({ paymentRequired: false, paymentChainId: 84532 }));
-  }, [selectedAgentId]);
+    if (!simulationRunning || !selectedAgentId) return;
+    const interval = setInterval(() => {
+      void fetchPage(0, false);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [simulationRunning, selectedAgentId, fetchPage]);
 
   const handleLoadMore = useCallback(() => {
     if (!selectedAgentId || loadingMore || items.length >= total) return;
@@ -149,14 +246,34 @@ export function SimulateDiscoveredColumn({
   const hasMore = items.length < total;
 
   const handleStopSimulation = useCallback(() => {
+    const id = simulationId;
+    if (id?.trim()) {
+      stopSimulation(id, { cancelled: true }).catch(() => {
+        // non-blocking; Settings may still show RUNNING until next refresh
+      });
+    }
+    try {
+      localStorage.removeItem(STORAGE_KEY_RUNNING);
+    } catch {
+      // ignore
+    }
     dispatch(stopSimulationRun());
     toast.info("Simulation stopped");
-  }, [dispatch]);
+  }, [dispatch, simulationId]);
 
   useEffect(() => {
     if (simulationEndsAt == null) return;
     const tick = () => {
       if (Date.now() >= simulationEndsAt) {
+        const id = simulationId;
+        if (id?.trim()) {
+          stopSimulation(id, { cancelled: false }).catch(() => {});
+        }
+        try {
+          localStorage.removeItem(STORAGE_KEY_RUNNING);
+        } catch {
+          // ignore
+        }
         dispatch(stopSimulationRun());
         toast.success("Simulation ended");
         return;
@@ -164,60 +281,7 @@ export function SimulateDiscoveredColumn({
     };
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
-  }, [simulationEndsAt, dispatch]);
-
-  const handlePaymentSuccess = useCallback(
-    (enqueued: number, cappedDuration: number) => {
-      toast.success(`Simulation started: ${enqueued} market(s) enqueued`);
-      if (selectedAgentId) {
-        dispatch(incrementSimulateEnqueuedListVersion());
-        dispatch(
-          startSimulationRun({
-            agentId: selectedAgentId,
-            durationMs: cappedDuration * 60 * 1000,
-          })
-        );
-      }
-      void fetchPage(0, false);
-      setTimeout(() => dispatch(incrementSimulateBalanceVersion()), 4000);
-    },
-    [selectedAgentId, fetchPage, dispatch]
-  );
-
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin || typeof event.data !== "object") return;
-      const data = event.data as unknown;
-      if (isSimulatePaymentSuccess(data)) {
-        paymentPopupRef.current?.close();
-        paymentPopupRef.current = null;
-        setStartingSimulation(false);
-        handlePaymentSuccess(data.enqueued, data.durationMinutes);
-      } else if (isSimulatePaymentError(data)) {
-        paymentPopupRef.current?.close();
-        paymentPopupRef.current = null;
-        setStartingSimulation(false);
-        setError(data.error);
-        toast.error(data.error);
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, [handlePaymentSuccess]);
-
-  useEffect(() => {
-    if (!startingSimulation || !paymentConfig?.paymentRequired) return;
-    const popup = paymentPopupRef.current;
-    if (!popup) return;
-    const interval = setInterval(() => {
-      if (popup.closed) {
-        clearInterval(interval);
-        setStartingSimulation(false);
-        paymentPopupRef.current = null;
-      }
-    }, 500);
-    return () => clearInterval(interval);
-  }, [startingSimulation, paymentConfig?.paymentRequired]);
+  }, [simulationEndsAt, dispatch, simulationId]);
 
   const handleStartSimulation = useCallback(() => {
     if (!selectedAgentId || startingSimulation) return;
@@ -234,50 +298,21 @@ export function SimulateDiscoveredColumn({
     const cappedMarkets = maxMarketsParsed;
     const cappedDuration = durationParsed;
     setError(null);
-
-    if (paymentConfig?.paymentRequired) {
-      const chainId = paymentConfig.paymentChainId ?? 84532;
-      const payUrl = new URL("/simulate/pay", window.location.origin);
-      payUrl.searchParams.set("agentId", selectedAgentId);
-      payUrl.searchParams.set("start", start);
-      payUrl.searchParams.set("end", end);
-      payUrl.searchParams.set("maxMarkets", String(cappedMarkets));
-      payUrl.searchParams.set("durationMinutes", String(cappedDuration));
-      payUrl.searchParams.set("paymentChainId", String(chainId));
-      const popup = window.open(
-        payUrl.toString(),
-        "simulate-pay",
-        "width=480,height=520,scrollbars=yes"
-      );
-      paymentPopupRef.current = popup ?? null;
-      setStartingSimulation(true);
-      if (!popup) {
-        toast.error("Popup blocked", {
-          description: "Open payment in a new tab to complete.",
-          action: {
-            label: "Open payment",
-            onClick: () => {
-              const w = window.open(payUrl.toString(), "_blank");
-              paymentPopupRef.current = w ?? null;
-            },
-          },
-        });
-      }
-      return;
-    }
-
     setStartingSimulation(true);
-    const fetchOption = undefined;
-    startSimulation(
-      {
-        agentId: selectedAgentId,
-        dateRange: { start: `${start}T00:00:00.000Z`, end: `${end}T23:59:59.999Z` },
-        maxMarkets: cappedMarkets,
-        durationMinutes: cappedDuration,
-      },
-      fetchOption
-    )
-      .then((res) => handlePaymentSuccess(res.enqueued, cappedDuration))
+    startSimulation({
+      agentId: selectedAgentId,
+      dateRange: { start: `${start}T00:00:00.000Z`, end: `${end}T23:59:59.999Z` },
+      maxMarkets: cappedMarkets,
+      durationMinutes: cappedDuration,
+    })
+      .then((res) =>
+        handleStartSuccess(
+          res.enqueued,
+          cappedDuration,
+          res.simulationId,
+          cappedMarkets
+        )
+      )
       .catch((e) => {
         const msg = e instanceof Error ? e.message : "Start simulation failed";
         setError(msg);
@@ -291,9 +326,7 @@ export function SimulateDiscoveredColumn({
     dateRangeEnd,
     maxMarketsParsed,
     durationParsed,
-    paymentConfig?.paymentRequired,
-    paymentConfig?.paymentChainId,
-    handlePaymentSuccess,
+    handleStartSuccess,
   ]);
 
 
@@ -314,7 +347,7 @@ export function SimulateDiscoveredColumn({
           Start simulation (date range)
         </h3>
         <p className="mb-3 text-[10px] text-muted-foreground">
-          Discover markets that were active or resolved in this range. The agent will only use information available within the range (as-of simulation). Payment is required; after payment, discovery and analysis run automatically.
+          Discover markets that were active or resolved in this range. The agent will only use information available within the range (as-of simulation). Start runs discovery and analysis automatically. Fund the agent wallet on the payment chain if you see balance errors.
         </p>
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
@@ -410,8 +443,18 @@ export function SimulateDiscoveredColumn({
         )}
       </section>
       <p className="mb-2 text-xs text-muted-foreground">
-        Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED.
+        Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
       </p>
+      {items.length > 0 && (
+        <button
+          type="button"
+          onClick={() => void fetchPage(0, false)}
+          disabled={loading}
+          className="mb-2 rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50"
+        >
+          Refresh list
+        </button>
+      )}
       {error != null && (
         <p className="mb-2 text-sm text-danger" role="alert">
           {error}
@@ -452,9 +495,11 @@ export function SimulateDiscoveredColumn({
                       {item.marketName || item.marketId}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {item.status}
+                      {item.status === "PENDING"
+                        ? "PENDING (waiting for agent)"
+                        : item.status}
                     </span>
-                    {isDiscarded && item.discardReason != null && item.discardReason !== "" && (
+                    {(item.discardReason != null && item.discardReason !== "") && (
                       <p className="mt-1 text-xs text-muted-foreground">
                         {item.discardReason}
                       </p>

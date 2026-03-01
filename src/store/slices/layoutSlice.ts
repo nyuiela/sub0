@@ -22,6 +22,8 @@ export interface LayoutSliceState {
   simulationRunningAgentId: string | null;
   /** When set, simulation run ends at this timestamp (ms); countdown and auto-stop. */
   simulationEndsAt: number | null;
+  /** Current simulation id (for stop API so Settings list stays in sync). */
+  simulationId: string | null;
 }
 
 function initialSizePrefs(): Record<string, ColumnSizePrefs> {
@@ -42,6 +44,7 @@ const initialState: LayoutSliceState = {
   simulateBalanceVersion: 0,
   simulationRunningAgentId: null,
   simulationEndsAt: null,
+  simulationId: null,
 };
 
 const layoutSlice = createSlice({
@@ -108,14 +111,18 @@ const layoutSlice = createSlice({
     },
     startSimulationRun: (
       state,
-      action: { payload: { agentId: string; durationMs: number } }
+      action: {
+        payload: { agentId: string; durationMs: number; simulationId?: string | null };
+      }
     ) => {
       state.simulationRunningAgentId = action.payload.agentId;
       state.simulationEndsAt = Date.now() + action.payload.durationMs;
+      state.simulationId = action.payload.simulationId ?? null;
     },
     stopSimulationRun: (state) => {
       state.simulationRunningAgentId = null;
       state.simulationEndsAt = null;
+      state.simulationId = null;
     },
   },
 });

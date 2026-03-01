@@ -21,6 +21,9 @@ export async function getPositions(
     qs.set("address", params.address);
   if (params.status != null)
     qs.set("status", params.status);
+  if (params.chainKey != null && (params.chainKey === "main" || params.chainKey === "tenderly"))
+    qs.set("chainKey", params.chainKey);
+  if (params.includeLatestReason === true) qs.set("includeLatestReason", "true");
   const limit =
     params.limit != null
       ? Math.min(MAX_LIMIT, Math.max(1, params.limit))

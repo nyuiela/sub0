@@ -9,6 +9,7 @@ export const SETTINGS_SECTION_IDS = [
   "claim-agent",
   "vault",
   "developer-api",
+  "simulations",
   "layout",
 ] as const;
 
@@ -29,5 +30,6 @@ export const SETTINGS_SECTIONS: SettingsSectionItem[] = [
   { id: "claim-agent", label: "Claim external agent", description: "BYOA: link an external agent to your wallet" },
   { id: "vault", label: "Vault & Funds", description: "USDC balance and deposits" },
   { id: "developer-api", label: "Developer API", description: "API keys and integration" },
+  { id: "simulations", label: "Simulations", description: "Past simulate runs and markets" },
   { id: "layout", label: "Layout", description: "Reset dashboard layout and column order" },
 ];

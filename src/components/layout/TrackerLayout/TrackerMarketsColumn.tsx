@@ -57,7 +57,7 @@ export function TrackerMarketsColumn({
     queueMicrotask(() => {
       if (!cancelled) setLoading(true);
     });
-    getPositions({ agentId: selectedAgentId, limit: 100 })
+    getPositions({ agentId: selectedAgentId, chainKey: "main", limit: 100 })
       .then((res) => {
         if (!cancelled) {
           setPositions(res.data ?? []);

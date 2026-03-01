@@ -3,13 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  fetchMarkets,
   fetchMarketsSilent,
   fetchMarketsMore,
 } from "@/store/slices/marketsSlice";
-import { addAgentToMarket, setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
 import { incrementSimulateEnqueuedListVersion } from "@/store/slices/layoutSlice";
-import { getMyAgents, enqueueAgentMarket } from "@/lib/api/agents";
+import { getAgentEnqueuedMarkets, enqueueAgentMarket } from "@/lib/api/agents";
 import { MiniMarketCard, MiniMarketCardSkeleton } from "@/components/market";
 import { toast } from "sonner";
 import { MOCK_MARKET } from "@/lib/mockMarket";
@@ -40,7 +38,11 @@ export function SimulateMarketsColumn({
   const marketsError = useAppSelector((state) => state.markets.error);
   const loadMoreLoading = useAppSelector((state) => state.markets.loadMoreLoading);
   const total = useAppSelector((state) => state.markets.total);
-  const byMarket = useAppSelector((state) => state.marketAgents.byMarket);
+  const simulationId = useAppSelector((state) => state.layout.simulationId);
+  const enqueuedListVersion = useAppSelector(
+    (state) => state.layout.simulateEnqueuedListVersion
+  );
+  const [simulateEnqueuedMarketIds, setSimulateEnqueuedMarketIds] = useState<Set<string>>(new Set());
   const hasTriggeredInitialFetch = useRef(false);
 
   const baseParams = useMemo(
@@ -82,24 +84,55 @@ export function SimulateMarketsColumn({
     return () => clearInterval(id);
   }, [dispatch, list.length, baseParams]);
 
+  useEffect(() => {
+    if (!selectedAgentId || !simulationId) {
+      setSimulateEnqueuedMarketIds(new Set());
+      return;
+    }
+    let cancelled = false;
+    getAgentEnqueuedMarkets(selectedAgentId, {
+      chainKey: "tenderly",
+      simulationId,
+      limit: 500,
+    })
+      .then((res) => {
+        if (!cancelled) {
+          setSimulateEnqueuedMarketIds(new Set((res.data ?? []).map((r) => r.marketId)));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setSimulateEnqueuedMarketIds(new Set());
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedAgentId, simulationId, enqueuedListVersion]);
+
   const handleAddToAgent = useCallback(
     async (market: Market) => {
       if (selectedAgentId == null) {
         toast.error("Select an agent first");
         return;
       }
+      if (!simulationId) {
+        toast.error("Start a simulation first to add markets (Simulate is separate from main)");
+        return;
+      }
       try {
-        await enqueueAgentMarket({ marketId: market.id, agentId: selectedAgentId });
-        dispatch(addAgentToMarket({ marketId: market.id, agentId: selectedAgentId }));
-        const res = await getMyAgents({ limit: 50 });
-        dispatch(setByMarketFromAgents({ agents: res.data ?? [] }));
+        await enqueueAgentMarket({
+          marketId: market.id,
+          agentId: selectedAgentId,
+          chainKey: "tenderly",
+          simulationId,
+        });
+        setSimulateEnqueuedMarketIds((prev) => new Set(prev).add(market.id));
         dispatch(incrementSimulateEnqueuedListVersion());
-        toast.success("Market added to agent");
+        toast.success("Market added to agent for this simulation");
       } catch {
         toast.error("Failed to add market to agent");
       }
     },
-    [selectedAgentId, dispatch]
+    [selectedAgentId, simulationId, dispatch]
   );
 
   const handleLoadMore = useCallback(() => {
@@ -116,8 +149,8 @@ export function SimulateMarketsColumn({
   const filteredList = useMemo(() => {
     if (filter === "all") return list;
     if (!selectedAgentId) return list;
-    return list.filter((m) => (byMarket[m.id] ?? []).includes(selectedAgentId));
-  }, [list, filter, selectedAgentId, byMarket]);
+    return list.filter((m) => simulateEnqueuedMarketIds.has(m.id));
+  }, [list, filter, selectedAgentId, simulateEnqueuedMarketIds]);
 
   const hasMore = list.length < total;
 
@@ -225,7 +258,11 @@ export function SimulateMarketsColumn({
                 key={market.id}
                 market={market}
                 onAddToAgent={handleAddToAgent}
-                addedAgentIds={byMarket[market.id] ?? []}
+                addedAgentIds={
+                  selectedAgentId != null && simulateEnqueuedMarketIds.has(market.id)
+                    ? [selectedAgentId]
+                    : []
+                }
                 showActions={true}
                 imageSize="small"
               />

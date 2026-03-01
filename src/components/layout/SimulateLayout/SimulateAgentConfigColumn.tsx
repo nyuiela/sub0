@@ -15,6 +15,7 @@ import {
 import { getBlockExplorerBaseUrl, getBlockExplorerTxUrl } from "@/lib/blockExplorer";
 import { SimulateConfigEditor } from "./SimulateConfigEditor";
 import type { Agent } from "@/types/agent.types";
+import { Copy } from "lucide-react";
 
 export interface SimulateAgentConfigColumnProps {
   selectedAgentId: string | null;
@@ -239,6 +240,14 @@ export function SimulateAgentConfigColumn({
     };
   }, [eligibility?.nextRequestAt, eligibility?.eligible, selectedAgentId]);
 
+  const copyWalletAddress = useCallback((address: string, label: string) => {
+    if (!address?.trim()) return;
+    navigator.clipboard
+      .writeText(address.trim())
+      .then(() => toast.success(`${label} copied to clipboard`))
+      .catch(() => toast.error("Copy failed"));
+  }, []);
+
   const handleRequestFund = useCallback(() => {
     if (!selectedAgentId || funding) return;
     setFunding(true);
@@ -396,9 +405,31 @@ export function SimulateAgentConfigColumn({
                   )}
                 </p>
               )}
-              <p className="mb-2 text-xs text-muted-foreground">
-                {truncateAddress(selectedAgent.walletAddress)}
-              </p>
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground font-mono">
+                  {truncateAddress(selectedAgent.walletAddress)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    copyWalletAddress(selectedAgent.walletAddress!, "Wallet address")
+                  }
+                  className="rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  aria-label="Copy wallet address"
+                >
+                  <Copy className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    copyWalletAddress(selectedAgent.walletAddress!, "Agent wallet (deposit to this address)")
+                  }
+                  className="rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  aria-label="Copy address for deposit"
+                >
+                  Deposit to agent
+                </button>
+              </div>
               {balanceLoading && balance == null ? (
                 <p className="text-sm text-muted-foreground">Loading balance...</p>
               ) : balance != null ? (

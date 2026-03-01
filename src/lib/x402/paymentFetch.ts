@@ -13,6 +13,10 @@ import { thirdwebClient } from "@/lib/thirdweb/client";
 const BASE_SEPOLIA_CHAIN_ID = 84532;
 const BASE_MAINNET_CHAIN_ID = 8453;
 
+/** Max payment allowed by the client (USDC). Must be >= backend simulation price.*/
+const MAX_PAYMENT_USDC = 500;
+const MAX_PAYMENT_ATOMIC = BigInt(Math.floor(MAX_PAYMENT_USDC * 1e6));
+
 interface EIP1193Like {
   request(args: { method: string; params?: unknown[] }): Promise<unknown>;
 }
@@ -101,7 +105,11 @@ export async function getPaymentFetchFromThirdwebAccount(
       chain,
     });
     type SignerArg = Parameters<typeof x402.wrapFetchWithPayment>[1];
-    return x402.wrapFetchWithPayment(fetch, walletClient as SignerArg) as typeof fetch;
+    return x402.wrapFetchWithPayment(
+      fetch,
+      walletClient as SignerArg,
+      MAX_PAYMENT_ATOMIC
+    ) as typeof fetch;
   } catch {
     return null;
   }
@@ -127,7 +135,11 @@ export async function getPaymentFetch(
       chain: chainForId(paymentChainId),
     });
     type SignerArg = Parameters<typeof x402.wrapFetchWithPayment>[1];
-    return x402.wrapFetchWithPayment(fetch, client as unknown as SignerArg) as typeof fetch;
+    return x402.wrapFetchWithPayment(
+      fetch,
+      client as unknown as SignerArg,
+      MAX_PAYMENT_ATOMIC
+    ) as typeof fetch;
   } catch {
     return null;
   }
@@ -135,6 +147,60 @@ export async function getPaymentFetch(
 
 export function getPaymentChainId(): number {
   return BASE_SEPOLIA_CHAIN_ID;
+}
+
+/** USDC on payment chains (must match backend x402 config). */
+const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+const USDC_BASE_MAINNET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+
+/** USDC contract address for the payment chain (for display in popup). */
+export function getPaymentChainUsdcAddress(paymentChainId: number): string {
+  return paymentChainId === BASE_MAINNET_CHAIN_ID ? USDC_BASE_MAINNET : USDC_BASE_SEPOLIA;
+}
+
+/**
+ * Fetch USDC balance (atomic units) for an address on the payment chain.
+ * Use before starting payment to show "Insufficient USDC" when balance is too low.
+ */
+export async function getPaymentChainUsdcBalance(
+  address: string,
+  paymentChainId: number
+): Promise<bigint> {
+  if (!thirdwebClient) return BigInt(0);
+  const usdcAddress =
+    paymentChainId === BASE_MAINNET_CHAIN_ID ? USDC_BASE_MAINNET : USDC_BASE_SEPOLIA;
+  const chain =
+    paymentChainId === BASE_MAINNET_CHAIN_ID ? baseChain : baseSepoliaChain;
+  try {
+    const { getContract } = await import("thirdweb");
+    const { balanceOf } = await import("thirdweb/extensions/erc20");
+    const contract = getContract({
+      client: thirdwebClient,
+      chain,
+      address: usdcAddress as `0x${string}`,
+    });
+    const result = await balanceOf({
+      contract,
+      address: address as `0x${string}`,
+    });
+    return typeof result === "bigint" ? result : BigInt(String(result ?? 0));
+  } catch {
+    return BigInt(0);
+  }
+}
+
+/**
+ * Expected simulation cost in USDC (same formula as backend x402/pricing.ts).
+ * Use to check user has enough USDC before payment.
+ */
+export function computeSimulatePriceUsdc(
+  maxMarkets: number,
+  durationMinutes: number
+): number {
+  const base = 0.5;
+  const perMarket = 0.02;
+  const perMinute = 0.02;
+  return base + maxMarkets * perMarket + durationMinutes * perMinute;
 }
 
 export { BASE_SEPOLIA_CHAIN_ID, BASE_MAINNET_CHAIN_ID };
