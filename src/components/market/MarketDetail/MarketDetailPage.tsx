@@ -154,8 +154,10 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     );
   }
 
-  const volume = market.totalVolume ?? market.volume ?? "0";
-  const volumeFormatted = formatVolume(volume);
+  const volume = market.volume;
+  console.log("volume", market.volume);
+  console.log("totalVolume", market.totalVolume);
+  const volumeFormatted = formatVolume((Number(volume) / 10 ** USDC_DECIMALS).toString());
 
   const sidebar = (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto p-2">

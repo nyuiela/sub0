@@ -12,18 +12,18 @@ import { SimulateAgentConfigColumn } from "./SimulateAgentConfigColumn";
 import { TrackerResizeHandle } from "../TrackerLayout/TrackerResizeHandle";
 import { MiniMarketsContainer } from "@/components/market/MiniMarketsContainer/MiniMarketsContainer";
 
-const SIMULATE_COLUMN_IDS = ["markets", "discovered", "positions", "agentConfig"] as const;
+const SIMULATE_COLUMN_IDS = ["discovered", "positions", "agentConfig"] as const;
 type SimulateColumnId = (typeof SIMULATE_COLUMN_IDS)[number];
 
 const SIMULATE_LABELS: Record<SimulateColumnId, string> = {
-  markets: "Markets",
+  // markets: "Markets",
   discovered: "Discovery & analysis",
   positions: "Positions",
   agentConfig: "Agent config",
 };
 
 const SIMULATE_DEFAULT_PREFS: Record<string, ColumnSizePrefs> = {
-  markets: { widthFraction: 0.2, minFraction: 0.12, maxFraction: 0.4 },
+  // markets: { widthFraction: 0.2, minFraction: 0.12, maxFraction: 0.4 },
   discovered: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
   positions: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
   agentConfig: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.5 },
@@ -147,8 +147,8 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
 
   function renderColumnContent(columnId: string) {
     switch (columnId) {
-      case "markets":
-        return <SimulateMarketsColumn selectedAgentId={selectedAgentId} className="h-full" />;
+      // case "markets":
+      //   return <SimulateMarketsColumn selectedAgentId={selectedAgentId} className="h-full" />;
       case "discovered":
         return (
           <SimulateDiscoveredColumn

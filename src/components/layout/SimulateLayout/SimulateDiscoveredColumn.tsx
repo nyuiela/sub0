@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -267,7 +268,7 @@ export function SimulateDiscoveredColumn({
       if (Date.now() >= simulationEndsAt) {
         const id = simulationId;
         if (id?.trim()) {
-          stopSimulation(id, { cancelled: false }).catch(() => {});
+          stopSimulation(id, { cancelled: false }).catch(() => { });
         }
         try {
           localStorage.removeItem(STORAGE_KEY_RUNNING);
@@ -446,14 +447,24 @@ export function SimulateDiscoveredColumn({
         Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
       </p>
       {items.length > 0 && (
-        <button
-          type="button"
-          onClick={() => void fetchPage(0, false)}
-          disabled={loading}
-          className="mb-2 rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50"
-        >
-          Refresh list
-        </button>
+        <div className="flex flex-wrap justify-between items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void fetchPage(0, false)}
+            disabled={loading}
+            className="mb-2 rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 cursor-pointer"
+          >
+            Refresh list
+          </button>
+          <button
+            type="button"
+            onClick={() => setItems([])}
+            disabled={loading}
+            className="mb-2 rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 bg-danger text-white cursor-pointer"
+          >
+            clear list
+          </button>
+        </div>
       )}
       {error != null && (
         <p className="mb-2 text-sm text-danger" role="alert">
@@ -477,7 +488,7 @@ export function SimulateDiscoveredColumn({
                   className="flex items-start gap-3 rounded border border-border bg-surface p-2"
                 >
                   <figure className="h-12 w-12 shrink-0 overflow-hidden rounded-sm" aria-hidden>
-                    <img
+                    <Image
                       src={getDiceBearAvatarUrl(item.marketId, "market")}
                       alt=""
                       width={DISCOVERED_IMAGE_SIZE}
@@ -488,9 +499,8 @@ export function SimulateDiscoveredColumn({
                   </figure>
                   <div className="min-w-0 flex-1">
                     <span
-                      className={`block truncate text-sm font-medium ${
-                        isDiscarded ? "text-muted line-through" : "text-foreground"
-                      }`}
+                      className={`block truncate text-sm font-medium ${isDiscarded ? "text-muted line-through" : "text-foreground"
+                        }`}
                     >
                       {item.marketName || item.marketId}
                     </span>
