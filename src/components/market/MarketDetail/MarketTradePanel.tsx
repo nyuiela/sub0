@@ -9,8 +9,8 @@ import {
   clearOrderSuccess,
   selectOrderBookByMarketId,
 } from "@/store/slices/marketsSlice";
-import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral, USDC_DECIMALS, OUTCOME_TOKEN_DECIMALS } from "@/lib/formatNumbers";
-import { getOrderNonce } from "@/lib/api/orders";
+import { formatOutcomePrice, formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
+
 import {
   buildUserTradeTypedData,
   serializeTypedDataForSigning,
@@ -21,7 +21,6 @@ import {
 } from "@/lib/userTradeSignature";
 import { toast } from "sonner";
 import type { MarketPricesResponse } from "@/types/prices.types";
-import { toIntegerString } from "@/lib/utils";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
@@ -104,7 +103,7 @@ export function MarketTradePanel({
 
   const [amount, setAmount] = useState<number>(0);
   const [price, setPrice] = useState("");
-  const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("limit");
+  const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("market");
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
 
@@ -211,22 +210,6 @@ export function MarketTradePanel({
         expectedSigner != null &&
         recoveredSigner != null &&
         expectedSigner.toLowerCase() === recoveredSigner.toLowerCase();
-      // #region agent log
-      debugLog(
-        "MarketTradePanel.tsx:afterRecovery",
-        "Recovery result vs expected",
-        {
-          expectedSigner: expectedSigner ?? null,
-          recoveredSigner: recoveredSigner ?? null,
-          match,
-          recoveryUsedSameDomain: !!serialized.domain,
-          recoveryUsedSameMessageKeys: serialized.message
-            ? Object.keys(serialized.message as object).sort().join(",")
-            : "",
-        },
-        "H3-H5"
-      );
-      // #endregion
       console.log("[UserTrade signature debug]", {
         expectedSigner,
         recoveredSigner,
@@ -273,7 +256,7 @@ export function MarketTradePanel({
   const setAmountFromNotional = useCallback((dollars: number) => {
     const p = Number(referencePrice);
     if (!p || p <= 0) return;
-    const qty = dollars / p;
+    // const qty = dollars / p;
     setAmount(dollars);
   }, [referencePrice]);
 
@@ -296,9 +279,9 @@ export function MarketTradePanel({
         <nav role="tablist" aria-label="Order type" className="flex rounded-lg p-0.5">
           {(
             [
-              { id: "limit" as const, label: "Limit" },
               { id: "market" as const, label: "Market" },
-              { id: "ioc" as const, label: "IOC" },
+              { id: "limit" as const, label: "Limit" },
+              // { id: "ioc" as const, label: "IOC" },
             ] as const
           ).map(({ id, label }) => {
             const isActive = orderType === id;
@@ -316,7 +299,7 @@ export function MarketTradePanel({
                   }`}
                 onClick={() => {
                   setOrderType(id);
-                  if ((id === "limit" || id === "ioc") && !price.trim()) {
+                  if ((id === "limit") && !price.trim()) {
                     const mid = (priceMin + priceMax) / 2;
                     setPrice(formatOutcomePrice(mid));
                   }
@@ -369,7 +352,7 @@ export function MarketTradePanel({
             inputMode="decimal"
             placeholder="0.00"
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => setAmount(Number(e.target.value))}
             className="mt-1 w-full rounded-lg bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             aria-label="Order amount"
           />

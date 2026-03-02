@@ -130,18 +130,18 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     );
   }
 
-  if (error != null && market == null) {
-    return (
-      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">
-        <p className="text-danger" role="alert">
-          {error}
-        </p>
-        <Link href="/" className="text-sm text-primary hover:underline">
-          Back to markets
-        </Link>
-      </main>
-    );
-  }
+  // if (error != null && market == null) {
+  //   return (
+  //     <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">
+  //       <p className="text-danger" role="alert">
+  //         {error}
+  //       </p>
+  //       <Link href="/" className="text-sm text-primary hover:underline">
+  //         Back to markets
+  //       </Link>
+  //     </main>
+  //   );
+  // }
 
   if (market == null) {
     return (
@@ -154,10 +154,8 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     );
   }
 
-  const volume = market.volume;
-  console.log("volume", market.volume);
-  console.log("totalVolume", market.totalVolume);
-  const volumeFormatted = formatVolume((Number(volume) / 10 ** USDC_DECIMALS).toString());
+  // const volume = market?.volume;
+  const volumeFormatted = formatVolume((Number(market?.volume) / 10 ** USDC_DECIMALS).toString());
 
   const sidebar = (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto p-2">
