@@ -9,6 +9,7 @@ import { getActivities, getMarketHolders, getMarketTraders } from "@/lib/api/act
 import { getMarketPrices } from "@/lib/api/prices";
 import type { ActivityItem, MarketHolderItem, MarketTraderItem } from "@/types/activity.types";
 import type { MarketPricesResponse } from "@/types/prices.types";
+import type { Market } from "@/types/market.types";
 import { MarketLeftColumn } from "./MarketLeftColumn";
 import { MarketDetailLayout } from "./MarketDetailLayout";
 import { OutcomeProbabilityChart } from "./OutcomeProbabilityChart";
@@ -39,20 +40,26 @@ function formatVolume(value: string | undefined): string {
 
 export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const dispatch = useAppDispatch();
-  const { selectedMarket, detailLoading } = useAppSelector((state) => state.markets);
+  const account = useActiveAccount();
+
+  // 1. We extract 'list' as a fallback data source
+  const { selectedMarket, detailLoading, list } = useAppSelector((state) => state.markets);
+
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [holders, setHolders] = useState<MarketHolderItem[]>([]);
   const [traders, setTraders] = useState<MarketTraderItem[]>([]);
   const [marketPrices, setMarketPrices] = useState<MarketPricesResponse | null>(null);
   const [availableBalance, setAvailableBalance] = useState<number>(0);
-  const account = useActiveAccount();
-  const [positions, setPositions] = useState<Position[]>([]);
+  const [positions, setPositions] = useState<any[]>([]);
+
+  // 2. The Local Cache: Prevents the UI from wiping during a WS state transition
+  const [cachedMarket, setCachedMarket] = useState<Market | null>(null);
   // const availableBalanceUsdc = useMemo(() => getWalletBalances(account?.address ?? ""), [account?.address]);
   // console.log("availableBalanceUsdc", availableBalanceUsdc);
   useEffect(() => {
     const fetchAvailableBalance = async () => {
       if (account?.address) {
-        const balances = await getWalletBalances(account?.address ?? "");
+        const balances = await getWalletBalances(account.address);
         setAvailableBalance(Number(balances.usdc) / 10 ** USDC_DECIMALS);
       }
     };
@@ -64,70 +71,84 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   useEffect(() => {
     if (marketId) {
-      console.log("[MarketDetailPage] Fetching market by ID:", marketId);
       dispatch(fetchMarketById(marketId));
     }
   }, [marketId, dispatch]);
 
   const fetchDetails = useCallback(() => {
     if (!marketId) return;
-    setActivities([]);
-    setHolders([]);
-    setTraders([]);
+
     getActivities({ marketId, limit: 50 })
       .then((res) => {
-        const list = res.data ?? [];
-        const forThisMarket = list.filter((item) => {
-          const p = item.payload as { marketId?: string };
-          return p.marketId === marketId;
-        });
+        const forThisMarket = (res.data ?? []).filter(
+          (item) => (item.payload as { marketId?: string }).marketId === marketId
+        );
         setActivities(forThisMarket);
       })
       .catch(() => setActivities([]));
-    getMarketHolders(marketId)
-      .then((res) => setHolders(res.data ?? []))
-      .catch(() => setHolders([]));
-    getMarketTraders(marketId)
-      .then((res) => setTraders(res.data ?? []))
-      .catch(() => setTraders([]));
-    getMarketPrices(marketId)
-      .then(setMarketPrices)
-      .catch(() => setMarketPrices(null));
+
+    getMarketHolders(marketId).then((res) => setHolders(res.data ?? [])).catch(() => setHolders([]));
+    getMarketTraders(marketId).then((res) => setTraders(res.data ?? [])).catch(() => setTraders([]));
+    getMarketPrices(marketId).then(setMarketPrices).catch(() => setMarketPrices(null));
   }, [marketId]);
 
 
   useEffect(() => {
-    queueMicrotask(() => fetchDetails());
+    fetchDetails();
   }, [fetchDetails]);
 
-  const market = useMemo(() => {
-    console.log("[MarketDetailPage] Market memo:", { selectedMarket, marketId, match: selectedMarket?.id === marketId });
-    if (selectedMarket?.id === marketId) return selectedMarket;
+  // 3. Robust Resolution: Case-insensitive ID checking with array fallback
+  const resolvedMarket = useMemo(() => {
+    if (!marketId) return null;
+    const targetId = String(marketId).toLowerCase();
+
+    // Check primary selected state first
+    if (selectedMarket && String(selectedMarket.id).toLowerCase() === targetId) {
+      return selectedMarket;
+    }
+
+    // Fallback: If WS updated the main list but didn't update selectedMarket
+    if (list && list.length > 0) {
+      const foundInList = list.find((m) => String(m.id).toLowerCase() === targetId);
+      if (foundInList) return foundInList as Market;
+    }
+
     return null;
-  }, [selectedMarket, marketId]);
+  }, [selectedMarket, list, marketId]);
+
+  // 4. Update cache ONLY when we have a valid resolved market
+  useEffect(() => {
+    if (resolvedMarket) {
+      setCachedMarket(resolvedMarket);
+    }
+  }, [resolvedMarket]);
+
+  // 5. Final Source of Truth: Use resolved, otherwise fallback to cache
+  const market = resolvedMarket || cachedMarket;
 
 
   useEffect(() => {
-    if (market?.id != null && market?.name != null) {
-      const id = market.id;
-      const label = market.name;
-      queueMicrotask(() =>
-        dispatch(addRecent({ type: "market", id, label }))
-      );
+    if (market?.id && market?.name) {
+      dispatch(addRecent({ type: "market", id: market.id, label: market.name }));
     }
   }, [market?.id, market?.name, dispatch]);
 
-  const holdersCount = market?.uniqueStakersCount ?? holders.length;
-
+  // Pro-tip: Added isMounted safety check to prevent memory leaks on unmount
   useEffect(() => {
+    let isMounted = true;
     const fetchPositions = async () => {
-      const base = "http://localhost:4000";
-      const data = await fetch(`${base}/api/positions/${marketId}/${account?.address}`)
-      const json = await data.json();
-      console.log("[MarketDetailPage] Positions:", json);
-      setPositions(json.balances);
+      if (!account?.address || !marketId) return;
+      try {
+        const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const data = await fetch(`${base}/api/positions/${marketId}/${account.address}`);
+        const json = await data.json();
+        if (isMounted) setPositions(json.balances || []);
+      } catch (error) {
+        console.error("Failed to fetch positions:", error);
+      }
     };
     fetchPositions();
+    return () => { isMounted = false; };
   }, [marketId, account?.address]);
 
   if (detailLoading && !market) {
@@ -198,8 +219,8 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     );
   }
 
-  // const volume = market?.volume;
-  const volumeFormatted = formatVolume((Number(market?.volume) / 10 ** USDC_DECIMALS).toString());
+  const holdersCount = market?.uniqueStakersCount ?? holders.length;
+  const volumeFormatted = formatVolume((Number(market?.volume || 0) / 10 ** USDC_DECIMALS).toString());
 
   const sidebar = (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto p-2">
