@@ -22,6 +22,7 @@ import { formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
 import { useActiveAccount } from "thirdweb/react";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { getWalletBalances } from "@/lib/balances";
+import Link from "next/link";
 
 export interface MarketDetailPageProps {
   marketId: string;
@@ -163,13 +164,13 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
             {/* The market with ID "{marketId}" could not be found or failed to load. */}
             The market could not be found or failed to load.
           </p>
-          {error && (
+          {/* {error && (
             <p className="text-sm text-danger mb-4">
               Error: {error}
             </p>
-          )}
+          )} */}
           <div className="flex gap-3">
-            <button 
+            <button
               onClick={() => dispatch(fetchMarketById(marketId))}
               className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
             >
@@ -241,19 +242,19 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const trade = (
     <div className="flex min-w-0 flex-1 flex-col overflow-auto gap-3 p-2">
       {market ? (
-    <MarketTradePanel
-      marketId={marketId}
-      questionId={market.questionId || market.conditionId || marketId}
-      marketStatus={market.status}
-      outcomes={market.outcomes}
-      marketPrices={marketPrices}
-      availableBalance={availableBalance}
-    />
-  ) : (
-    <div className="rounded-lg border border-border bg-surface p-6">
-      <p className="text-muted-foreground">Market data loading...</p>
-    </div>
-  )}
+        <MarketTradePanel
+          marketId={marketId}
+          questionId={market.questionId || market.conditionId || marketId}
+          marketStatus={market.status}
+          outcomes={market.outcomes}
+          marketPrices={marketPrices}
+          availableBalance={availableBalance}
+        />
+      ) : (
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <p className="text-muted-foreground">Market data loading...</p>
+        </div>
+      )}
       <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
       <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
       <MarketInfoPanel market={market!} marketPrices={marketPrices} className="shrink-0" />
