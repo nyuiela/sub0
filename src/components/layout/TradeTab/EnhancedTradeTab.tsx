@@ -38,9 +38,9 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 p-4 h-full overflow-auto scrollbar-hidden">
       {/* Header with controls */}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 shrink-0">
         <h2 className="text-lg font-semibold text-foreground">Trading Activity</h2>
         
         {/* Toggle controls */}
@@ -96,7 +96,7 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
       </div>
 
       {/* Positions sections */}
-      <div className="space-y-6">
+      <div className="space-y-6 flex-1 overflow-auto scrollbar-hidden">
         {/* User Positions */}
         {showUserPositions && currentUser && (
           <section>
