@@ -41,11 +41,10 @@ export function MiniMarketsContainer({
   const hasTriggeredInitialFetch = useRef(false);
 
   useEffect(() => {
-    if (list.length > 0) return;
     if (hasTriggeredInitialFetch.current) return;
     hasTriggeredInitialFetch.current = true;
     void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
-  }, [dispatch, list.length]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (list.length === 0) return;
@@ -270,7 +269,7 @@ export function MiniMarketsContainer({
           </div>
         </section>
       )}
-      
+
       {/* Load More Button */}
       {!listLoading && list.length > 0 && list.length < total && (
         <div className="mt-4 flex justify-center">
