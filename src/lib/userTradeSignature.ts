@@ -242,6 +242,7 @@ export async function recoverUserTradeSigner(
 ): Promise<string | null> {
   try {
     // #region agent log
+    /*
     if (typeof fetch !== "undefined") {
       fetch("http://127.0.0.1:7916/ingest/6bd2cfb3-987f-41c0-b780-8a7f894a6c2e", {
         method: "POST",
@@ -261,6 +262,7 @@ export async function recoverUserTradeSigner(
         }),
       }).catch(() => { });
     }
+    */
     // #endregion
     const { recoverTypedDataAddress } = await import("viem/utils");
     const recovered = await recoverTypedDataAddress({

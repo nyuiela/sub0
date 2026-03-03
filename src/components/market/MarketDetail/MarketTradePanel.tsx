@@ -21,12 +21,14 @@ import {
 } from "@/lib/userTradeSignature";
 import { toast } from "sonner";
 import type { MarketPricesResponse } from "@/types/prices.types";
+import { Position } from "@/types/position.types";
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
 const FLASH_PERCENTS = [25, 50, 100] as const;
 
 // #region agent log
+/*
 function debugLog(
   location: string,
   message: string,
@@ -48,6 +50,7 @@ function debugLog(
     body: JSON.stringify(payload),
   }).catch(() => { });
 }
+*/
 // #endregion
 
 function formatBalance(value: number): string {
@@ -211,12 +214,34 @@ export function MarketTradePanel({
               message: typedData.message,
             });
           } else {
-            // Fallback to provider method
-            console.log("Trying eth_signTypedData_v4...");
-            signature = await signUserTradeTypedData(provider, account.address, serialized);
+            // For MetaMask, we need to request account access first
+            console.log("Requesting account access for MetaMask...");
+            try {
+              // Request account access
+              await provider.request({
+                method: 'eth_requestAccounts'
+              });
+              
+              console.log("Trying eth_signTypedData_v4...");
+              signature = await signUserTradeTypedData(provider, account.address, serialized);
+            } catch (accessError: any) {
+              if (accessError.code === 4100) {
+                // User denied account access
+                toast.error("Please approve wallet access to continue trading");
+                return;
+              } else {
+                throw accessError;
+              }
+            }
           }
-        } catch (typedDataError) {
+        } catch (typedDataError: any) {
           console.log("Typed data signing failed, trying personal_sign...");
+          
+          // Check if it's an authorization error
+          if (typedDataError.code === 4100) {
+            toast.error("Please approve the signing request in your wallet");
+            return;
+          }
           
           // Fallback to personal_sign for embedded wallets
           try {
@@ -243,9 +268,14 @@ export function MarketTradePanel({
             
             signature = personalSignResult as string;
             console.log("Got signature via personal_sign:", signature);
-          } catch (personalSignError) {
+          } catch (personalSignError: any) {
             console.error("Personal sign also failed:", personalSignError);
-            throw personalSignError;
+            if (personalSignError.code === 4100) {
+              toast.error("Please approve the signing request in your wallet");
+            } else {
+              toast.error("Signature failed. Please try again.");
+            }
+            return;
           }
         }
         
@@ -449,7 +479,7 @@ export function MarketTradePanel({
                   <div key={key}>
                     <p className="mb-1.5 text-xs font-medium text-white">
                       {key == 0 ? yesLabel : noLabel} <br />
-                      {position} tokens</p>
+                      {position.toString()} tokens</p>
                   </div>
                 ))}
               </div>
