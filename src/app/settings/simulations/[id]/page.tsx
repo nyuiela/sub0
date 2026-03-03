@@ -144,20 +144,25 @@ export default function SimulationDetailPage() {
                   role="list"
                   aria-label="Markets traded"
                 >
-                  {data.markets?.map((m) => (
+                  {data.markets?.map((market) => (
                     <li
-                      key={m.marketId}
+                      key={market.marketId}
                       className="rounded-xl border border-border bg-surface/60 p-4"
                     >
                       <span className="font-medium text-foreground">
-                        {m.marketName ?? m.marketId}
+                        {market.marketName ?? market.marketId}
                       </span>
                       <span className="ml-2 text-sm text-muted-foreground">
-                        {m.marketStatus ?? "—"} · {m.status}
+                        {market.marketStatus ?? "—"} · {market.status}
                       </span>
-                      {m.discardReason != null && m.discardReason !== "" && (
+                      {market.tradeReason != null && market.tradeReason !== "" && (
+                        <p className="mt-1 text-xs tex  t-muted-foreground">
+                          {market.tradeReason}
+                        </p>
+                      )}
+                      {market.discardReason != null && market.discardReason !== "" && (
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {m.discardReason}
+                          {market.discardReason}
                         </p>
                       )}
                     </li>

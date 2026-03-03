@@ -111,6 +111,11 @@ export function SimulatePositionsColumn({
                     {pos.lastReason}
                   </p>
                 )}
+                {pos.tradeReason != null && pos.tradeReason !== "" && (
+                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                    {pos.tradeReason}
+                  </p>
+                )}
               </div>
             </li>
           ))}

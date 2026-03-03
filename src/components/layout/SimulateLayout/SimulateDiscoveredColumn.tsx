@@ -514,6 +514,11 @@ export function SimulateDiscoveredColumn({
                         {item.discardReason}
                       </p>
                     )}
+                    {(item.tradeReason != null && item.tradeReason !== "") && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {item.tradeReason}
+                      </p>
+                    )}
                   </div>
                 </li>
               );

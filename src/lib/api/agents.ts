@@ -407,6 +407,7 @@ export async function getAgentEnqueuedMarkets(
     marketName: string;
     status: string;
     discardReason?: string;
+    tradeReason?: string;
     createdAt: string;
     updatedAt: string;
   }>;
@@ -475,6 +476,7 @@ export interface EnqueuedMarketItem {
   marketName: string;
   status: string;
   discardReason?: string;
+  tradeReason?: string;
   createdAt: string;
   updatedAt: string;
 }

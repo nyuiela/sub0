@@ -31,6 +31,8 @@ export interface Position {
   market: PositionMarket;
   /** Brief agent reason for this position (when requested with includeLatestReason). */
   lastReason?: string;
+  /** Brief agent reason for this position (when requested with includeLatestReason). */
+  tradeReason?: string;
 }
 
 /** "main" = live; "tenderly" = simulate. Omit = main. */

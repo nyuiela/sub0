@@ -26,6 +26,7 @@ export interface SimulationMarketRow {
   marketStatus: string | null;
   status: string;
   discardReason?: string;
+  tradeReason?: string;
 }
 
 export interface SimulationDetailResponse {
