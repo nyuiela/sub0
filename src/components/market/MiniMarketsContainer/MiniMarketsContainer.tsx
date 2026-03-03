@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchMarkets } from "@/store/slices/marketsSlice";
+import { fetchMarkets, fetchMarketsMore } from "@/store/slices/marketsSlice";
 import {
   addAgentToMarket,
   removeAgentFromMarket,
@@ -31,7 +31,7 @@ export function MiniMarketsContainer({
   className = "",
 }: MiniMarketsContainerProps) {
   const dispatch = useAppDispatch();
-  const { list, listLoading, error } = useAppSelector((state) => state.markets);
+  const { list, listLoading, loadMoreLoading, total, limit, offset, error } = useAppSelector((state) => state.markets);
   const byMarket = useAppSelector((state) => state.marketAgents.byMarket);
   const [marketToAddToAgent, setMarketToAddToAgent] = useState<Market | null>(null);
   const [agentsForPicker, setAgentsForPicker] = useState<Agent[]>([]);
@@ -269,6 +269,19 @@ export function MiniMarketsContainer({
             </div>
           </div>
         </section>
+      )}
+      
+      {/* Load More Button */}
+      {!listLoading && list.length > 0 && list.length < total && (
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => dispatch(fetchMarketsMore({ limit: 20, offset: list.length }))}
+            disabled={loadMoreLoading}
+            className="rounded-md border border-border bg-muted px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/80 disabled:opacity-50"
+          >
+            {loadMoreLoading ? "Loading..." : "Load More"}
+          </button>
+        </div>
       )}
     </>
   );

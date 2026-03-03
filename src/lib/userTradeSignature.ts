@@ -157,13 +157,6 @@ export function buildUserTradeTypedData(params: {
       verifyingContract: VERIFYING_CONTRACT ?? ("0x0000000000000000000000000000000000000000" as `0x${string}`),
     },
     types: {
-      // ✅ FIX 1: Explicitly define the Domain structure
-      EIP712Domain: [
-        { name: "name", type: "string" },
-        { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
-        { name: "verifyingContract", type: "address" }
-      ],
       UserTrade: [
         { name: "marketId", type: "bytes32" },
         { name: "outcomeIndex", type: "uint256" },
@@ -179,7 +172,6 @@ export function buildUserTradeTypedData(params: {
       marketId: questionIdBytes32,
       outcomeIndex: BigInt(params.outcomeIndex),
       buy: params.buy,
-      // Leave these as native BigInts, DO NOT stringify them
       quantity: BigInt(params.quantity),
       maxCostUsdc: BigInt(params.maxCostUsdc),
       nonce: nonceBig,
@@ -194,21 +186,23 @@ export async function signUserTradeTypedData(
   address: string,
   typedData: Record<string, unknown>
 ): Promise<string> {
-  const result = await provider.request({
-    method: "eth_signTypedData_v4",
-    params: [address, JSON.stringify(typedData)],
-  });
+  try {
+    const result = await provider.request({
+      method: "eth_signTypedData_v4",
+      params: [address, JSON.stringify(typedData)],
+    });
 
-  let signature = typeof result === "string" ? result : "";
+    let signature = typeof result === "string" ? result : "";
+    
+    if (!signature.startsWith("0x")) {
+      signature = "0x" + signature;
+    }
 
-  // Normalize v value for OpenZeppelin ECDSA.sol
-  if (signature.endsWith("00")) {
-    signature = signature.slice(0, -2) + "1b"; // 27
-  } else if (signature.endsWith("01")) {
-    signature = signature.slice(0, -2) + "1c"; // 28
+    return signature;
+  } catch (error) {
+    console.error("Signing error:", error);
+    throw error;
   }
-
-  return signature;
 }
 
 /** Default deadline: 5 minutes from now (unix seconds). */
