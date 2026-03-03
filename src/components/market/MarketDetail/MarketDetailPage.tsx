@@ -94,7 +94,11 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     queueMicrotask(() => fetchDetails());
   }, [fetchDetails]);
 
-  const market = selectedMarket?.id === marketId ? selectedMarket : null;
+  const market = useMemo(() => {
+    if (selectedMarket?.id === marketId) return selectedMarket;
+    return null;
+  }, [selectedMarket, marketId]);
+
 
   useEffect(() => {
     if (market?.id != null && market?.name != null) {
@@ -108,7 +112,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   const holdersCount = market?.uniqueStakersCount ?? holders.length;
 
-  if (detailLoading && market == null) {
+  if (detailLoading && !market) {
     return (
       <main className="flex min-h-0 flex-1 flex-col overflow-auto p-4">
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,1fr)_minmax(0,2fr)_minmax(280px,1fr)]">
@@ -130,6 +134,9 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
     );
   }
 
+  // if (!market && !detailLoading) {
+  //   return <NotFoundView />;
+  // }
   // if (error != null && market == null) {
   //   return (
   //     <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">
@@ -143,15 +150,10 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   //   );
   // }
 
-  if (market == null) {
-    return (
-      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">
-        <p className="text-muted-foreground">Market not found.</p>
-        <Link href="/" className="text-sm text-primary hover:underline">
-          Back to markets
-        </Link>
-      </main>
-    );
+  if (!market && !detailLoading) {
+    return <div>
+      not found
+    </div>;
   }
 
   // const volume = market?.volume;
