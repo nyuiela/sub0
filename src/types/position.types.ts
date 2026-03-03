@@ -10,6 +10,7 @@ export interface PositionMarket {
   id: string;
   name: string;
   conditionId?: string;
+  outcomes?: unknown[];  // Market outcomes array
 }
 
 export interface Position {
@@ -20,12 +21,14 @@ export interface Position {
   address: string;
   tokenAddress: string;
   outcomeIndex: number;
+  outcomeString?: string;        // Human-readable outcome (e.g., "Yes", "No")
   side: PositionSide;
   status: PositionStatus;
   avgPrice: string;
   collateralLocked: string;
   isAmm: boolean;
   contractPositionId: string | null;
+  chainKey?: string;             // "main" or "tenderly"
   createdAt: string;
   updatedAt: string;
   market: PositionMarket;

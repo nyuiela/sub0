@@ -169,8 +169,11 @@ export function PositionsColumn({
                     {pos.status}
                   </span>
                   <span className="text-muted">
-                    Outcome {pos.outcomeIndex}
+                    {pos.outcomeString || `Outcome ${pos.outcomeIndex}`}
                   </span>
+                  {pos.chainKey === "tenderly" && (
+                    <span className="text-warning text-xs font-medium">SIMULATION</span>
+                  )}
                 </div>
                 <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <span>
@@ -182,6 +185,29 @@ export function PositionsColumn({
                     {collateralStr}
                   </span>
                 </div>
+                {pos.lastReason && pos.agentId && (
+                  <div className="mt-1 text-xs text-muted-foreground border-l-2 border-primary/20 pl-2">
+                    <span className="font-medium">Agent Reason:</span> {pos.lastReason}
+                  </div>
+                )}
+                {pos.tradeReason && !pos.agentId && (
+                  <div className="mt-1 text-xs text-muted-foreground border-l-2 border-blue-500/20 pl-2">
+                    <span className="font-medium">Note:</span> {pos.tradeReason}
+                  </div>
+                )}
+                {/* Transaction hash display - will be added when txHash field is available */}
+                {/* {pos.txHash && (
+                  <div className="mt-1 text-xs">
+                    <a 
+                      href={`https://basescan.org/tx/${pos.txHash}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      View Transaction
+                    </a>
+                  </div>
+                )} */}
                 <p className="mt-1 text-[10px] text-muted">
                   <LiveTimeDisplay createdAt={pos.updatedAt} />
                 </p>

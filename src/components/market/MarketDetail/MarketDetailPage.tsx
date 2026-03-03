@@ -21,6 +21,7 @@ import { MarketOrderBook } from "../MarketOrderBook";
 import Image from "next/image";
 import { formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
 import { useActiveAccount } from "thirdweb/react";
+import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { getWalletBalances } from "@/lib/balances";
 
 export interface MarketDetailPageProps {
@@ -61,7 +62,10 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   useMarketSocket({ marketId, enabled: Boolean(marketId) });
 
   useEffect(() => {
-    if (marketId) void dispatch(fetchMarketById(marketId));
+    if (marketId) {
+      console.log("[MarketDetailPage] Fetching market by ID:", marketId);
+      dispatch(fetchMarketById(marketId));
+    }
   }, [marketId, dispatch]);
 
   const fetchDetails = useCallback(() => {
@@ -95,6 +99,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   }, [fetchDetails]);
 
   const market = useMemo(() => {
+    console.log("[MarketDetailPage] Market memo:", { selectedMarket, marketId, match: selectedMarket?.id === marketId });
     if (selectedMarket?.id === marketId) return selectedMarket;
     return null;
   }, [selectedMarket, marketId]);
@@ -151,9 +156,33 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   // }
 
   if (!market && !detailLoading) {
-    return <div>
-      not found
-    </div>;
+    return (
+      <main className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto p-4">
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-2">Market Not Found</h2>
+          <p className="text-muted-foreground mb-4">
+            {/* The market with ID "{marketId}" could not be found or failed to load. */}
+            The market could not be found or failed to load.
+          </p>
+          {error && (
+            <p className="text-sm text-danger mb-4">
+              Error: {error}
+            </p>
+          )}
+          <div className="flex gap-3">
+            <button 
+              onClick={() => dispatch(fetchMarketById(marketId))}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+            >
+              Retry
+            </button>
+            <Link href="/" className="px-4 py-2 bg-muted text-muted-foreground rounded-md hover:bg-muted/90 transition-colors">
+              Back to Markets
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
   }
 
   // const volume = market?.volume;
@@ -168,7 +197,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const main = (
     <div className="flex min-h-0 flex-1 flex-col overflow-auto gap-3 p-2">
       <div className="flex items-center gap-3 shrink-0">
-        {market.imageUrl != null ? (
+        {market?.imageUrl != null ? (
           <Image
             src={market.imageUrl}
             alt=""
@@ -178,14 +207,19 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
             unoptimized
           />
         ) : (
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium text-muted-foreground">
-            {market.name.slice(0, 2).toUpperCase()}
-          </span>
+          <img
+            src={getDiceBearAvatarUrl(marketId, "market")}
+            alt=""
+            className="h-10 w-10 rounded-full object-cover"
+            width={40}
+            height={40}
+            loading="lazy"
+          />
         )}
         <div>
-          <h1 className="text-lg font-semibold text-foreground">{market.name}</h1>
+          <h1 className="text-lg font-semibold text-foreground">{market?.name}</h1>
           <p className="text-sm text-muted-foreground">
-            Vol {volumeFormatted} · Holders {holdersCount} · Trades {market.totalTrades ?? 0}
+            Vol {volumeFormatted} · Holders {holdersCount} · Trades {market?.totalTrades ?? 0}
           </p>
         </div>
       </div>
@@ -207,17 +241,23 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
 
   const trade = (
     <div className="flex min-w-0 flex-1 flex-col overflow-auto gap-3 p-2">
-      <MarketTradePanel
-        marketId={marketId}
-        questionId={market.questionId ?? market.conditionId}
-        marketStatus={market.status}
-        outcomes={market.outcomes}
-        marketPrices={marketPrices}
-        availableBalance={availableBalance}
-      />
+      {market ? (
+    <MarketTradePanel
+      marketId={marketId}
+      questionId={market.questionId || market.conditionId || marketId}
+      marketStatus={market.status}
+      outcomes={market.outcomes}
+      marketPrices={marketPrices}
+      availableBalance={availableBalance}
+    />
+  ) : (
+    <div className="rounded-lg border border-border bg-surface p-6">
+      <p className="text-muted-foreground">Market data loading...</p>
+    </div>
+  )}
       <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
       <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
-      <MarketInfoPanel market={market} marketPrices={marketPrices} className="shrink-0" />
+      <MarketInfoPanel market={market!} marketPrices={marketPrices} className="shrink-0" />
     </div>
   );
 
