@@ -194,7 +194,62 @@ export function MarketTradePanel({
       const serialized = serializeTypedDataForSigning(typedData);
       let signature: string;
       try {
-        signature = await signUserTradeTypedData(provider, account.address, serialized);
+        // Debug logging
+        console.log("Account object:", account);
+        console.log("Account type:", typeof account);
+        console.log("Account keys:", Object.keys(account || {}));
+        
+        // Try signing with different methods based on wallet type
+        try {
+          // First try ThirdWeb's account signTypedData method
+          if (account && typeof (account as any).signTypedData === 'function') {
+            console.log("Using account.signTypedData...");
+            signature = await (account as any).signTypedData({
+              domain: typedData.domain,
+              types: typedData.types,
+              primaryType: typedData.primaryType,
+              message: typedData.message,
+            });
+          } else {
+            // Fallback to provider method
+            console.log("Trying eth_signTypedData_v4...");
+            signature = await signUserTradeTypedData(provider, account.address, serialized);
+          }
+        } catch (typedDataError) {
+          console.log("Typed data signing failed, trying personal_sign...");
+          
+          // Fallback to personal_sign for embedded wallets
+          try {
+            // Convert BigInt to string for JSON serialization
+            const serializableData = {
+              domain: typedData.domain,
+              types: typedData.types,
+              primaryType: typedData.primaryType,
+              message: {
+                ...typedData.message,
+                // Convert BigInt values to strings
+                quantity: typedData.message.quantity?.toString(),
+                maxCostUsdc: typedData.message.maxCostUsdc?.toString(),
+                nonce: typedData.message.nonce?.toString(),
+                deadline: typedData.message.deadline?.toString(),
+                outcomeIndex: typedData.message.outcomeIndex?.toString(),
+              }
+            };
+            const message = JSON.stringify(serializableData);
+            const personalSignResult = await provider.request({
+              method: 'personal_sign',
+              params: [message, account.address]
+            });
+            
+            signature = personalSignResult as string;
+            console.log("Got signature via personal_sign:", signature);
+          } catch (personalSignError) {
+            console.error("Personal sign also failed:", personalSignError);
+            throw personalSignError;
+          }
+        }
+        
+        console.log("Final signature result:", signature);
       } catch (err) {
         console.error(err);
         const msg = err instanceof Error ? err.message : "Signature rejected";

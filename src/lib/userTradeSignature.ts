@@ -187,6 +187,19 @@ export async function signUserTradeTypedData(
   typedData: Record<string, unknown>
 ): Promise<string> {
   try {
+    // Check if this is a Viem wallet client (from ThirdWeb)
+    if (provider && 'signTypedData' in provider && typeof (provider as any).signTypedData === 'function') {
+      // Use Viem's signTypedData method
+      const result = await (provider as any).signTypedData({
+        domain: typedData.domain,
+        types: typedData.types,
+        primaryType: typedData.primaryType,
+        message: typedData.message,
+      });
+      return result;
+    }
+    
+    // Fallback to raw RPC method for MetaMask and other wallets
     const result = await provider.request({
       method: "eth_signTypedData_v4",
       params: [address, JSON.stringify(typedData)],

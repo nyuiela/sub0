@@ -40,12 +40,12 @@ export function MiniMarketsContainer({
   const [selectedAgentIds, setSelectedAgentIds] = useState<Set<string>>(new Set());
   const hasTriggeredInitialFetch = useRef(false);
 
-  // useEffect(() => {
-  //   if (list.length > 0) return;
-  //   if (hasTriggeredInitialFetch.current) return;
-  //   hasTriggeredInitialFetch.current = true;
-  //   void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
-  // }, [dispatch, list.length]);
+  useEffect(() => {
+    if (list.length > 0) return;
+    if (hasTriggeredInitialFetch.current) return;
+    hasTriggeredInitialFetch.current = true;
+    void dispatch(fetchMarkets({ status: "OPEN", limit: 24 }));
+  }, [dispatch, list.length]);
 
   useEffect(() => {
     if (list.length === 0) return;
