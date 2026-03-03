@@ -14,7 +14,19 @@ import { getEnqueuedMarkets } from "@/lib/api/agents";
 import { startSimulation, stopSimulation } from "@/lib/api/simulate";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
+import Countdown, { zeroPad } from "react-countdown";
 import type { EnqueuedMarketItem } from "@/lib/api/agents";
+
+const CountdownRenderer = ({ minutes, seconds, completed }: { minutes: number; seconds: number; completed: boolean }) => {
+  if (completed) return <span className="font-bold text-danger">SIMULATION ENDED</span>;
+  return (
+    <div className="flex items-center gap-2 font-mono text-2xl font-bold text-primary">
+      <div className="rounded border border-primary/20 bg-surface px-2 py-1">{zeroPad(minutes)}</div>
+      <span>:</span>
+      <div className="rounded border border-primary/20 bg-surface px-2 py-1">{zeroPad(seconds)}</div>
+    </div>
+  );
+};
 
 export interface SimulateDiscoveredColumnProps {
   selectedAgentId: string | null;
@@ -350,10 +362,10 @@ export function SimulateDiscoveredColumn({
         <p className="mb-3 text-[10px] text-muted-foreground">
           Discover markets that were active or resolved in this range. The agent will only use information available within the range (as-of simulation). Start runs discovery and analysis automatically. Fund the agent wallet on the payment chain if you see balance errors.
         </p>
-        <div className="flex flex-col gap-3">
+        <div className="mb-4 grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="simulate-date-start" className="text-xs font-medium text-foreground">
-              Start date
+            <label htmlFor="simulate-date-start" className="text-[10px] font-bold uppercase text-muted-foreground">
+              From
             </label>
             <input
               id="simulate-date-start"
@@ -361,13 +373,13 @@ export function SimulateDiscoveredColumn({
               value={dateRangeStart}
               onChange={(e) => setDateRangeStart(e.target.value)}
               disabled={simulationRunning}
-              className="simulate-date-input w-full max-w-48 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
+              className="w-full rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none ring-primary focus:ring-1 disabled:opacity-60"
               aria-label="Start date"
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label htmlFor="simulate-date-end" className="text-xs font-medium text-foreground">
-              End date
+            <label htmlFor="simulate-date-end" className="text-[10px] font-bold uppercase text-muted-foreground">
+              To
             </label>
             <input
               id="simulate-date-end"
@@ -375,102 +387,124 @@ export function SimulateDiscoveredColumn({
               value={dateRangeEnd}
               onChange={(e) => setDateRangeEnd(e.target.value)}
               disabled={simulationRunning}
-              className="simulate-date-input w-full max-w-48 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
+              className="w-full rounded border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none ring-primary focus:ring-1 disabled:opacity-60"
               aria-label="End date"
             />
           </div>
-          <div className="flex flex-wrap items-end gap-4">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="simulate-max-markets" className="text-xs font-medium text-foreground">
-                Markets
-              </label>
-              <input
-                id="simulate-max-markets"
-                type="text"
-                inputMode="numeric"
-                value={maxMarketsInput}
-                onChange={(e) => setMaxMarketsInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                disabled={simulationRunning}
-                className="simulate-number-input w-24 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
-                aria-label="Max markets"
-                placeholder="100"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="simulate-duration" className="text-xs font-medium text-foreground">
-                Time (min)
-              </label>
-              <input
-                id="simulate-duration"
-                type="text"
-                inputMode="numeric"
-                value={durationInput}
-                onChange={(e) => setDurationInput(e.target.value.replace(/\D/g, "").slice(0, 5))}
-                disabled={simulationRunning}
-                className="simulate-number-input w-24 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
-                aria-label="Duration minutes"
-                placeholder="60"
-              />
-            </div>
-            <span className="text-xs text-muted-foreground">
-              Min Est. {estimatedPriceUsdc.toFixed(2)} USDC
-            </span>
-          </div>
-          <div>
-            {simulationRunning ? (
-              <button
-                type="button"
-                onClick={handleStopSimulation}
-                className="rounded bg-danger px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
-              >
-                Stop simulation
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleStartSimulation}
-                disabled={startingSimulation || !dateRangeStart || !dateRangeEnd}
-                className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
-              >
-                {startingSimulation ? "Starting..." : "Start simulation"}
-              </button>
-            )}
-          </div>
         </div>
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="simulate-max-markets" className="text-xs font-medium text-foreground">
+              Markets
+            </label>
+            <input
+              id="simulate-max-markets"
+              type="text"
+              inputMode="numeric"
+              value={maxMarketsInput}
+              onChange={(e) => setMaxMarketsInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
+              disabled={simulationRunning}
+              className="simulate-number-input w-24 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
+              aria-label="Max markets"
+              placeholder="100"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="simulate-duration" className="text-xs font-medium text-foreground">
+              Time (min)
+            </label>
+            <input
+              id="simulate-duration"
+              type="text"
+              inputMode="numeric"
+              value={durationInput}
+              onChange={(e) => setDurationInput(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              disabled={simulationRunning}
+              className="simulate-number-input w-24 rounded border border-border bg-surface px-2 py-1.5 text-sm text-foreground disabled:opacity-60"
+              aria-label="Duration minutes"
+              placeholder="60"
+            />
+          </div>
+          <span className="text-xs text-muted-foreground">
+            Min Est. {estimatedPriceUsdc.toFixed(2)} USDC
+          </span>
+        </div>
+
         {simulationRunning && simulationEndsAt != null && (
-          <p className="mt-2 text-xs text-muted-foreground" aria-live="polite">
-            Time left: {secondsLeft}s
-          </p>
+          <div className="mt-4 rounded-lg border border-primary/10 bg-primary/5 p-4">
+            <div className="mb-2 flex items-end justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Remaining Time</span>
+              <Countdown
+                date={simulationEndsAt}
+                renderer={CountdownRenderer}
+                onComplete={handleStopSimulation}
+              />
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full bg-primary transition-all duration-1000"
+                style={{
+                  width: `${Math.min(100, (secondsLeft / (durationParsed * 60)) * 100)}%`,
+                }}
+              />
+            </div>
+          </div>
         )}
-      </section>
-      <p className="mb-2 text-xs text-muted-foreground">
-        Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
-      </p>
-      {items.length > 0 && (
-        <div className="flex flex-wrap justify-between items-center gap-2">
-          <button
-            type="button"
-            onClick={() => void fetchPage(0, false)}
-            disabled={loading}
-            className="mb-2 rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 cursor-pointer"
-          >
-            Refresh list
-          </button>
-          <button
-            type="button"
-            onClick={() => setItems([])}
-            disabled={loading}
-            className="mb-2 rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 bg-danger text-white cursor-pointer"
-          >
-            clear list
-          </button>
+
+        <div className="mt-3">
+          {simulationRunning ? (
+            <button
+              type="button"
+              onClick={handleStopSimulation}
+              className="rounded bg-danger px-3 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Stop simulation
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleStartSimulation}
+              disabled={startingSimulation || !dateRangeStart || !dateRangeEnd}
+              className="rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:bg-primary/90 disabled:opacity-50"
+            >
+              {startingSimulation ? "Starting..." : "Start simulation"}
+            </button>
+          )}
         </div>
-      )}
+      </section>
+
+      <div className="flex flex-wrap justify-between items-center gap-2">
+        <p className="mb-2 text-xs text-muted-foreground">
+          Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
+        </p>
+        {items.length > 0 && (
+          <div className="flex flex-wrap justify-between items-center gap-2">
+            <button
+              type="button"
+              onClick={() => void fetchPage(0, false)}
+              disabled={loading}
+              className="mb-2 rounded border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 cursor-pointer"
+            >
+              Refresh list
+            </button>
+            <button
+              type="button"
+              onClick={() => setItems([])}
+              disabled={loading}
+              className="mb-2 rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 bg-danger text-white cursor-pointer"
+            >
+              clear list
+            </button>
+          </div>
+        )}
+      </div>
+
       {error != null && (
         <p className="mb-2 text-sm text-danger" role="alert">
           {error}
         </p>
       )}
+
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading...</p>
       ) : items.length === 0 ? (
@@ -480,7 +514,7 @@ export function SimulateDiscoveredColumn({
       ) : (
         <>
           <ul className="space-y-2" role="list">
-            {items.map((item) => {
+            {items.map((item: EnqueuedMarketItem) => {
               const isDiscarded = item.status === "DISCARDED";
               return (
                 <li

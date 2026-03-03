@@ -152,7 +152,7 @@ export function AgentsColumn({
         const myList = myRes.data ?? [];
         mergeAndSetAgents(publicList, myList);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => {
         setRefreshing(false);
       });

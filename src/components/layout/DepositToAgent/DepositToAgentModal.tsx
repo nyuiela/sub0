@@ -124,7 +124,7 @@ export function DepositToAgentModal({ agent, onClose, onTransferSuccess }: Depos
                 dispatch(setAgentBalance({ agentId: agent.id, balance: res.balance }));
               }
             })
-            .catch(() => {});
+            .catch(() => { });
         }, delayedSyncMs);
       },
       onError: (err) => {

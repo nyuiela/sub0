@@ -7,26 +7,24 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setSelectedSimulateAgentId } from "@/store/slices/layoutSlice";
 import { SimulateMarketsColumn } from "./SimulateMarketsColumn";
 import { SimulateDiscoveredColumn } from "./SimulateDiscoveredColumn";
-import { SimulatePositionsColumn } from "./SimulatePositionsColumn";
+import { SimulateProbabilityChartColumn } from "./SimulateProbabilityChartColumn";
 import { SimulateAgentConfigColumn } from "./SimulateAgentConfigColumn";
 import { TrackerResizeHandle } from "../TrackerLayout/TrackerResizeHandle";
 import { MiniMarketsContainer } from "@/components/market/MiniMarketsContainer/MiniMarketsContainer";
 
-const SIMULATE_COLUMN_IDS = ["discovered", "positions", "agentConfig"] as const;
+const SIMULATE_COLUMN_IDS = ["discovered", "probabilityChart", "agentConfig"] as const;
 type SimulateColumnId = (typeof SIMULATE_COLUMN_IDS)[number];
 
 const SIMULATE_LABELS: Record<SimulateColumnId, string> = {
-  // markets: "Markets",
-  discovered: "Discovery & analysis",
-  positions: "Positions",
+  discovered: "Discovery & Analysis",
+  probabilityChart: "Probability & Positions",
   agentConfig: "Agent config",
 };
 
 const SIMULATE_DEFAULT_PREFS: Record<string, ColumnSizePrefs> = {
-  // markets: { widthFraction: 0.2, minFraction: 0.12, maxFraction: 0.4 },
   discovered: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
-  positions: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
-  agentConfig: { widthFraction: 0.2, minFraction: 0.15, maxFraction: 0.5 },
+  probabilityChart: { widthFraction: 0.4, minFraction: 0.3, maxFraction: 0.6 },
+  agentConfig: { widthFraction: 0.3, minFraction: 0.2, maxFraction: 0.5 },
 };
 
 const RESIZE_HANDLE_WIDTH = "8px";
@@ -156,9 +154,9 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
             className="h-full"
           />
         );
-      case "positions":
+      case "probabilityChart":
         return (
-          <SimulatePositionsColumn
+          <SimulateProbabilityChartColumn
             selectedAgentId={selectedAgentId}
             className="h-full"
           />
