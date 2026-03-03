@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarketById } from "@/store/slices/marketsSlice";
 import { addRecent } from "@/store/slices/recentSlice";
@@ -33,12 +32,12 @@ function formatVolume(value: string | undefined): string {
   if (Number.isNaN(n)) return value;
   if (n >= 1_000_000) return `${formatCollateral(n / 1_000_000)}M`;
   if (n >= 1_000) return `${formatCollateral(n / 1_000)}K`;
-  return formatCollateral(n);
+  return formatCollateral(n.toFixed(0));
 }
 
 export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const dispatch = useAppDispatch();
-  const { selectedMarket, detailLoading, error } = useAppSelector((state) => state.markets);
+  const { selectedMarket, detailLoading } = useAppSelector((state) => state.markets);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [holders, setHolders] = useState<MarketHolderItem[]>([]);
   const [traders, setTraders] = useState<MarketTraderItem[]>([]);

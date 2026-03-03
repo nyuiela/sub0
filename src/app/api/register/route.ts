@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import type { RegisterPayload, RegisterSuccessResponse } from "@/types/register.types";
 
 const JWT_COOKIE_NAME = "sub0-auth-jwt";
-const AUTH_ERROR = "Authentication required. Sign in with your wallet (Thirdweb).";
+const AUTH_ERROR = "Authentication required. Sign in with your wallet.";
 
 export async function POST(request: Request) {
   const cookieStore = await cookies();
