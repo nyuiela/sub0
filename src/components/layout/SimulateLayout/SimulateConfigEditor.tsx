@@ -31,6 +31,115 @@ import "@uiw/react-md-editor/markdown-editor.css";
 const EDITOR_HEIGHT = 280;
 const CUSTOM_MODEL_VALUE = "__custom__";
 
+interface OpenClawDocsEditorProps {
+  openclaw: OpenClawTemplate;
+  onChange: (id: OpenClawDocId, value: string) => void;
+}
+
+function OpenClawDocsEditor({ openclaw, onChange }: OpenClawDocsEditorProps) {
+  const [activeTab, setActiveTab] = useState<OpenClawDocId>("soul");
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState("");
+
+  const activeMeta = OPENCLAW_DOC_META.find((m) => m.id === activeTab);
+  const currentValue = openclaw[activeTab];
+
+  const handleEdit = () => {
+    setEditContent(currentValue);
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    onChange(activeTab, editContent);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditContent("");
+  };
+
+  return (
+    <div className="rounded-lg border border-border bg-surface">
+      {/* Tab Navigation */}
+      <div className="flex border-b border-border">
+        {OPENCLAW_DOC_META.map((meta) => (
+          <button
+            key={meta.id}
+            type="button"
+            onClick={() => {
+              setActiveTab(meta.id);
+              setIsEditing(false);
+            }}
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 ${activeTab === meta.id
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+              }`}
+            title={meta.description}
+          >
+            {meta.label.split(" (")[0]}
+          </button>
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="p-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs text-muted-foreground">
+            {activeMeta?.label}
+          </span>
+          <div className="flex gap-1">
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  className="rounded bg-success px-2 py-1 text-xs font-medium text-white hover:opacity-90"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={handleEdit}
+                className="rounded border border-border px-2 py-1 text-xs font-medium text-foreground hover:bg-muted"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+        </div>
+
+        {isEditing ? (
+          <div data-color-mode="dark" className="overflow-hidden rounded border border-border">
+            <MDEditor
+              value={editContent}
+              onChange={(v) => setEditContent(v ?? "")}
+              height={EDITOR_HEIGHT}
+              preview="edit"
+              visibleDragbar={false}
+            />
+          </div>
+        ) : (
+          <div className="prose prose-xs max-w-none">
+            <pre className="whitespace-pre-wrap text-xs text-foreground font-mono bg-muted/30 rounded p-3 h-48 overflow-auto">
+              {currentValue || "No content. Click Edit to add."}
+            </pre>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function getModelFromAgent(agent: Agent): string {
   const ms = agent.modelSettings;
   if (ms && typeof ms === "object" && "model" in ms && typeof ms.model === "string")
@@ -346,37 +455,13 @@ export function SimulateConfigEditor({
       </section>
 
       <section aria-labelledby="simulate-openclaw-heading">
-        <h3 id="simulate-openclaw-heading" className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-          OpenClaw docs
+        <h3
+          id="simulate-openclaw-heading"
+          className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted"
+        >
+          OpenClaw Docs
         </h3>
-      <div className="flex flex-col gap-4">
-        {OPENCLAW_DOC_META.map((meta) => (
-          <section
-            key={meta.id}
-            className="flex flex-col gap-1"
-            aria-labelledby={`simulate-doc-${meta.id}`}
-          >
-            <h3
-              id={`simulate-doc-${meta.id}`}
-              className="text-xs font-medium text-foreground"
-            >
-              {meta.label}
-            </h3>
-            <div
-              data-color-mode="dark"
-              className="overflow-hidden rounded-lg border border-border"
-            >
-              <MDEditor
-                value={openclaw[meta.id] ?? ""}
-                onChange={(v) => setDoc(meta.id, v ?? "")}
-                height={EDITOR_HEIGHT}
-                preview="edit"
-                visibleDragbar={false}
-              />
-            </div>
-          </section>
-        ))}
-      </div>
+        <OpenClawDocsEditor openclaw={openclaw} onChange={setDoc} />
       </section>
       <footer className="mt-2">
         <button
