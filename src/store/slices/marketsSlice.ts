@@ -214,7 +214,21 @@ const marketsSlice = createSlice({
   reducers: {
     setOrderBookForMarket: (state, action: { payload: OrderBookSnapshot | OrderResponseSnapshot }) => {
       const payload = action.payload;
+      
+      // Defensive check - ensure payload exists and has required fields
+      if (!payload) {
+        console.error("setOrderBookForMarket: payload is undefined");
+        return;
+      }
+      
       const { marketId, bids, asks, timestamp } = payload;
+      
+      // Defensive check - ensure marketId exists
+      if (!marketId) {
+        console.error("setOrderBookForMarket: marketId is undefined in payload:", payload);
+        return;
+      }
+      
       const outcomeIndex = "outcomeIndex" in payload ? payload.outcomeIndex : 0;
       const key = `${marketId}-${outcomeIndex}`;
       state.orderBookByMarketId[key] = {
@@ -406,11 +420,37 @@ const marketsSlice = createSlice({
       })
       .addCase(submitOrder.fulfilled, (state, action) => {
         state.orderSubmitLoading = false;
+        
+        // Defensive check - ensure payload exists
+        if (!action.payload) {
+          console.error("submitOrder.fulfilled: payload is undefined");
+          state.error = "Order response is missing";
+          return;
+        }
+        
         const trades = action.payload.trades?.length ?? 0;
         state.lastOrderSuccess =
           trades > 0
             ? `Order filled. ${trades} trade${trades > 1 ? "s" : ""} executed.`
             : "Order placed.";
+            
+        // Defensive check - ensure snapshot exists before setting order book
+        if (action.payload.snapshot) {
+          // Directly set the order book without using dispatch
+          const snapshot = action.payload.snapshot;
+          if (snapshot && snapshot.marketId) {
+            const { marketId, bids, asks, timestamp } = snapshot;
+            const outcomeIndex = "outcomeIndex" in snapshot ? snapshot.outcomeIndex : 0;
+            const key = `${marketId}-${outcomeIndex}`;
+            state.orderBookByMarketId[key] = {
+              marketId,
+              outcomeIndex,
+              bids,
+              asks,
+              timestamp,
+            };
+          }
+        }
       })
       .addCase(submitOrder.rejected, (state, action) => {
         state.orderSubmitLoading = false;
