@@ -67,6 +67,7 @@ export interface MarketTradePanelProps {
   marketPrices?: MarketPricesResponse | null;
   /** Available balance (e.g. USDC) for display and % flash buttons. When not provided, shows "--". */
   availableBalance?: number;
+  positions?: Position[];
   className?: string;
 }
 
@@ -92,6 +93,7 @@ export function MarketTradePanel({
   outcomes: outcomesProp = [],
   marketPrices,
   availableBalance = 0,
+  positions = [],
   className = "",
 }: MarketTradePanelProps) {
   const account = useActiveAccount();
@@ -262,7 +264,6 @@ export function MarketTradePanel({
 
   const clearError = useCallback(() => dispatch(clearMarketsError()), [dispatch]);
   const clearSuccess = useCallback(() => dispatch(clearOrderSuccess()), [dispatch]);
-
   return (
     <section
       className={`flex flex-col gap-4 rounded-sm p-4 bg-surface ${className}`}
@@ -385,6 +386,20 @@ export function MarketTradePanel({
           ))}
         </div>
         <div className="space-y-3">
+          {positions.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs font-medium text-white">Open Positions</p>
+              <div className="grid grid-cols-2 gap-2">
+                {positions.map((position, key) => (
+                  <div key={key}>
+                    <p className="mb-1.5 text-xs font-medium text-white">
+                      {key == 0 ? yesLabel : noLabel} <br />
+                      {position} tokens</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div>
             <p className="mb-1.5 text-xs font-medium text-muted-foreground">{yesLabel} tokens</p>
             <div className="grid grid-cols-2 gap-2">

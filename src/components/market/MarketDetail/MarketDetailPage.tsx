@@ -46,6 +46,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   const [marketPrices, setMarketPrices] = useState<MarketPricesResponse | null>(null);
   const [availableBalance, setAvailableBalance] = useState<number>(0);
   const account = useActiveAccount();
+  const [positions, setPositions] = useState<Position[]>([]);
   // const availableBalanceUsdc = useMemo(() => getWalletBalances(account?.address ?? ""), [account?.address]);
   // console.log("availableBalanceUsdc", availableBalanceUsdc);
   useEffect(() => {
@@ -94,6 +95,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
       .catch(() => setMarketPrices(null));
   }, [marketId]);
 
+
   useEffect(() => {
     queueMicrotask(() => fetchDetails());
   }, [fetchDetails]);
@@ -116,6 +118,17 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   }, [market?.id, market?.name, dispatch]);
 
   const holdersCount = market?.uniqueStakersCount ?? holders.length;
+
+  useEffect(() => {
+    const fetchPositions = async () => {
+      const base = "http://localhost:4000";
+      const data = await fetch(`${base}/api/positions/${marketId}/${account?.address}`)
+      const json = await data.json();
+      console.log("[MarketDetailPage] Positions:", json);
+      setPositions(json.balances);
+    };
+    fetchPositions();
+  }, [marketId, account?.address]);
 
   if (detailLoading && !market) {
     return (
@@ -207,7 +220,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
             unoptimized
           />
         ) : (
-          <img
+          <Image
             src={getDiceBearAvatarUrl(marketId, "market")}
             alt=""
             className="h-10 w-10 rounded-full object-cover"
@@ -249,6 +262,7 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
           outcomes={market.outcomes}
           marketPrices={marketPrices}
           availableBalance={availableBalance}
+          positions={positions}
         />
       ) : (
         <div className="rounded-lg border border-border bg-surface p-6">
