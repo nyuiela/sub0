@@ -13,7 +13,7 @@ import { DraggableColumns } from "@/components/layout/DraggableColumns";
 import { DraggableColumnsSkeleton } from "@/components/layout/DraggableColumns/DraggableColumnsSkeleton";
 import { TrackerLayout } from "@/components/layout/TrackerLayout";
 import { SimulateLayout } from "@/components/layout/SimulateLayout/SimulateLayout";
-import { TradeTab } from "@/components/layout/TradeTab/TradeTab";
+import { EnhancedTradeTab } from "@/components/layout/TradeTab/EnhancedTradeTab";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { BottomNavSkeleton } from "@/components/layout/BottomNav/BottomNavSkeleton";
 import type { PrimaryTabId } from "@/types/layout.types";
@@ -68,7 +68,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       case "markets":
         return <DraggableColumns />;
       case "trade":
-        return <TradeTab isActive />;
+        return <EnhancedTradeTab isActive />;
       case "tracker":
         return <TrackerLayout />;
       case "earn":
