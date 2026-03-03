@@ -9,6 +9,39 @@ export const PRIMARY_TAB_IDS = [
   "earn",
   "wallet",
 ] as const;
+
+export const tabs = [
+  {
+    id: "markets",
+    label: "Markets",
+    href: "/",
+  },
+  {
+    id: "trade",
+    label: "Trade",
+    href: "/trade",
+  },
+  {
+    id: "tracker",
+    label: "Tracker",
+    href: "/tracker",
+  },
+  {
+    id: "earn",
+    label: "Simulate",
+    href: "/simulate",
+  },
+  {
+    id: "wallet",
+    label: "Settings",
+    href: "/settings",
+  },
+] as const;
+
+export type Tab = (typeof tabs)[number];
+
+export type TabId = (typeof tabs)[number]["id"];
+
 export type PrimaryTabId = (typeof PRIMARY_TAB_IDS)[number];
 
 export const DEFAULT_COLUMN_IDS = ["agents", "new", "portfolio", "news"] as const;

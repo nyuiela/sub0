@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import { AppProviders } from "@/components/providers";
 import "./globals.css";
+import { DashboardLayout } from "@/components/layout";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,7 +44,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-theme="trading" data-font="jetbrains-mono" data-size="small">
       <body className={`${fontVariables} font-sans antialiased`}>
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          <DashboardLayout>{children}</DashboardLayout>
+        </AppProviders>
       </body>
     </html>
   );

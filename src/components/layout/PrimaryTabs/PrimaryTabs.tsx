@@ -7,8 +7,12 @@ import { setActivePrimaryTab } from "@/store/slices/layoutSlice";
 import {
   PRIMARY_TAB_IDS,
   PRIMARY_TAB_LABELS,
+  Tab,
+  TabId,
+  tabs,
   type PrimaryTabId,
 } from "@/types/layout.types";
+
 
 const tabButtonBase =
   "rounded-md border border-transparent px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
@@ -25,14 +29,16 @@ export function PrimaryTabs({ isRegistered = true }: PrimaryTabsProps) {
   const dispatch = useAppDispatch();
   const isSettingsPage = pathname?.startsWith("/settings") ?? false;
 
-  const tabIds = isRegistered
-    ? PRIMARY_TAB_IDS
-    : PRIMARY_TAB_IDS.filter((id) => id !== "wallet");
+  // const tabIds = isRegistered
+  //   ? PRIMARY_TAB_IDS
+  //   : PRIMARY_TAB_IDS.filter((id) => id !== "wallet");
+
+
 
   return (
     <nav aria-label="Primary navigation">
       <ul className="flex flex-wrap items-center gap-1">
-        {tabIds.map((tabId: PrimaryTabId) => {
+        {/* {tabIds.map((tabId: PrimaryTabId) => {
           const isWallet = tabId === "wallet";
           const isActive = isWallet ? isSettingsPage : !isSettingsPage && activeTab === tabId;
 
@@ -67,7 +73,25 @@ export function PrimaryTabs({ isRegistered = true }: PrimaryTabsProps) {
               </button>
             </li>
           );
-        })}
+        })} */}
+        {tabs.map((tab: Tab) => (
+          // <div key={tab.id} onClick={() => router.push(`${tab.href}`)}>
+          //   {tab.label}
+          // </div>
+          <li key={tab.id} className="flex items-center">
+            <button
+              type="button"
+              onClick={() => {
+                dispatch(setActivePrimaryTab(tab.id));
+                void router.push(tab.href);
+              }}
+              aria-current={activeTab === tab.id ? "page" : undefined}
+              className={`inline-flex items-center ${tabButtonBase} cursor-pointer ${activeTab === tab.id ? "bg-primary-muted text-primary" : "text-muted hover:bg-surface hover:text-foreground"}`}
+            >
+              {tab.label}
+            </button>
+          </li>
+        ))}
       </ul>
     </nav>
   );

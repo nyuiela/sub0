@@ -8,6 +8,24 @@ import { AuthButton } from "@/components/auth";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { useAuth } from "@/contexts/AuthContext";
 
+const tabs = [
+  {
+    label: "Markets",
+    href: "/",
+  },
+  {
+    label: "Tracker",
+    href: "/tracker",
+  },
+  {
+    label: "Simulate",
+    href: "/simulate",
+  },
+  {
+    label: "Trade",
+    href: "/trade",
+  },
+]
 export function TopNav() {
   const { user, loading } = useAuth();
   const isRegistered =

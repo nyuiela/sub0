@@ -1,4 +1,3 @@
-import { DashboardLayout } from "@/components/layout";
 import { MarketDetailPage } from "@/components/market/MarketDetail";
 
 export default async function MarketPage({
@@ -8,8 +7,6 @@ export default async function MarketPage({
 }) {
   const { id } = await params;
   return (
-    <DashboardLayout>
-      <MarketDetailPage marketId={id} />
-    </DashboardLayout>
+    <MarketDetailPage marketId={id} />
   );
 }

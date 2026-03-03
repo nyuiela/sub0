@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { Children, useEffect, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets, fetchOrderBooksForList } from "@/store/slices/marketsSlice";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
@@ -62,23 +62,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, [children, activeTab, dispatch]);
 
-  function renderMainContent(): React.ReactNode {
-    if (children != null) return children;
-    switch (activeTab as PrimaryTabId) {
-      case "markets":
-        return <DraggableColumns />;
-      case "trade":
-        return <EnhancedTradeTab isActive />;
-      case "tracker":
-        return <TrackerLayout />;
-      case "earn":
-        return <SimulateLayout />;
-      case "wallet":
-        return <TabPlaceholder title="Settings" />;
-      default:
-        return <DraggableColumns />;
-    }
-  }
+  // function renderMainContent(): React.ReactNode {
+  //   if (children != null) return children;
+  //   switch (activeTab as PrimaryTabId) {
+  //     case "markets":
+  //       return <DraggableColumns />;
+  //     case "trade":
+  //       return <EnhancedTradeTab isActive />;
+  //     case "tracker":
+  //       return <TrackerLayout />;
+  //     case "earn":
+  //       return <SimulateLayout />;
+  //     case "wallet":
+  //       return <TabPlaceholder title="Settings" />;
+  //     default:
+  //       return <DraggableColumns />;
+  //   }
+  // }
 
   return (
     <div className="flex h-dvh flex-col bg-background">
@@ -98,7 +98,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <TopNav />
           <FilterBar />
           <main className="flex flex-1 flex-col min-h-0 overflow-hidden">
-            {renderMainContent()}
+            {/* {renderMainContent()} */}
+            {children}
           </main>
           <BottomNav />
 

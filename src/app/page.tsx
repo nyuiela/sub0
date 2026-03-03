@@ -1,5 +1,5 @@
-import { DashboardLayout } from "@/components/layout";
+import { DraggableColumns } from "@/components/layout/DraggableColumns";
 
 export default function HomePage() {
-  return <DashboardLayout />;
+  return <DraggableColumns />;
 }
