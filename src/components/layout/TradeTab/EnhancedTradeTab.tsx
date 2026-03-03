@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppSelector } from "@/store/hooks";
+import { useAuth } from "@/contexts/AuthContext";
 import { PositionsColumn } from "@/components/layout/PositionsColumn/PositionsColumn";
 import { getMyAgents } from "@/lib/api/agents";
 import type { Agent } from "@/types/agent.types";
@@ -16,15 +17,15 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
   
-  const currentUser = useAppSelector((state) => state.auth.user);
+  const { user: currentUser } = useAuth();
 
   // Load agents for selection
   const loadAgents = async () => {
     try {
       const agentList = await getMyAgents();
-      setAgents(agentList);
-      if (agentList.length > 0 && !selectedAgentId) {
-        setSelectedAgentId(agentList[0].id);
+      setAgents(agentList.data);
+      if (agentList.data.length > 0 && !selectedAgentId) {
+        setSelectedAgentId(agentList.data[0].id);
       }
     } catch (error) {
       console.error("Failed to load agents:", error);
@@ -101,8 +102,7 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
           <section>
             <h3 className="text-md font-medium text-foreground mb-3">Your Positions</h3>
             <PositionsColumn
-              userId={currentUser.userId}
-              includeLatestReason={false}
+              userId={currentUser?.userId}
               className="bg-card rounded-lg border border-border"
             />
           </section>
@@ -116,7 +116,6 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
             </h3>
             <PositionsColumn
               agentId={selectedAgentId}
-              includeLatestReason={true}
               className="bg-card rounded-lg border border-border"
             />
           </section>
