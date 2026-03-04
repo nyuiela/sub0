@@ -3,6 +3,7 @@ export { useWebSocket } from "./useWebSocket";
 export { marketWebSocketService } from "./marketWebSocketService";
 export { useMarketSocket } from "./useMarketSocket";
 export { useLiveOrderBook, useRecentTrades } from "./useLiveMarketData";
+export { useMarketPricing } from "./useMarketPricing";
 export { getMarketWebSocketUrl } from "./marketWsUrl";
 export type {
   MarketUpdatedPayload,
@@ -14,6 +15,7 @@ export type {
   WsInboundMessage,
   WsInboundMessageType,
   MarketSocketStatus,
+  LmsrPricingUpdatePayload,
 } from "./websocket-types";
 export {
   marketRoom,

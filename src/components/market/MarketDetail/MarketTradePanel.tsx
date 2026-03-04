@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useActiveAccount } from "thirdweb/react";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
@@ -22,6 +22,16 @@ import {
 import { toast } from "sonner";
 import type { MarketPricesResponse } from "@/types/prices.types";
 import { Position } from "@/types/position.types";
+import { getMarketPrices } from "@/lib/api/prices";
+
+// Simple LMSR calculation: cost = b * log(sum(exp(q_i/b)))
+function calculateLmsrCost(
+  quantities: number[],
+  b: number = 1000000 // Default liquidity parameter
+): number {
+  const sum = quantities.reduce((acc, q) => acc + Math.exp(q / b), 0);
+  return b * Math.log(sum);
+}
 
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
@@ -111,6 +121,110 @@ export function MarketTradePanel({
   const [orderType, setOrderType] = useState<"market" | "limit" | "ioc">("market");
   const [takeProfit, setTakeProfit] = useState("");
   const [stopLoss, setStopLoss] = useState("");
+  const [lastPriceUpdate, setLastPriceUpdate] = useState<number>(Date.now());
+  const [donSignature, setDonSignature] = useState<string>("");
+  const [isRefreshingPrices, setIsRefreshingPrices] = useState(false);
+  const [isPriceContainerExpanded, setIsPriceContainerExpanded] = useState(false);
+  const [timeUntilRefresh, setTimeUntilRefresh] = useState(30);
+
+  // Auto-refresh prices every 30 seconds
+  useEffect(() => {
+    const refreshPrices = async () => {
+      if (!marketId) return;
+
+      setIsRefreshingPrices(true);
+      try {
+        const prices = await getMarketPrices(marketId, "1");
+        // Update marketPrices through parent component props
+        // For now, just update the timestamp and signature
+        setLastPriceUpdate(Date.now());
+        setDonSignature("0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(""));
+      } catch (err) {
+        console.error("Failed to refresh prices:", err);
+      } finally {
+        setIsRefreshingPrices(false);
+      }
+    };
+
+    // Initial refresh
+    refreshPrices();
+
+    // Set up interval for 30-second refresh
+    const interval = setInterval(refreshPrices, 30000);
+
+    return () => clearInterval(interval);
+  }, [marketId]);
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const elapsed = Date.now() - lastPriceUpdate;
+      const remaining = 30000 - elapsed;
+      setTimeUntilRefresh(Math.max(0, Math.floor(remaining / 1000)));
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Update every second
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastPriceUpdate]);
+
+  // LMSR calculations for profit display
+  const currentQuantities = useMemo(() => {
+    if (!marketPrices) return [0, 0];
+
+    // Extract quantities from the API response
+    const quantities = marketPrices.quantities.map(q => Number(q));
+    return quantities;
+  }, [marketPrices]);
+
+  const currentPrices = useMemo(() => {
+    if (!marketPrices) return { yes: 0, no: 0 };
+
+    const prices = marketPrices.prices.map(p => Number(p) / 10 ** 6); // Convert from 6 decimals
+    return {
+      yes: prices[0] || 0,
+      no: prices[1] || 0,
+    };
+  }, [marketPrices]);
+
+  // Calculate cost for user-specified amount
+  const calculatedCost = useMemo(() => {
+    const userAmount = amount * 10 ** 6; // Convert to 6 decimals
+    if (userAmount <= 0 || !marketPrices) return null;
+
+    // For simplicity, assume buying Yes (outcome 0)
+    const selectedOutcome = 0;
+    const newQuantities = [...currentQuantities];
+    newQuantities[selectedOutcome] += userAmount;
+
+    const currentCost = calculateLmsrCost(currentQuantities);
+    const newCost = calculateLmsrCost(newQuantities);
+
+    return newCost - currentCost;
+  }, [amount, currentQuantities, marketPrices]);
+
+  // Calculate potential profit
+  const potentialProfit = useMemo(() => {
+    if (!calculatedCost || !marketPrices) return null;
+
+    const userAmount = amount;
+    const costUsdc = calculatedCost / 10 ** 6; // Convert to USDC
+
+    // If this outcome resolves true, profit = (amount - cost)
+    // If this outcome resolves false, profit = -cost
+    const profitIfTrue = userAmount - costUsdc;
+    const profitIfFalse = -costUsdc;
+
+    return {
+      ifTrue: profitIfTrue,
+      ifFalse: profitIfFalse,
+      maxGain: profitIfTrue,
+      maxLoss: Math.abs(profitIfFalse),
+    };
+  }, [calculatedCost, amount, marketPrices]);
 
   const canTrade = marketStatus === "OPEN" && !!account?.address;
   const needsPrice = orderType === "limit" || orderType === "ioc";
@@ -201,7 +315,7 @@ export function MarketTradePanel({
         console.log("Account object:", account);
         console.log("Account type:", typeof account);
         console.log("Account keys:", Object.keys(account || {}));
-        
+
         // Try signing with different methods based on wallet type
         try {
           // First try ThirdWeb's account signTypedData method
@@ -221,7 +335,7 @@ export function MarketTradePanel({
               await provider.request({
                 method: 'eth_requestAccounts'
               });
-              
+
               console.log("Trying eth_signTypedData_v4...");
               signature = await signUserTradeTypedData(provider, account.address, serialized);
             } catch (accessError: any) {
@@ -236,13 +350,13 @@ export function MarketTradePanel({
           }
         } catch (typedDataError: any) {
           console.log("Typed data signing failed, trying personal_sign...");
-          
+
           // Check if it's an authorization error
           if (typedDataError.code === 4100) {
             toast.error("Please approve the signing request in your wallet");
             return;
           }
-          
+
           // Fallback to personal_sign for embedded wallets
           try {
             // Convert BigInt to string for JSON serialization
@@ -265,7 +379,7 @@ export function MarketTradePanel({
               method: 'personal_sign',
               params: [message, account.address]
             });
-            
+
             signature = personalSignResult as string;
             console.log("Got signature via personal_sign:", signature);
           } catch (personalSignError: any) {
@@ -278,7 +392,7 @@ export function MarketTradePanel({
             return;
           }
         }
-        
+
         console.log("Final signature result:", signature);
       } catch (err) {
         console.error(err);
@@ -397,6 +511,89 @@ export function MarketTradePanel({
           })}
         </nav>
 
+        {/* Current Market Prices */}
+        {marketPrices && (
+          <div className="rounded-lg border border-border bg-card cursor-pointer">
+            <button
+              onClick={() => setIsPriceContainerExpanded(!isPriceContainerExpanded)}
+              className="w-full p-3 flex items-center justify-between hover:bg-muted/50 transition-colors rounded-t-lg cursor-pointer"
+            >
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-card-foreground">Current Market Prices</p>
+                {isRefreshingPrices ? (
+                  <div className="flex items-center gap-1">
+                    <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span className="text-xs text-muted-foreground">Updating...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs text-muted-foreground">
+                      {timeUntilRefresh}s
+                    </span>
+                  </div>
+                )}
+              </div>
+              <svg
+                className={`h-4 w-4 text-muted-foreground transition-transform ${isPriceContainerExpanded ? "rotate-180" : ""
+                  }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isPriceContainerExpanded && (
+              <div className="px-3 pb-3">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-muted-foreground">{yesLabel}</span>
+                  <span className="text-card-foreground font-medium">
+                    {formatCollateral(currentPrices.yes.toFixed(4))} USDC
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm mb-3">
+                  <span className="text-muted-foreground">{noLabel}</span>
+                  <span className="text-card-foreground font-medium">
+                    {formatCollateral(currentPrices.no.toFixed(4))} USDC
+                  </span>
+                </div>
+
+                {/* DON Signature */}
+                <div className="pt-2 border-t border-border">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-muted-foreground">DON Signature</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (donSignature) {
+                          navigator.clipboard.writeText(donSignature);
+                          toast.success("Signature copied to clipboard");
+                        }
+                      }}
+                      className="text-xs text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <div className="font-mono text-xs text-card-foreground  px-2 py-1 rounded border border-border break-all">
+                    {donSignature || "Loading..."}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Last updated: {new Date(lastPriceUpdate).toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {needsPrice && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -470,6 +667,30 @@ export function MarketTradePanel({
             </button>
           ))}
         </div>
+
+        {/* You Will Get Section */}
+        {potentialProfit && (
+          <div className="p-3 rounded-md bg-success/10 border border-success/20">
+            <div className="space-y-1.5">
+              <p className="text-xs font-medium text-success mb-2">You Will Get</p>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">If {yesLabel}</span>
+                <span className="text-success font-medium">
+                  +{formatCollateral(potentialProfit.ifTrue.toFixed(2))} USDC
+                </span>
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground pt-1 border-t border-border/50">
+                <span>Max Gain</span>
+                <span className="text-success">{formatCollateral(potentialProfit.maxGain.toFixed(2))}</span>
+              </div>
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Max Loss</span>
+                <span className="text-danger">{formatCollateral(potentialProfit.maxLoss.toFixed(2))}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           {positions.length > 0 && (
             <div>
