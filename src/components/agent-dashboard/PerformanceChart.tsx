@@ -104,11 +104,10 @@ export function PerformanceChart({ tracks, className = "" }: PerformanceChartPro
               role="tab"
               aria-selected={timeframe === key}
               onClick={() => setTimeframe(key)}
-              className={`rounded px-2 py-1 text-xs font-medium transition-colors ${
-                timeframe === key
-                  ? "bg-surface text-foreground shadow-sm"
-                  : "text-muted hover:text-foreground"
-              }`}
+              className={`rounded px-2 py-1 text-xs font-medium transition-colors ${timeframe === key
+                ? "bg-surface text-foreground shadow-sm"
+                : "text-muted hover:text-foreground"
+                }`}
             >
               {key}
             </button>
@@ -148,7 +147,7 @@ export function PerformanceChart({ tracks, className = "" }: PerformanceChartPro
                 tickLine={false}
                 axisLine={false}
                 domain={[0, rightMax]}
-                tickFormatter={(v) => `$${v.toFixed(2)}`}
+                tickFormatter={(v) => `$${v}`}
               />
               <Tooltip
                 contentStyle={{
@@ -162,8 +161,8 @@ export function PerformanceChart({ tracks, className = "" }: PerformanceChartPro
                 formatter={(value, name) => {
                   const v = typeof value === "number" ? value : 0;
                   const n = name ?? "";
-                  if (n === "Cumulative PnL") return [v.toFixed(2), "PnL"];
-                  if (n === "LLM Cost") return [`$${v.toFixed(4)}`, "Cost"];
+                  if (n === "Cumulative PnL") return [v, "PnL"];
+                  if (n === "LLM Cost") return [`$${v}`, "Cost"];
                   return [v, n];
                 }}
               />

@@ -91,9 +91,8 @@ export function VitalsHeader({
         </h3>
         <div className="mt-1 flex items-center gap-2">
           <span
-            className={`text-lg font-semibold ${
-              pnl >= 0 ? "text-success" : "text-danger"
-            }`}
+            className={`text-lg font-semibold ${pnl >= 0 ? "text-success" : "text-danger"
+              }`}
           >
             {pnl >= 0 ? "+" : ""}
             {Number(pnl).toFixed(2)}

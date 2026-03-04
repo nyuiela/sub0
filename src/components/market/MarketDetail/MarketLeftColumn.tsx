@@ -4,13 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useAppSelector } from "@/store/hooks";
 import { getPositions } from "@/lib/api/positions";
 import { getAgent, getAgentReasoning } from "@/lib/api/agents";
+import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import type { Agent } from "@/types/agent.types";
 import type { AgentReasoning } from "@/types/agent.types";
 import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
 import type { MarketPricesResponse } from "@/types/prices.types";
 import type { Position } from "@/types/position.types";
 
-export type MarketLeftTabId = "assets" | "statistic";
+export type MarketLeftTabId = "statistic" | "assets";
 
 export interface MarketLeftColumnProps {
   marketId: string;
@@ -19,8 +20,8 @@ export interface MarketLeftColumnProps {
 }
 
 const TABS: { id: MarketLeftTabId; label: string }[] = [
-  { id: "assets", label: "Assets" },
   { id: "statistic", label: "Statistic" },
+  { id: "assets", label: "Assets" },
 ];
 
 function formatPnl(pnl: number): string {
@@ -39,7 +40,7 @@ function formatTime(iso: string): string {
 
 export function MarketLeftColumn({ marketId, marketPrices, className = "" }: MarketLeftColumnProps) {
   const refetchTrigger = useAppSelector((state) => state.positions.refetchTrigger);
-  const [activeTab, setActiveTab] = useState<MarketLeftTabId>("assets");
+  const [activeTab, setActiveTab] = useState<MarketLeftTabId>("statistic");
   const [positions, setPositions] = useState<Position[]>([]);
   const [agents, setAgents] = useState<Agent[]>([]);
   const [reasoningByAgent, setReasoningByAgent] = useState<Record<string, AgentReasoning[]>>({});
@@ -83,6 +84,22 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
     if (activeTab === "statistic") loadStatistic();
   }, [activeTab, loadStatistic, refetchTrigger]);
 
+  // Subscribe to agent market rooms for position/agent updates
+  const agentMarketRooms = agents
+    .filter((a) => a.id)
+    .map((a) => ({ marketId, agentId: a.id }));
+
+  useMarketSocket({
+    marketId,
+    agentMarketRooms: agentMarketRooms.length > 0 ? agentMarketRooms : undefined,
+    enabled: Boolean(marketId) && agents.length > 0,
+    onAgentMarketAction: (payload) => {
+      // Refetch statistics when agent takes action in this market
+      if (payload.marketId === marketId) {
+        loadStatistic();
+      }
+    },
+  });
   const hasTraded = positions.length > 0;
 
   return (
@@ -102,11 +119,10 @@ export function MarketLeftColumn({ marketId, marketPrices, className = "" }: Mar
               aria-controls={`panel-left-${id}`}
               id={`tab-left-${id}`}
               type="button"
-              className={`flex-1 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                isActive
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex-1 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${isActive
+                ? "border-primary text-foreground"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               onClick={() => setActiveTab(id)}
             >
               {label}

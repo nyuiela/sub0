@@ -67,7 +67,39 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
   }, [account?.address]);
 
 
-  useMarketSocket({ marketId, enabled: Boolean(marketId) });
+  useMarketSocket({
+    marketId,
+    enabled: Boolean(marketId),
+    subscribeToActivity: true,
+    subscribeToAi: true,
+    userId: account?.address,
+    onActivityLog: () => {
+      // Refetch activities when new activity is received
+      getActivities({ marketId, limit: 50 })
+        .then((res) => {
+          const forThisMarket = (res.data ?? []).filter(
+            (item) => (item.payload as { marketId?: string }).marketId === marketId
+          );
+          setActivities(forThisMarket);
+        })
+        .catch(() => setActivities([]));
+    },
+    onPositionUpdated: () => {
+      // Refetch positions when updated
+      const fetchPositions = async () => {
+        if (!account?.address || !marketId) return;
+        try {
+          const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+          const data = await fetch(`${base}/api/positions/${marketId}/${account.address}`);
+          const json = await data.json();
+          setPositions(json.balances || []);
+        } catch (error) {
+          console.error("Failed to fetch positions:", error);
+        }
+      };
+      fetchPositions();
+    },
+  });
 
   useEffect(() => {
     if (marketId) {

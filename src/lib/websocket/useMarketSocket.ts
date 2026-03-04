@@ -16,12 +16,21 @@ import type { OrderBookSnapshot } from "@/types/market.types";
 import type { WebSocketStatus } from "@/types/websocket.types";
 import {
   marketRoom,
+  marketActivityRoom,
+  marketAiRoom,
+  marketUserRoom,
+  marketAgentRoom,
   agentRoom,
   WS_ROOM_MARKETS,
   type MarketUpdatedPayload,
   type OrderBookUpdatePayload,
   type TradeExecutedPayload,
   type AgentUpdatedPayload,
+  type ActivityLogPayload,
+  type PositionUpdatedPayload,
+  type UserAssetChangedPayload,
+  type AIAnalysisUpdatePayload,
+  type AgentMarketActionPayload,
   ORDER_BOOK_THROTTLE_MS,
   type MarketSocketStatus,
 } from "./websocket-types";
@@ -54,6 +63,14 @@ export interface UseMarketSocketOptions {
   agentIds?: string[];
   /** Subscribe to the "markets" room for create/delete list updates. */
   subscribeToList?: boolean;
+  /** Subscribe to activity feed for a market. */
+  subscribeToActivity?: boolean;
+  /** Subscribe to AI analysis updates for a market. */
+  subscribeToAi?: boolean;
+  /** Subscribe to user-scoped updates (requires userId). */
+  userId?: string;
+  /** Subscribe to specific agent market rooms (market:{id}:agent:{agentId}). */
+  agentMarketRooms?: { marketId: string; agentId: string }[];
   /** When false, no connection or subscriptions. */
   enabled?: boolean;
   reconnectMaxAttempts?: number;
@@ -62,6 +79,16 @@ export interface UseMarketSocketOptions {
   onStatus?: (status: MarketSocketStatus) => void;
   /** Called for each TRADE_EXECUTED (e.g. for chart real-time stitching). Batched by consumer. */
   onTradeExecuted?: (payload: TradeExecutedPayload) => void;
+  /** Called for each ACTIVITY_LOG event. */
+  onActivityLog?: (payload: ActivityLogPayload) => void;
+  /** Called for each POSITION_UPDATED event. */
+  onPositionUpdated?: (payload: PositionUpdatedPayload) => void;
+  /** Called for each USER_ASSET_CHANGED event. */
+  onUserAssetChanged?: (payload: UserAssetChangedPayload) => void;
+  /** Called for each AI_ANALYSIS_UPDATE event. */
+  onAiAnalysis?: (payload: AIAnalysisUpdatePayload) => void;
+  /** Called for each AGENT_MARKET_ACTION event. */
+  onAgentMarketAction?: (payload: AgentMarketActionPayload) => void;
 }
 
 type PendingOrderBook = { marketId: string; bids: OrderBookSnapshot["bids"]; asks: OrderBookSnapshot["asks"]; timestamp: number };
@@ -140,6 +167,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     marketIds: marketIdsOption,
     agentIds: agentIdsOption,
     subscribeToList = false,
+    subscribeToActivity = false,
+    subscribeToAi = false,
+    userId,
+    agentMarketRooms,
     enabled = true,
     reconnectMaxAttempts = DEFAULT_RECONNECT_MAX_ATTEMPTS,
     reconnectIntervalMs = DEFAULT_RECONNECT_INTERVAL_MS,
@@ -164,6 +195,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     enabled &&
     (!!marketId ||
       subscribeToList ||
+      subscribeToActivity ||
+      subscribeToAi ||
+      !!userId ||
+      (agentMarketRooms != null && agentMarketRooms.length > 0) ||
       (marketIdsOption != null && marketIdsOption.length > 0) ||
       (agentIdsOption != null && agentIdsOption.length > 0));
 
@@ -188,11 +223,21 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     optionsRef.current = options;
     const wsUrl = getMarketWebSocketUrl();
     const roomsToSubscribe: string[] = [];
-    if (marketId) roomsToSubscribe.push(marketRoom(marketId));
+    if (marketId) {
+      roomsToSubscribe.push(marketRoom(marketId));
+      if (subscribeToActivity) roomsToSubscribe.push(marketActivityRoom(marketId));
+      if (subscribeToAi) roomsToSubscribe.push(marketAiRoom(marketId));
+      if (userId) roomsToSubscribe.push(marketUserRoom(marketId, userId));
+    }
     const ids = marketIdsOption ?? [];
     for (const id of ids) roomsToSubscribe.push(marketRoom(id));
     const aIds = agentIdsOption ?? [];
     for (const id of aIds) roomsToSubscribe.push(agentRoom(id));
+    if (agentMarketRooms) {
+      for (const { marketId: mId, agentId } of agentMarketRooms) {
+        roomsToSubscribe.push(marketAgentRoom(mId, agentId));
+      }
+    }
     if (subscribeToList) roomsToSubscribe.push(WS_ROOM_MARKETS);
     roomsRef.current = roomsToSubscribe;
 
@@ -295,6 +340,32 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               if (p?.agentId != null && p.balance !== undefined) {
                 dispatch(setAgentBalance({ agentId: p.agentId, balance: String(p.balance) }));
               }
+            } else if (type === "ACTIVITY_LOG") {
+              const p = payload as ActivityLogPayload | undefined;
+              if (p?.marketId) {
+                optionsRef.current.onActivityLog?.(p);
+              }
+            } else if (type === "POSITION_UPDATED") {
+              const p = payload as PositionUpdatedPayload | undefined;
+              if (p?.marketId) {
+                dispatch(requestPositionsRefetch());
+                optionsRef.current.onPositionUpdated?.(p);
+              }
+            } else if (type === "USER_ASSET_CHANGED") {
+              const p = payload as UserAssetChangedPayload | undefined;
+              if (p?.marketId && p?.userId) {
+                optionsRef.current.onUserAssetChanged?.(p);
+              }
+            } else if (type === "AI_ANALYSIS_UPDATE") {
+              const p = payload as AIAnalysisUpdatePayload | undefined;
+              if (p?.marketId) {
+                optionsRef.current.onAiAnalysis?.(p);
+              }
+            } else if (type === "AGENT_MARKET_ACTION") {
+              const p = payload as AgentMarketActionPayload | undefined;
+              if (p?.marketId && p?.agentId) {
+                optionsRef.current.onAgentMarketAction?.(p);
+              }
             }
           },
         });
@@ -325,6 +396,10 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
     agentIdsOption?.length ?? 0,
     agentIdsOption?.join(",") ?? "",
     subscribeToList,
+    subscribeToActivity,
+    subscribeToAi,
+    userId,
+    agentMarketRooms?.length ?? 0,
     reconnectMaxAttempts,
     reconnectIntervalMs,
     dispatch,
@@ -334,11 +409,21 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
   useEffect(() => {
     if (!enabled) return;
     const nextRooms: string[] = [];
-    if (marketId) nextRooms.push(marketRoom(marketId));
+    if (marketId) {
+      nextRooms.push(marketRoom(marketId));
+      if (subscribeToActivity) nextRooms.push(marketActivityRoom(marketId));
+      if (subscribeToAi) nextRooms.push(marketAiRoom(marketId));
+      if (userId) nextRooms.push(marketUserRoom(marketId, userId));
+    }
     const ids = marketIdsOption ?? [];
     for (const id of ids) nextRooms.push(marketRoom(id));
     const aIds = agentIdsOption ?? [];
     for (const id of aIds) nextRooms.push(agentRoom(id));
+    if (agentMarketRooms) {
+      for (const { marketId: mId, agentId } of agentMarketRooms) {
+        nextRooms.push(marketAgentRoom(mId, agentId));
+      }
+    }
     if (subscribeToList) nextRooms.push(WS_ROOM_MARKETS);
     roomsRef.current = nextRooms;
 
@@ -348,5 +433,5 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
       marketWebSocketService.send({ type: "SUBSCRIBE", payload: { room } });
       subscribedRoomsRef.current.add(room);
     }
-  }, [enabled, marketId ?? "", marketIdsOption?.join(",") ?? "", agentIdsOption?.join(",") ?? "", subscribeToList]);
+  }, [enabled, marketId ?? "", marketIdsOption?.join(",") ?? "", agentIdsOption?.join(",") ?? "", subscribeToList, subscribeToActivity, subscribeToAi, userId, agentMarketRooms?.length ?? 0]);
 }

@@ -22,6 +22,14 @@ export function AgentEditSection({ agentId }: AgentEditSectionProps) {
   useMarketSocket({
     agentIds: agentId ? [agentId] : [],
     enabled: Boolean(agentId),
+    onAgentMarketAction: (payload) => {
+      // Refresh agent data when agent takes market action
+      if (payload.agentId === agentId) {
+        getAgent(agentId)
+          .then((a) => setAgent(a))
+          .catch(() => { });
+      }
+    },
   });
 
   useEffect(() => {
@@ -55,7 +63,7 @@ export function AgentEditSection({ agentId }: AgentEditSectionProps) {
           dispatch(setAgentBalance({ agentId, balance: res.balance }));
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [agentId, dispatch]);
 
   if (loading) {

@@ -154,18 +154,17 @@ export function SimulateProbabilityChart({
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-primary" />
-          <div>
+          {/* <div>
             <h3 className="text-sm font-semibold text-foreground">{title}</h3>
             {marketName && (
               <p className="text-xs text-muted-foreground">{marketName}</p>
             )}
-          </div>
+          </div> */}
         </div>
         <div className="flex items-center gap-2">
           {isSimulating && (
             <div className="flex items-center gap-1 text-xs text-success">
-              <Activity className="h-3 w-3 animate-pulse" />
+              {/* <Activity className="h-3 w-3 animate-pulse" /> */}
               <span>Live</span>
             </div>
           )}
@@ -181,16 +180,16 @@ export function SimulateProbabilityChart({
       </div>
 
       {/* Toggle simulation button */}
-      <button
+      {/* <button
         type="button"
         onClick={() => setIsSimulating((prev) => !prev)}
         className="mb-3 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
       >
         {isSimulating ? "Pause Simulation" : "Start Live Simulation"}
-      </button>
+      </button> */}
 
       {/* Subtitle */}
-      <p className="mb-3 text-xs text-muted-foreground">{subtitle}</p>
+      {/* <p className="mb-3 text-xs text-muted-foreground">{subtitle}</p> */}
 
       {/* Chart */}
       <ResponsiveContainer width="100%" height={height}>

@@ -62,35 +62,16 @@ export function OutcomeProbabilityChart({
     Promise.all(outcomeFetches)
       .then((results) => {
         if (cancelled) return;
-        const hasAny = results.some((d) => d.length > 0);
-        if (hasAny) {
-          const withLabels = results.map((data, i) => ({
-            outcomeIndex: i,
-            label: marketPrices?.options?.[i]?.label ?? `Outcome ${i}`,
-            data: data.length > 0 ? buildAreaData(data) : [],
-          }));
-          setSeriesData(withLabels);
-          setLoadState("done");
-          return;
-        }
-        return fetch(
-          `/api/markets/${marketId}/candles?resolution=1m&limit=200`
-        )
-          .then((r) => (r.ok ? r.json() : { data: [] }))
-          .then((body: { data?: OHLCV[] }) => body?.data ?? [])
-          .then((data: OHLCV[]) => {
-            if (cancelled) return;
-            if (data.length > 0) {
-              setSeriesData([
-                {
-                  outcomeIndex: 0,
-                  label: marketPrices?.options?.[0]?.label ?? "Price",
-                  data: buildAreaData(data),
-                },
-              ]);
-            }
-            setLoadState("done");
-          });
+
+        // Always create series for all outcomes, even if some have no data
+        const withLabels = results.map((data, i) => ({
+          outcomeIndex: i,
+          label: marketPrices?.options?.[i]?.label ?? `Outcome ${i}`,
+          data: data.length > 0 ? buildAreaData(data) : [],
+        }));
+
+        setSeriesData(withLabels);
+        setLoadState("done");
       })
       .catch(() => {
         if (!cancelled) {
@@ -164,8 +145,6 @@ export function OutcomeProbabilityChart({
     }
 
     seriesData.forEach((series, i) => {
-      if (series.data.length === 0) return;
-
       const baseColor = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
       const seriesOptions: AreaSeriesPartialOptions = {
         lineColor: baseColor,
@@ -187,12 +166,14 @@ export function OutcomeProbabilityChart({
 
       const areaSeries = chart.addSeries(AreaSeries, seriesOptions);
 
-      const displayData = series.data.map((d) => ({
-        time: d.time,
-        value: yAxisMode === "probability" ? d.value * 100 : d.value,
-      }));
+      if (series.data.length > 0) {
+        const displayData = series.data.map((d) => ({
+          time: d.time,
+          value: yAxisMode === "probability" ? d.value * 100 : d.value,
+        }));
+        areaSeries.setData(displayData);
+      }
 
-      areaSeries.setData(displayData);
       seriesRef.current.push(areaSeries);
     });
 
@@ -246,8 +227,7 @@ export function OutcomeProbabilityChart({
 
   const hasHistory = seriesData.some((s) => s.data.length > 0);
   const options = marketPrices?.options ?? [];
-  const showCurrentOnly = loadState === "done" && !hasHistory && options.length > 0;
-  const showChart = hasHistory;
+  const showChart = loadState === "done" && seriesData.length > 0;
 
   return (
     <figure className={`flex w-full flex-col ${className}`.trim()}>
@@ -270,7 +250,7 @@ export function OutcomeProbabilityChart({
           </select>
         </nav>
       )}
-      {showCurrentOnly ? (
+      {!showChart ? (
         <section
           className="flex w-full flex-col justify-center gap-3 rounded bg-[#0F172A] px-4 py-6"
           aria-label="Current outcome probability"
@@ -348,7 +328,7 @@ export function OutcomeProbabilityChart({
           aria-label="Chart loading"
           style={{ minHeight: CHART_H, height: CHART_H }}
         >
-          {loadState === "loading" ? "Loading…" : "No probability data"}
+          {loadState === "loading" ? "Loading…" : "No data"}
         </section>
       )}
       <figcaption className="mt-1 flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">

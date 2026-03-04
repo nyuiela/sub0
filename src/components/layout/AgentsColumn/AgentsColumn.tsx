@@ -202,6 +202,12 @@ export function AgentsColumn({
   useMarketSocket({
     agentIds: myAgentIds,
     enabled: myAgentIds.length > 0,
+    onAgentMarketAction: (payload) => {
+      // Refetch agents when user's agent takes a market action
+      if (payload.agentId && myAgentIds.includes(payload.agentId)) {
+        refetchAgents();
+      }
+    },
   });
 
   if (loading && agents.length === 0) {

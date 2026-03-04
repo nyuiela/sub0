@@ -138,6 +138,12 @@ export function TrackerAgentColumn({
   useMarketSocket({
     agentIds: agents.map((a) => a.id),
     enabled: agents.length > 0,
+    onAgentMarketAction: (payload) => {
+      // Refetch agents when an agent takes a market action
+      if (payload.agentId && agents.some((a) => a.id === payload.agentId)) {
+        refetchAgents();
+      }
+    },
   });
 
   useEffect(() => {
