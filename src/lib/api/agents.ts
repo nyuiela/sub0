@@ -544,9 +544,59 @@ export async function triggerAgentRun(
 }
 
 /**
- * Remove a market from an agent's enqueued list (stops showing "Added" for that market for this agent).
- * Main: omit simulationId. Simulate: pass simulationId to remove only from that run.
+ * List AI reasoning logs for an agent (for debugging and detailed analysis).
  */
+export async function getAgentReasoning(
+  agentId: string,
+  params: { limit?: number; offset?: number; marketId?: string } = {}
+): Promise<{
+  data: Array<{
+    id: string;
+    agentId: string;
+    agentName: string;
+    marketId: string;
+    marketName: string;
+    model: string;
+    reasoning: string;
+    response: string;
+    actionTaken: string;
+    tradeReason: string;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    estimatedCost: string;
+    createdAt: string;
+  }>;
+  total: number;
+  limit: number;
+  offset: number;
+}> {
+  const qs = new URLSearchParams();
+  if (params.limit != null) qs.set("limit", String(params.limit));
+  if (params.offset != null) qs.set("offset", String(params.offset));
+  if (params.marketId != null) qs.set("marketId", params.marketId);
+  const query = qs.toString();
+  const res = await fetch(
+    `/api/agents/${encodeURIComponent(agentId)}/reasoning${query ? `?${query}` : ""}`,
+    { credentials: "include" }
+  );
+  const data = (await res.json().catch(() => ({}))) as {
+    data?: unknown[];
+    total?: number;
+    limit?: number;
+    offset?: number;
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Agent reasoning fetch failed");
+  }
+  return {
+    data: Array.isArray(data.data) ? (data.data as any) : [],
+    total: data.total ?? 0,
+    limit: data.limit ?? 20,
+    offset: data.offset ?? 0,
+  };
+}
 export async function deleteAgentEnqueuedMarket(
   params: { marketId: string; agentId: string; simulationId?: string | null }
 ): Promise<void> {
