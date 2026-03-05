@@ -237,42 +237,6 @@ export async function getAgentTracks(
 }
 
 /**
- * Get agent reasoning logs (paginated). Owner or API key only.
- */
-export async function getAgentReasoning(
-  agentId: string,
-  params: AgentReasoningListParams = {}
-): Promise<AgentReasoningListResponse> {
-  const qs = new URLSearchParams();
-  const limit =
-    params.limit != null
-      ? Math.min(MAX_LIMIT, Math.max(1, params.limit))
-      : DEFAULT_LIMIT;
-  qs.set("limit", String(limit));
-  if (params.offset != null && params.offset > 0)
-    qs.set("offset", String(params.offset));
-  const query = qs.toString();
-  const url = `/api/agents/${encodeURIComponent(agentId)}/reasoning${query ? `?${query}` : ""}`;
-  const res = await fetch(url, { credentials: "include" });
-  const data = (await res.json().catch(() => ({
-    data: [],
-    total: 0,
-    limit,
-    offset: params.offset ?? 0,
-  }))) as AgentReasoningListResponse;
-  if (!res.ok) {
-    const err = data as { error?: string };
-    throw new Error(err?.error ?? `Agent reasoning fetch failed: ${res.status}`);
-  }
-  return {
-    data: Array.isArray(data.data) ? data.data : [],
-    total: Number(data.total) ?? 0,
-    limit: Number(data.limit) ?? limit,
-    offset: Number(data.offset) ?? params.offset ?? 0,
-  };
-}
-
-/**
  * Create an agent. With JWT, body ownerId must match authenticated user.
  */
 export async function createAgent(body: CreateAgentBody): Promise<Agent> {
