@@ -510,7 +510,7 @@ export async function triggerAgentRun(
 /**
  * List AI reasoning logs for an agent (for debugging and detailed analysis).
  */
-export async function getAgentReasoning(
+export async function getAgentReasoningList(
   agentId: string,
   params: { limit?: number; offset?: number; marketId?: string } = {}
 ): Promise<{

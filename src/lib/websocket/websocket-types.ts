@@ -168,6 +168,20 @@ export interface AgentMarketActionPayload {
   };
 }
 
+/** Server -> client: LMSR_PRICING_UPDATE payload */
+export interface LmsrPricingUpdatePayload {
+  marketId: string;
+  questionId: string;
+  outcomeIndex: number;
+  quantity: string;
+  tradeCostUsdc: string;
+  deadline: string;
+  nonce: string;
+  donSignature: string;
+  requestId: string;
+  timestamp: string;
+}
+
 /** Server -> client: ERROR payload */
 export interface WsErrorPayload {
   code: string;
@@ -195,6 +209,7 @@ export type WsInboundMessageType =
   | "AI_ANALYSIS_UPDATE"
   | "AGENT_UPDATED"
   | "AGENT_MARKET_ACTION"
+  | "LMSR_PRICING_UPDATE"
   | "PING"
   | "ERROR";
 

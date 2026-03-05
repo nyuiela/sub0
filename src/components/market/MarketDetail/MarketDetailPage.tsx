@@ -18,6 +18,7 @@ import { MarketDetailTabs } from "./MarketDetailTabs";
 import { MarketTradePanel } from "./MarketTradePanel";
 import { MarketInfoPanel } from "./MarketInfoPanel";
 import { MarketOrderBook } from "../MarketOrderBook";
+import { MarketLmsrPricingPanel } from "../MarketLmsrPricingPanel";
 import Image from "next/image";
 import { formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
 import { useActiveAccount } from "thirdweb/react";
@@ -322,6 +323,14 @@ export function MarketDetailPage({ marketId }: MarketDetailPageProps) {
           <p className="text-muted-foreground">Market data loading...</p>
         </div>
       )}
+      {/* {market && (
+        <MarketLmsrPricingPanel
+          marketId={marketId}
+          questionId={market.questionId || market.conditionId || marketId}
+          outcomes={(market.outcomes as string[]) ?? ["Yes", "No"]}
+          className="shrink-0"
+        />
+      )} */}
       <OrderBookDepthChart marketId={marketId} outcomeIndex={0} className="shrink-0" />
       <MarketOrderBook marketId={marketId} maxRows={8} className="shrink-0" />
       <MarketInfoPanel market={market!} marketPrices={marketPrices} className="shrink-0" />

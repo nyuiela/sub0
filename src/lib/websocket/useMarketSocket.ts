@@ -31,6 +31,7 @@ import {
   type UserAssetChangedPayload,
   type AIAnalysisUpdatePayload,
   type AgentMarketActionPayload,
+  type LmsrPricingUpdatePayload,
   ORDER_BOOK_THROTTLE_MS,
   type MarketSocketStatus,
 } from "./websocket-types";
@@ -89,6 +90,8 @@ export interface UseMarketSocketOptions {
   onAiAnalysis?: (payload: AIAnalysisUpdatePayload) => void;
   /** Called for each AGENT_MARKET_ACTION event. */
   onAgentMarketAction?: (payload: AgentMarketActionPayload) => void;
+  /** Called for each LMSR_PRICING_UPDATE event. */
+  onLmsrPricingUpdate?: (payload: LmsrPricingUpdatePayload) => void;
 }
 
 type PendingOrderBook = { marketId: string; bids: OrderBookSnapshot["bids"]; asks: OrderBookSnapshot["asks"]; timestamp: number };
@@ -365,6 +368,11 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               const p = payload as AgentMarketActionPayload | undefined;
               if (p?.marketId && p?.agentId) {
                 optionsRef.current.onAgentMarketAction?.(p);
+              }
+            } else if (type === "LMSR_PRICING_UPDATE") {
+              const p = payload as LmsrPricingUpdatePayload | undefined;
+              if (p?.marketId && p?.requestId) {
+                optionsRef.current.onLmsrPricingUpdate?.(p);
               }
             }
           },
