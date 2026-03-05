@@ -122,15 +122,23 @@ export interface AgentReasoning {
   agentId: string;
   marketId: string;
   model: string;
-  userContext: string;
+  /** Optional; not always returned by API. */
+  userContext?: string;
   reasoning: string;
   response: string;
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
   estimatedCost: string;
-  riskScore: number;
+  /** Optional; not always returned by API. */
+  riskScore?: number;
   actionTaken: string;
+  /** Optional; returned by API when present. */
+  tradeReason?: string;
+  /** Optional; returned by API when present. */
+  agentName?: string;
+  /** Optional; returned by API when present. */
+  marketName?: string;
   createdAt: string;
 }
 

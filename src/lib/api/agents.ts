@@ -510,31 +510,10 @@ export async function triggerAgentRun(
 /**
  * List AI reasoning logs for an agent (for debugging and detailed analysis).
  */
-export async function getAgentReasoningList(
+export async function getAgentReasoning(
   agentId: string,
   params: { limit?: number; offset?: number; marketId?: string } = {}
-): Promise<{
-  data: Array<{
-    id: string;
-    agentId: string;
-    agentName: string;
-    marketId: string;
-    marketName: string;
-    model: string;
-    reasoning: string;
-    response: string;
-    actionTaken: string;
-    tradeReason: string;
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-    estimatedCost: string;
-    createdAt: string;
-  }>;
-  total: number;
-  limit: number;
-  offset: number;
-}> {
+): Promise<AgentReasoningListResponse> {
   const qs = new URLSearchParams();
   if (params.limit != null) qs.set("limit", String(params.limit));
   if (params.offset != null) qs.set("offset", String(params.offset));
@@ -545,7 +524,7 @@ export async function getAgentReasoningList(
     { credentials: "include" }
   );
   const data = (await res.json().catch(() => ({}))) as {
-    data?: unknown[];
+    data?: AgentReasoning[];
     total?: number;
     limit?: number;
     offset?: number;
@@ -555,7 +534,7 @@ export async function getAgentReasoningList(
     throw new Error(data?.error ?? "Agent reasoning fetch failed");
   }
   return {
-    data: Array.isArray(data.data) ? (data.data as any) : [],
+    data: Array.isArray(data.data) ? data.data : [],
     total: data.total ?? 0,
     limit: data.limit ?? 20,
     offset: data.offset ?? 0,
