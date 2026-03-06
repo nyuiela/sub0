@@ -7,7 +7,7 @@ import {
   fetchMarketsMore,
 } from "@/store/slices/marketsSlice";
 import { incrementSimulateEnqueuedListVersion } from "@/store/slices/layoutSlice";
-import { getAgentEnqueuedMarkets, enqueueAgentMarket } from "@/lib/api/agents";
+import { getAgentEnqueuedMarkets, enqueueAgentMarket, deleteAgentEnqueuedMarket } from "@/lib/api/agents";
 import { MiniMarketCard, MiniMarketCardSkeleton } from "@/components/market";
 import { toast } from "sonner";
 import { MOCK_MARKET } from "@/lib/mockMarket";
@@ -108,7 +108,7 @@ export function SimulateMarketsColumn({
     };
   }, [selectedAgentId, simulationId, enqueuedListVersion]);
 
-  const handleAddToAgent = useCallback(
+  const handleToggleAgentMarket = useCallback(
     async (market: Market) => {
       if (selectedAgentId == null) {
         toast.error("Select an agent first");
@@ -118,21 +118,37 @@ export function SimulateMarketsColumn({
         toast.error("Start a simulation first to add markets (Simulate is separate from main)");
         return;
       }
+      const isEnqueued = simulateEnqueuedMarketIds.has(market.id);
       try {
-        await enqueueAgentMarket({
-          marketId: market.id,
-          agentId: selectedAgentId,
-          chainKey: "tenderly",
-          simulationId,
-        });
-        setSimulateEnqueuedMarketIds((prev) => new Set(prev).add(market.id));
-        dispatch(incrementSimulateEnqueuedListVersion());
-        toast.success("Market added to agent for this simulation");
+        if (isEnqueued) {
+          await deleteAgentEnqueuedMarket({
+            marketId: market.id,
+            agentId: selectedAgentId,
+            simulationId,
+          });
+          setSimulateEnqueuedMarketIds((prev) => {
+            const next = new Set(prev);
+            next.delete(market.id);
+            return next;
+          });
+          dispatch(incrementSimulateEnqueuedListVersion());
+          toast.success("Market removed from agent queue");
+        } else {
+          await enqueueAgentMarket({
+            marketId: market.id,
+            agentId: selectedAgentId,
+            chainKey: "tenderly",
+            simulationId,
+          });
+          setSimulateEnqueuedMarketIds((prev) => new Set(prev).add(market.id));
+          dispatch(incrementSimulateEnqueuedListVersion());
+          toast.success("Market added to agent for this simulation");
+        }
       } catch {
-        toast.error("Failed to add market to agent");
+        toast.error(isEnqueued ? "Failed to remove market from agent" : "Failed to add market to agent");
       }
     },
-    [selectedAgentId, simulationId, dispatch]
+    [selectedAgentId, simulationId, dispatch, simulateEnqueuedMarketIds]
   );
 
   const handleLoadMore = useCallback(() => {
@@ -257,7 +273,7 @@ export function SimulateMarketsColumn({
               <MiniMarketCard
                 key={market.id}
                 market={market}
-                onAddToAgent={handleAddToAgent}
+                onAddToAgent={handleToggleAgentMarket}
                 addedAgentIds={
                   selectedAgentId != null && simulateEnqueuedMarketIds.has(market.id)
                     ? [selectedAgentId]
