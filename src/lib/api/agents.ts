@@ -457,13 +457,21 @@ export interface EnqueuedMarketsResponse {
  */
 export async function getEnqueuedMarkets(
   agentId: string,
-  params: { limit?: number; offset?: number; chainKey?: EnqueuedMarketsChainKey } = {}
+  params: {
+    limit?: number;
+    offset?: number;
+    chainKey?: EnqueuedMarketsChainKey;
+    /** For Simulate: current simulation run id (returns only that run's enqueued markets). */
+    simulationId?: string | null;
+  } = {}
 ): Promise<EnqueuedMarketsResponse> {
   const qs = new URLSearchParams();
   if (params.limit != null) qs.set("limit", String(params.limit));
   if (params.offset != null) qs.set("offset", String(params.offset));
   if (params.chainKey != null && (params.chainKey === "main" || params.chainKey === "tenderly"))
     qs.set("chainKey", params.chainKey);
+  if (params.simulationId != null && params.simulationId !== "")
+    qs.set("simulationId", params.simulationId);
   const query = qs.toString();
   const res = await fetch(
     `/api/agents/${encodeURIComponent(agentId)}/enqueued-markets${query ? `?${query}` : ""}`,

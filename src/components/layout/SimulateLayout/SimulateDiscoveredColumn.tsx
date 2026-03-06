@@ -167,6 +167,7 @@ export function SimulateDiscoveredColumn({
           limit: PAGE_SIZE,
           offset,
           chainKey: "tenderly",
+          simulationId: simulationId ?? undefined,
         });
         setTotal(res.total);
         if (append) {
@@ -182,7 +183,7 @@ export function SimulateDiscoveredColumn({
         setLoadingMore(false);
       }
     },
-    [selectedAgentId]
+    [selectedAgentId, simulationId]
   );
 
   const handleStartSuccess = useCallback(
@@ -516,10 +517,13 @@ export function SimulateDiscoveredColumn({
           <ul className="space-y-2" role="list">
             {items.map((item: EnqueuedMarketItem) => {
               const isDiscarded = item.status === "DISCARDED";
+              const decision = item.tradeReason ?? item.discardReason ?? null;
               return (
                 <li
                   key={item.marketId}
-                  className="flex items-start gap-3 rounded border border-border bg-surface p-2"
+                  className={`flex items-start gap-3 rounded border p-2 transition-colors border-border bg-surface ${
+                    isDiscarded ? "opacity-75" : ""
+                  }`}
                 >
                   <figure className="h-12 w-12 shrink-0 overflow-hidden rounded-sm" aria-hidden>
                     <Image
@@ -543,14 +547,10 @@ export function SimulateDiscoveredColumn({
                         ? "PENDING (waiting for agent)"
                         : item.status}
                     </span>
-                    {(item.discardReason != null && item.discardReason !== "") && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.discardReason}
-                      </p>
-                    )}
-                    {(item.tradeReason != null && item.tradeReason !== "") && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.tradeReason}
+                    {decision != null && decision !== "" && (
+                      <p className="mt-1.5 text-xs text-foreground/90 font-medium">
+                        <span className="text-muted-foreground">Agent decision:</span>{" "}
+                        {decision}
                       </p>
                     )}
                   </div>
