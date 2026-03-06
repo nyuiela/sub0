@@ -30,7 +30,6 @@ export function DraggableColumnsSkeleton() {
         {DEFAULT_COLUMN_IDS.flatMap((columnId, i) => {
           const isAgents = columnId === "agents";
           const isNew = columnId === "new";
-          const isPositions = columnId === "positions";
           const isNews = columnId === "news";
 
           const columnEl = (
@@ -68,20 +67,6 @@ export function DraggableColumnsSkeleton() {
                       <MiniMarketCardSkeleton key={j} />
                     ))}
                   </div>
-                )}
-                {isPositions && (
-                  <ul className="space-y-0" aria-label="Loading positions">
-                    {Array.from({ length: 5 }, (_, j) => (
-                      <li
-                        key={j}
-                        className="border-b border-border bg-surface p-3 last:border-b-0"
-                      >
-                        <div className="mb-1.5 h-3 w-2/3 animate-pulse rounded bg-muted/50" />
-                        <div className="mb-1.5 h-3 w-1/2 animate-pulse rounded bg-muted/50" />
-                        <div className="h-3 w-3/4 animate-pulse rounded bg-muted/50" />
-                      </li>
-                    ))}
-                  </ul>
                 )}
                 {isNews && (
                   <ul className="space-y-0" aria-label="Loading news">

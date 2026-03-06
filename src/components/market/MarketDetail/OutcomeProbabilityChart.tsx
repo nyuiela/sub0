@@ -132,16 +132,11 @@ export function OutcomeProbabilityChart({
 
     chartRef.current = chart;
 
+    const rightScale = chart.priceScale("right");
     if (yAxisMode === "probability") {
-      chart.priceScale("right").applyOptions({
-        minValue: 0,
-        maxValue: 100,
-      });
+      rightScale.setVisibleRange({ from: 0, to: 100 });
     } else {
-      chart.priceScale("right").applyOptions({
-        minValue: 0,
-        maxValue: 1,
-      });
+      rightScale.setVisibleRange({ from: 0, to: 1 });
     }
 
     seriesData.forEach((series, i) => {
@@ -195,11 +190,15 @@ export function OutcomeProbabilityChart({
       seriesRef.current.forEach((series, i) => {
         const dataPoint = param.seriesData.get(series);
         const seriesInfo = seriesData[i];
-        if (dataPoint && typeof dataPoint.value === "number" && seriesInfo) {
+        const value =
+          dataPoint && "value" in dataPoint && typeof dataPoint.value === "number"
+            ? dataPoint.value
+            : null;
+        if (value !== null && seriesInfo) {
           items.push({
             label: seriesInfo.label,
             color: OUTCOME_COLORS[i % OUTCOME_COLORS.length],
-            value: dataPoint.value,
+            value,
           });
         }
       });
@@ -250,40 +249,7 @@ export function OutcomeProbabilityChart({
           </select>
         </nav>
       )}
-      {!showChart ? (
-        <section
-          className="flex w-full flex-col justify-center gap-3 rounded bg-[#0F172A] px-4 py-6"
-          aria-label="Current outcome probability"
-          style={{ minHeight: CHART_H, height: CHART_H }}
-        >
-          <p className="text-center text-sm text-muted-foreground">
-            No history yet. Current probability (LMSR):
-          </p>
-          <div className="flex flex-col gap-2">
-            {options.map((o, i) => {
-              const p = Number(o.instantPrice);
-              const pct = Number.isFinite(p)
-                ? Math.max(0, Math.min(1, p)) * 100
-                : 0;
-              const color = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
-              return (
-                <div key={o.outcomeIndex} className="flex items-center gap-2">
-                  <span className="w-16 text-sm font-medium text-foreground">
-                    {o.label}
-                  </span>
-                  <div
-                    className="h-2 flex-1 rounded"
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="w-12 text-right text-sm font-bold text-foreground">
-                    {pct.toFixed(1)}%
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ) : showChart ? (
+      {showChart ? (
         <section className="relative w-full">
           {/* Interactive Legend Overlay */}
           <div className="pointer-events-none absolute left-2 top-2 z-10 rounded border border-border bg-[#0F172A]/90 px-2 py-1.5 shadow-lg">
@@ -322,13 +288,46 @@ export function OutcomeProbabilityChart({
             style={{ height: CHART_H }}
           />
         </section>
-      ) : (
+      ) : loadState === "loading" ? (
         <section
           className="flex w-full items-center justify-center rounded bg-[#0F172A] text-muted-foreground"
           aria-label="Chart loading"
           style={{ minHeight: CHART_H, height: CHART_H }}
         >
-          {loadState === "loading" ? "Loading…" : "No data"}
+          Loading…
+        </section>
+      ) : (
+        <section
+          className="flex w-full flex-col justify-center gap-3 rounded bg-[#0F172A] px-4 py-6"
+          aria-label="Current outcome probability"
+          style={{ minHeight: CHART_H, height: CHART_H }}
+        >
+          <p className="text-center text-sm text-muted-foreground">
+            No history yet. Current probability (LMSR):
+          </p>
+          <div className="flex flex-col gap-2">
+            {options.map((o, i) => {
+              const p = Number(o.instantPrice);
+              const pct = Number.isFinite(p)
+                ? Math.max(0, Math.min(1, p)) * 100
+                : 0;
+              const color = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
+              return (
+                <div key={o.outcomeIndex} className="flex items-center gap-2">
+                  <span className="w-16 text-sm font-medium text-foreground">
+                    {o.label}
+                  </span>
+                  <div
+                    className="h-2 flex-1 rounded"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="w-12 text-right text-sm font-bold text-foreground">
+                    {pct.toFixed(1)}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </section>
       )}
       <figcaption className="mt-1 flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
