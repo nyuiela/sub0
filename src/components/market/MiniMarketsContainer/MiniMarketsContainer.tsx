@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchMarkets, fetchMarketsMore } from "@/store/slices/marketsSlice";
 import {
@@ -30,6 +31,7 @@ export function MiniMarketsContainer({
   onSell,
   className = "",
 }: MiniMarketsContainerProps) {
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const { list, listLoading, loadMoreLoading, total, limit, offset, error } = useAppSelector((state) => state.markets);
   const byMarket = useAppSelector((state) => state.marketAgents.byMarket);
@@ -47,19 +49,19 @@ export function MiniMarketsContainer({
   }, [dispatch]);
 
   useEffect(() => {
-    if (list.length === 0) return;
+    if (user == null || list.length === 0) return;
     let cancelled = false;
     getMyAgents({ limit: 100 })
       .then((res) => {
-        if (!cancelled && res.data.length > 0) {
-          dispatch(setByMarketFromAgents({ agents: res.data }));
+        if (!cancelled && (res.data?.length ?? 0) > 0) {
+          dispatch(setByMarketFromAgents({ agents: res.data ?? [] }));
         }
       })
       .catch(() => { });
     return () => {
       cancelled = true;
     };
-  }, [dispatch, list.length]);
+  }, [user, dispatch, list.length]);
 
   useEffect(() => {
     if (marketToAddToAgent == null) {
@@ -67,6 +69,11 @@ export function MiniMarketsContainer({
         setAgentsForPicker([]);
         setSelectedAgentIds(new Set());
       });
+      return;
+    }
+    if (user == null) {
+      setAgentsForPicker([]);
+      setPickerLoading(false);
       return;
     }
     const current = byMarket[marketToAddToAgent.id] ?? [];
@@ -79,7 +86,7 @@ export function MiniMarketsContainer({
     });
     getMyAgents({ limit: 50 })
       .then((res) => {
-        if (!cancelled) setAgentsForPicker(res.data);
+        if (!cancelled) setAgentsForPicker(res.data ?? []);
       })
       .finally(() => {
         if (!cancelled) setPickerLoading(false);
@@ -87,7 +94,7 @@ export function MiniMarketsContainer({
     return () => {
       cancelled = true;
     };
-  }, [marketToAddToAgent, byMarket]);
+  }, [user, marketToAddToAgent, byMarket]);
 
   const handleAddToAgent = useCallback((market: Market) => {
     setMarketToAddToAgent(market);
@@ -230,7 +237,7 @@ export function MiniMarketsContainer({
                   const isSelected = selectedAgentIds.has(agent.id);
                   return (
                     <li key={agent.id}>
-                      <label className="flex cursor-pointer items-center gap-2 rounded border border-border bg-background px-3 py-2 transition-colors hover:bg-muted/30 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary">
+                      <label className="flex cursor-pointer items-center gap-2 rounded border border-border bg-background px-3 py-2 transition-colors hover:bg-muted/30 has-focus-visible:ring-2 has-focus-visible:ring-primary">
                         <input
                           type="checkbox"
                           checked={isSelected}

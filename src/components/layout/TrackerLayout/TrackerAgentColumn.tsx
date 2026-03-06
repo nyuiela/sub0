@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { getMyAgents, syncAgentBalance } from "@/lib/api/agents";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import type { Agent } from "@/types/agent.types";
@@ -59,6 +60,7 @@ export function TrackerAgentColumn({
   onSelectAgent,
   className = "",
 }: TrackerAgentColumnProps) {
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const liveBalances = useAppSelector((state) => state.agents.balanceByAgentId);
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -76,6 +78,7 @@ export function TrackerAgentColumn({
   });
 
   const refetchAgents = useCallback(() => {
+    if (user == null) return;
     setRefreshing(true);
     getMyAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
@@ -90,9 +93,16 @@ export function TrackerAgentColumn({
       .finally(() => {
         setRefreshing(false);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
+    if (user == null) {
+      setAgents([]);
+      setOnChainBalances({});
+      setLoading(false);
+      setError("Sign in to see your agents.");
+      return;
+    }
     let cancelled = false;
     queueMicrotask(() => {
       if (!cancelled) {
@@ -127,7 +137,7 @@ export function TrackerAgentColumn({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (!agents.length) return;

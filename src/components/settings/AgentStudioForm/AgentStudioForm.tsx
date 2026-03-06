@@ -35,6 +35,7 @@ function MarkdownPreview({ source }: { source: string }) {
 }
 import { getMyAgents, getAgent, updateAgent, createAgent } from "@/lib/api/agents";
 import { getCurrentUser } from "@/lib/api/auth";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Agent } from "@/types/agent.types";
 import {
   OPENCLAW_DOC_META,
@@ -115,6 +116,7 @@ function getOpenClawFromAgent(agent: Agent): AgentStudioFormValues["openclaw"] {
 }
 
 export function AgentStudioForm() {
+  const { user } = useAuth();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
   const [loadingAgents, setLoadingAgents] = useState(true);
@@ -141,10 +143,15 @@ export function AgentStudioForm() {
   });
 
   useEffect(() => {
+    if (user == null) {
+      setAgents([]);
+      setLoadingAgents(false);
+      return;
+    }
     let cancelled = false;
     getMyAgents({ limit: 100 })
       .then((res) => {
-        if (!cancelled) setAgents(res.data);
+        if (!cancelled) setAgents(res.data ?? []);
       })
       .catch(() => {
         if (!cancelled) toast.error("Failed to load agents");
@@ -155,7 +162,7 @@ export function AgentStudioForm() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (selectedId === "new" || !selectedId) {

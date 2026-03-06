@@ -32,8 +32,8 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
     }
   };
 
-  // Load agents on mount
-  if (showAgentPositions && agents.length === 0) {
+  // Load agents only when logged in and agent positions visible
+  if (showAgentPositions && agents.length === 0 && currentUser != null) {
     loadAgents();
   }
 
@@ -59,7 +59,7 @@ export function EnhancedTradeTab({ isActive = false }: EnhancedTradeTabProps) {
           <button
             onClick={() => {
               setShowAgentPositions(!showAgentPositions);
-              if (!showAgentPositions && agents.length === 0) {
+              if (!showAgentPositions && agents.length === 0 && currentUser != null) {
                 loadAgents();
               }
             }}

@@ -33,7 +33,7 @@ export async function getPositions(
     qs.set("offset", String(params.offset));
   const query = qs.toString();
   const url = `/api/positions${query ? `?${query}` : ""}`;
-  const res = await fetch(url, { credentials: "include" });
+  const res = await fetch(url, { credentials: "include", cache: "no-store" });
   const data = await res.json().catch(() => ({
     data: [],
     total: 0,

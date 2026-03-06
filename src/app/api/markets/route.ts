@@ -5,10 +5,16 @@ import type { CreateMarketBody } from "@/types/market.types";
 
 export async function GET(request: Request) {
   const base = getBackendBase();
+  if (!base?.trim()) {
+    return NextResponse.json(
+      { error: "Backend not configured. Set NEXT_PUBLIC_BACKEND_URL." },
+      { status: 503 }
+    );
+  }
   const { searchParams } = new URL(request.url);
   const qs = searchParams.toString();
   const url = `${base}/api/markets${qs ? `?${qs}` : ""}`;
-  const res = await fetch(url, { credentials: "include" });
+  const res = await fetch(url, { credentials: "include", cache: "no-store" });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     return NextResponse.json(

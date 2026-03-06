@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   fetchMarkets,
@@ -31,6 +32,7 @@ export function SimulateMarketsColumn({
   selectedAgentId,
   className = "",
 }: SimulateMarketsColumnProps) {
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<SimulateFilter>("all");
   const [dateFrom, setDateFrom] = useState<string>("");
@@ -84,6 +86,10 @@ export function SimulateMarketsColumn({
 
   const handleAddToAgent = useCallback(
     async (market: Market) => {
+      if (user == null) {
+        toast.error("Sign in to add markets to your agent");
+        return;
+      }
       if (selectedAgentId == null) {
         toast.error("Select an agent first");
         return;
@@ -99,7 +105,7 @@ export function SimulateMarketsColumn({
         toast.error("Failed to add market to agent");
       }
     },
-    [selectedAgentId, dispatch]
+    [user, selectedAgentId, dispatch]
   );
 
   const handleLoadMore = useCallback(() => {

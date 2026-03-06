@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { incrementSimulateBalanceVersion } from "@/store/slices/layoutSlice";
 import { setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
@@ -74,6 +75,7 @@ export function SimulateAgentConfigColumn({
   onSelectAgent,
   className = "",
 }: SimulateAgentConfigColumnProps) {
+  const { user } = useAuth();
   const dispatch = useAppDispatch();
   const simulateBalanceVersion = useAppSelector(
     (state) => state.layout.simulateBalanceVersion
@@ -123,6 +125,12 @@ export function SimulateAgentConfigColumn({
   const hasAutoSelectedRef = useRef(false);
 
   useEffect(() => {
+    if (user == null) {
+      setAgents([]);
+      setLoading(false);
+      setError("Sign in to see your agents.");
+      return;
+    }
     let cancelled = false;
     getMyAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
@@ -144,7 +152,7 @@ export function SimulateAgentConfigColumn({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user, dispatch]);
 
   useEffect(() => {
     if (agents.length > 0 && selectedAgentId == null && !hasAutoSelectedRef.current) {

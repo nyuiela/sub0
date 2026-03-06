@@ -50,6 +50,7 @@ export async function GET(request: Request) {
   const res = await fetch(`${base}/api/positions?${qs.toString()}`, {
     credentials: "include",
     headers: { ...headers },
+    cache: "no-store",
   });
   const data = await res.json().catch(() => ({
     data: [],

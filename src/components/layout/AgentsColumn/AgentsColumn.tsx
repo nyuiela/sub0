@@ -8,6 +8,7 @@ import { AgentTreemap } from "./AgentTreemap";
 import { DepositToAgentModal } from "@/components/layout/DepositToAgent/DepositToAgentModal";
 import { GetWalletModal } from "@/components/layout/DepositToAgent/GetWalletModal";
 import { useAppSelector } from "@/store/hooks";
+import { useAuth } from "@/contexts/AuthContext";
 import { formatCollateral } from "@/lib/formatNumbers";
 import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 
@@ -119,6 +120,7 @@ export function AgentsColumn({
   status = "ACTIVE",
   className = "",
 }: AgentsColumnProps) {
+  const { user } = useAuth();
   const liveBalances = useAppSelector((state) => state.agents.balanceByAgentId);
   const [agents, setAgents] = useState<AgentRowDisplay[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,10 +145,11 @@ export function AgentsColumn({
 
   const refetchAgents = useCallback(() => {
     setRefreshing(true);
-    Promise.all([
-      getAgentsPublic({ limit, status }),
-      getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
-    ])
+    const publicPromise = getAgentsPublic({ limit, status });
+    const myPromise = user != null
+      ? getMyAgents({ limit, status })
+      : Promise.resolve({ data: [] as Agent[], total: 0, limit, offset: 0 });
+    Promise.all([publicPromise, myPromise])
       .then(([publicRes, myRes]) => {
         const publicList = publicRes.data ?? [];
         const myList = myRes.data ?? [];
@@ -156,7 +159,7 @@ export function AgentsColumn({
       .finally(() => {
         setRefreshing(false);
       });
-  }, [limit, status, mergeAndSetAgents]);
+  }, [limit, status, mergeAndSetAgents, user]);
 
   useEffect(() => {
     let cancelled = false;
@@ -167,10 +170,11 @@ export function AgentsColumn({
       }
     });
 
-    Promise.all([
-      getAgentsPublic({ limit, status }),
-      getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 })),
-    ])
+    const publicPromise = getAgentsPublic({ limit, status });
+    const myPromise = user != null
+      ? getMyAgents({ limit, status }).catch(() => ({ data: [] as Agent[], total: 0, limit, offset: 0 }))
+      : Promise.resolve({ data: [] as Agent[], total: 0, limit, offset: 0 });
+    Promise.all([publicPromise, myPromise])
       .then(([publicRes, myRes]) => {
         if (cancelled) return;
         const publicList = publicRes.data ?? [];
@@ -190,7 +194,7 @@ export function AgentsColumn({
     return () => {
       cancelled = true;
     };
-  }, [limit, status, mergeAndSetAgents]);
+  }, [limit, status, mergeAndSetAgents, user]);
 
   useEffect(() => {
     if (agents.length === 0) return;

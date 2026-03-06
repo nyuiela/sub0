@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { getActivities } from "@/lib/api/activities";
 import { getAgentPendingTrades } from "@/lib/api/pendingTrades";
 import { getMyAgents } from "@/lib/api/agents";
@@ -210,6 +211,7 @@ export interface TradeTabProps {
 }
 
 export function TradeTab({ isActive = true }: TradeTabProps) {
+  const { user } = useAuth();
   const [executed, setExecuted] = useState<ActivityItem[]>([]);
   const [pending, setPending] = useState<PendingAgentTradeItem[]>([]);
   const [agentsWithQueue, setAgentsWithQueue] = useState<Agent[]>([]);
@@ -222,10 +224,13 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
     cancelledRef.current = false;
     setLoading(true);
     setError(null);
+    const agentsPromise = user != null
+      ? getMyAgents({ limit: 50 }).catch(() => ({ data: [] as Agent[], total: 0, limit: 50, offset: 0 }))
+      : Promise.resolve({ data: [] as Agent[], total: 0, limit: 50, offset: 0 });
     Promise.all([
       getActivities({ types: "trade", limit: 30 }),
       getAgentPendingTrades({ status: "PENDING", limit: 30 }),
-      getMyAgents({ limit: 50 }).catch(() => ({ data: [] as Agent[], total: 0, limit: 50, offset: 0 })),
+      agentsPromise,
     ])
       .then(([activitiesRes, pendingRes, agentsRes]) => {
         if (cancelledRef.current) return;
@@ -243,7 +248,7 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
       .finally(() => {
         if (!cancelledRef.current) setLoading(false);
       });
-  }, [isActive]);
+  }, [isActive, user]);
 
   useEffect(() => {
     fetchData();

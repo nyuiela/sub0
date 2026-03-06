@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { getMyAgents } from "@/lib/api/agents";
 import type { Agent } from "@/types/agent.types";
 
@@ -13,11 +14,17 @@ export interface AgentsSectionProps {
 }
 
 export function AgentsSection({ onSelectAgent }: AgentsSectionProps) {
+  const { user } = useAuth();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchAgents = useCallback(() => {
+    if (user == null) {
+      setAgents([]);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
     getMyAgents({ limit: 50 })
@@ -30,7 +37,7 @@ export function AgentsSection({ onSelectAgent }: AgentsSectionProps) {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchAgents();

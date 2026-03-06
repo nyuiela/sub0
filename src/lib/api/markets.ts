@@ -31,6 +31,7 @@ export async function listMarkets(
 ): Promise<MarketListResponse> {
   const res = await fetch(`${API}/api/markets${buildQuery(params)}`, {
     credentials: "include",
+    cache: "no-store",
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {

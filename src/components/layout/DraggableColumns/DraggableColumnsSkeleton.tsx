@@ -30,7 +30,7 @@ export function DraggableColumnsSkeleton() {
         {DEFAULT_COLUMN_IDS.flatMap((columnId, i) => {
           const isAgents = columnId === "agents";
           const isNew = columnId === "new";
-          const isPositions = columnId === "positions";
+          const isPortfolio = columnId === "portfolio";
           const isNews = columnId === "news";
 
           const columnEl = (
@@ -69,8 +69,8 @@ export function DraggableColumnsSkeleton() {
                     ))}
                   </div>
                 )}
-                {isPositions && (
-                  <ul className="space-y-0" aria-label="Loading positions">
+                {isPortfolio && (
+                  <ul className="space-y-0" aria-label="Loading portfolio">
                     {Array.from({ length: 5 }, (_, j) => (
                       <li
                         key={j}

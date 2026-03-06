@@ -132,21 +132,15 @@ export function OutcomeProbabilityChart({
 
     chartRef.current = chart;
 
-    if (yAxisMode === "probability") {
-      chart.priceScale("right").applyOptions({
-        minValue: 0,
-        maxValue: 100,
-      });
-    } else {
-      chart.priceScale("right").applyOptions({
-        minValue: 0,
-        maxValue: 1,
-      });
-    }
+    const priceRange =
+      yAxisMode === "probability" ? { minValue: 0, maxValue: 100 } : { minValue: 0, maxValue: 1 };
 
     seriesData.forEach((series, i) => {
       const baseColor = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
       const seriesOptions: AreaSeriesPartialOptions = {
+        autoscaleInfoProvider: () => ({
+          priceRange,
+        }),
         lineColor: baseColor,
         lineWidth: 2,
         topColor: `${baseColor}40`, // 25% opacity
@@ -195,7 +189,7 @@ export function OutcomeProbabilityChart({
       seriesRef.current.forEach((series, i) => {
         const dataPoint = param.seriesData.get(series);
         const seriesInfo = seriesData[i];
-        if (dataPoint && typeof dataPoint.value === "number" && seriesInfo) {
+        if (dataPoint && "value" in dataPoint && typeof dataPoint.value === "number" && seriesInfo) {
           items.push({
             label: seriesInfo.label,
             color: OUTCOME_COLORS[i % OUTCOME_COLORS.length],
@@ -283,7 +277,7 @@ export function OutcomeProbabilityChart({
             })}
           </div>
         </section>
-      ) : showChart ? (
+      ) : (
         <section className="relative w-full">
           {/* Interactive Legend Overlay */}
           <div className="pointer-events-none absolute left-2 top-2 z-10 rounded border border-border bg-[#0F172A]/90 px-2 py-1.5 shadow-lg">
@@ -321,14 +315,6 @@ export function OutcomeProbabilityChart({
             className="rounded bg-[#0F172A]"
             style={{ height: CHART_H }}
           />
-        </section>
-      ) : (
-        <section
-          className="flex w-full items-center justify-center rounded bg-[#0F172A] text-muted-foreground"
-          aria-label="Chart loading"
-          style={{ minHeight: CHART_H, height: CHART_H }}
-        >
-          {loadState === "loading" ? "Loading…" : "No data"}
         </section>
       )}
       <figcaption className="mt-1 flex flex-wrap items-center justify-between gap-2 pt-2 text-xs text-muted-foreground">
