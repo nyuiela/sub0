@@ -6,6 +6,7 @@ import {
   setOrderBookForMarket,
   applyTradeToMarket,
   setMarketVolumeFromStats,
+  mergeOrderCrePayload,
 } from "@/store/slices/marketsSlice";
 import { fetchMarkets, fetchMarketById } from "@/store/slices/marketsSlice";
 import { setAgentBalance } from "@/store/slices/agentsSlice";
@@ -25,6 +26,7 @@ import {
   type MarketUpdatedPayload,
   type OrderBookUpdatePayload,
   type TradeExecutedPayload,
+  type OrderCrePayloadPayload,
   type AgentUpdatedPayload,
   type ActivityLogPayload,
   type PositionUpdatedPayload,
@@ -373,6 +375,11 @@ export function useMarketSocket(options: UseMarketSocketOptions): void {
               const p = payload as LmsrPricingUpdatePayload | undefined;
               if (p?.marketId && p?.requestId) {
                 optionsRef.current.onLmsrPricingUpdate?.(p);
+              }
+            } else if (type === "ORDER_CRE_PAYLOAD") {
+              const p = payload as OrderCrePayloadPayload | undefined;
+              if (p?.orderId && p?.crePayload) {
+                dispatch(mergeOrderCrePayload({ orderId: p.orderId, crePayload: p.crePayload }));
               }
             }
           },

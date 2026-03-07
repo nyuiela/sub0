@@ -7,6 +7,8 @@ import { addRecent } from "@/store/slices/recentSlice";
 import { getPositions } from "@/lib/api/positions";
 import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
 import { formatOutcomePrice, formatCollateral } from "@/lib/formatNumbers";
+import { getBlockExplorerTxUrl } from "@/lib/blockExplorer";
+import { getTxHashFromCrePayload } from "@/types/order.types";
 import type { Position, PositionStatus } from "@/types/position.types";
 
 const POSITIONS_LIMIT = 20;
@@ -195,19 +197,23 @@ export function PositionsColumn({
                     <span className="font-medium">Note:</span> {pos.tradeReason}
                   </div>
                 )}
-                {/* Transaction hash display - will be added when txHash field is available */}
-                {/* {pos.txHash && (
-                  <div className="mt-1 text-xs">
-                    <a 
-                      href={`https://basescan.org/tx/${pos.txHash}`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      View Transaction
-                    </a>
-                  </div>
-                )} */}
+                {(pos.txHash || getTxHashFromCrePayload(pos.crePayload)) && (() => {
+                  const txHash = pos.txHash ?? getTxHashFromCrePayload(pos.crePayload) ?? null;
+                  const txUrl = txHash ? getBlockExplorerTxUrl(undefined, txHash) : undefined;
+                  return txUrl ? (
+                    <div className="mt-1 text-xs">
+                      <a
+                        href={txUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline font-mono"
+                        title="View on block explorer"
+                      >
+                        Tx
+                      </a>
+                    </div>
+                  ) : null;
+                })()}
                 <p className="mt-1 text-[10px] text-muted">
                   <LiveTimeDisplay createdAt={pos.updatedAt} />
                 </p>

@@ -1,3 +1,5 @@
+import type { CrePayload } from "./order.types";
+
 /**
  * Activities, holders and traders API types (md: activities-holders-traders).
  */
@@ -15,6 +17,10 @@ export interface ActivityTradePayload {
   price: string;
   txHash: string | null;
   createdAt: string;
+  /** Order id when available; used to merge ORDER_CRE_PAYLOAD updates. */
+  orderId?: string;
+  /** CRE payload (txHash/txHashes, errors) when available. */
+  crePayload?: CrePayload;
 }
 
 export interface ActivityPositionPayload {

@@ -8,7 +8,13 @@ import type {
 } from "@/types/market.types";
 import * as marketsApi from "@/lib/api/markets";
 import { submitOrder as submitOrderApi } from "@/lib/api/orders";
-import type { SubmitOrderBody, OrderResponseTrade, OrderResponseSnapshot } from "@/types/order.types";
+import type {
+  SubmitOrderBody,
+  OrderResponseTrade,
+  OrderResponseSnapshot,
+  CrePayload,
+} from "@/types/order.types";
+import { getOrderTransactionHash } from "@/types/order.types";
 
 export interface MarketsSliceState {
   list: Market[];
@@ -25,6 +31,8 @@ export interface MarketsSliceState {
   lastOrderSuccess: string | null;
   /** Transaction hash from last successful order when backend returns it. */
   lastOrderTxHash: string | null;
+  /** CRE payload by orderId (from ORDER_CRE_PAYLOAD); used to show tx link and errors on activity/orders. */
+  crePayloadByOrderId: Record<string, CrePayload>;
   error: string | null;
 }
 
@@ -42,6 +50,7 @@ const initialState: MarketsSliceState = {
   orderSubmitLoading: false,
   lastOrderSuccess: null,
   lastOrderTxHash: null,
+  crePayloadByOrderId: {},
   error: null,
 };
 
@@ -292,6 +301,16 @@ const marketsSlice = createSlice({
       state.lastOrderSuccess = null;
       state.lastOrderTxHash = null;
     },
+    mergeOrderCrePayload: (
+      state,
+      action: { payload: { orderId: string; crePayload: CrePayload } }
+    ) => {
+      const { orderId, crePayload } = action.payload;
+      state.crePayloadByOrderId[orderId] = {
+        ...state.crePayloadByOrderId[orderId],
+        ...crePayload,
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -439,11 +458,7 @@ const marketsSlice = createSlice({
             ? `Order filled. ${trades} trade${trades > 1 ? "s" : ""} executed.`
             : "Order placed.";
 
-        const txHash =
-          payload.transactionHash ??
-          (payload.trades?.[0] as { transactionHash?: string } | undefined)?.transactionHash ??
-          null;
-        state.lastOrderTxHash = txHash ?? null;
+        state.lastOrderTxHash = getOrderTransactionHash(payload) ?? null;
 
         if (payload.snapshot && payload.snapshot.marketId) {
           const snapshot = payload.snapshot;
@@ -475,6 +490,7 @@ export const {
   clearSelectedMarket,
   clearMarketsError,
   clearOrderSuccess,
+  mergeOrderCrePayload,
 } = marketsSlice.actions;
 
 export function selectOrderBookByMarketId(

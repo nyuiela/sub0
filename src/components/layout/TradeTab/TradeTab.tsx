@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useAuth } from "@/contexts/AuthContext";
 import { getActivities } from "@/lib/api/activities";
 import { getAgentPendingTrades } from "@/lib/api/pendingTrades";
 import { getMyAgents } from "@/lib/api/agents";
+import { getBlockExplorerTxUrl } from "@/lib/blockExplorer";
+import { getTxHashFromCrePayload } from "@/types/order.types";
+import type { CrePayload } from "@/types/order.types";
 import type { ActivityItem, ActivityTradePayload } from "@/types/activity.types";
 import type { PendingAgentTradeItem } from "@/types/pending-trade.types";
 import type { Agent } from "@/types/agent.types";
+import type { RootState } from "@/store";
 
 function TradeTabSkeleton() {
   return (
@@ -135,12 +140,47 @@ function formatTimeAgo(iso: string): string {
   }
 }
 
-function ExecutedTradeRow({ item }: { item: ActivityItem }) {
+function resolveExecutedTradeTxHash(
+  p: ActivityTradePayload,
+  crePayloadByOrderId: Record<string, CrePayload>
+): string | null {
+  if (p.txHash) return p.txHash;
+  const fromPayload = getTxHashFromCrePayload(p.crePayload);
+  if (fromPayload) return fromPayload;
+  if (p.orderId) return getTxHashFromCrePayload(crePayloadByOrderId[p.orderId]) ?? null;
+  return null;
+}
+
+function resolveExecutedTradeCreErrors(
+  p: ActivityTradePayload,
+  crePayloadByOrderId: Record<string, CrePayload>
+): unknown[] {
+  const merged: CrePayload | undefined = p.orderId
+    ? { ...p.crePayload, ...crePayloadByOrderId[p.orderId] }
+    : p.crePayload;
+  const err = merged?.errors;
+  return Array.isArray(err) ? err : [];
+}
+
+function ExecutedTradeRow({
+  item,
+  crePayloadByOrderId,
+}: {
+  item: ActivityItem;
+  crePayloadByOrderId: Record<string, CrePayload>;
+}) {
   const p = item.payload as ActivityTradePayload;
   const side = p.side === "BID" ? "long" : "short";
   const who =
     p.userId != null ? p.userId.slice(0, 8) + "..." : p.agentId != null ? p.agentId.slice(0, 8) + "..." : "-";
   const marketId = p.marketId ?? "";
+  const txHash = resolveExecutedTradeTxHash(p, crePayloadByOrderId);
+  const txUrl = useMemo(
+    () => (txHash ? getBlockExplorerTxUrl(undefined, txHash) : undefined),
+    [txHash]
+  );
+  const errors = resolveExecutedTradeCreErrors(p, crePayloadByOrderId);
+  const hasErrors = errors.length > 0;
   return (
     <tr className="border-b border-border/50 hover:bg-muted/50">
       <td className="py-2 text-sm text-muted-foreground">Executed</td>
@@ -150,6 +190,30 @@ function ExecutedTradeRow({ item }: { item: ActivityItem }) {
       <td className="py-2 text-right tabular-nums">{p.amount}</td>
       <td className="py-2 text-right tabular-nums">{p.price}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
+      <td className="py-2 text-right">
+        {txUrl ? (
+          <a
+            href={txUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-mono text-xs"
+            title="View on block explorer"
+          >
+            Tx
+          </a>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
+        {hasErrors && (
+          <span
+            className="ml-1 text-amber-600 text-xs"
+            title={errors.map((e) => String(e)).join("; ")}
+            aria-label="CRE error"
+          >
+            (error)
+          </span>
+        )}
+      </td>
       <td className="py-2 text-right text-muted-foreground pr-2">{formatTimeAgo(p.createdAt)}</td>
       <td className="py-2 pl-3">
         {marketId ? (
@@ -188,6 +252,7 @@ function PendingTradeRow({ row }: { row: PendingAgentTradeItem }) {
       <td className="py-2 font-mono text-xs" title={row.agentId}>
         {agentName}
       </td>
+      <td className="py-2 text-right">-</td>
       <td className="py-2 text-right text-muted-foreground pr-2">{formatTimeAgo(row.createdAt)}</td>
       <td className="py-2 pl-3">
         {marketId ? (
@@ -212,6 +277,7 @@ export interface TradeTabProps {
 
 export function TradeTab({ isActive = true }: TradeTabProps) {
   const { user } = useAuth();
+  const crePayloadByOrderId = useSelector((s: RootState) => s.markets.crePayloadByOrderId);
   const [executed, setExecuted] = useState<ActivityItem[]>([]);
   const [pending, setPending] = useState<PendingAgentTradeItem[]>([]);
   const [agentsWithQueue, setAgentsWithQueue] = useState<Agent[]>([]);
@@ -306,13 +372,18 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
                       <th className="py-2 text-right font-medium">Amount</th>
                       <th className="py-2 text-right font-medium">Price</th>
                       <th className="py-2 text-left font-medium">Agent / User</th>
+                      <th className="py-2 text-right font-medium">Tx</th>
                       <th className="py-2 text-right font-medium pr-2">Time</th>
                       <th className="py-2 text-left font-medium pl-3">Market</th>
                     </tr>
                   </thead>
                   <tbody>
                     {executed.map((item) => (
-                      <ExecutedTradeRow key={item.id} item={item} />
+                      <ExecutedTradeRow
+                        key={item.id}
+                        item={item}
+                        crePayloadByOrderId={crePayloadByOrderId}
+                      />
                     ))}
                   </tbody>
                 </table>
@@ -331,6 +402,7 @@ export function TradeTab({ isActive = true }: TradeTabProps) {
                       <th className="py-2 text-right font-medium">Amount</th>
                       <th className="py-2 text-right font-medium">Price</th>
                       <th className="py-2 text-left font-medium">Agent</th>
+                      <th className="py-2 text-right font-medium">Tx</th>
                       <th className="py-2 text-right font-medium pr-2">Time</th>
                       <th className="py-2 text-left font-medium pl-3">Market</th>
                     </tr>

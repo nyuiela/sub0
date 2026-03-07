@@ -115,9 +115,10 @@ export function MarketTradePanel({
   const dispatch = useAppDispatch();
   const orderBook = useAppSelector((state) => selectOrderBookByMarketId(state, marketId, 0));
   const { orderSubmitLoading, error, lastOrderSuccess, lastOrderTxHash } = useAppSelector((state) => state.markets);
-  const blockExplorerUrl = typeof process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL === "string"
-    ? process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL
-    : undefined;
+  const blockExplorerUrl =
+    typeof process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL === "string"
+      ? process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL
+      : undefined;
   const outcomesList = Array.isArray(outcomesProp) ? outcomesProp : [];
   const [yesLabel, noLabel] = parseOutcomeLabels(outcomesList);
 
@@ -820,9 +821,9 @@ export function MarketTradePanel({
                 {lastOrderTxHash && (
                   <div className="flex items-center gap-1.5 pt-1 border-t border-success/20">
                     <span className="text-xs text-muted-foreground shrink-0">Transaction:</span>
-                    {blockExplorerUrl && getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash) ? (
+                    {getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash) ? (
                       <a
-                        href={getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash)}
+                        href={getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash)!}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 font-mono text-xs text-primary hover:underline truncate max-w-full"

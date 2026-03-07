@@ -70,15 +70,45 @@ export interface OrderBookUpdatePayload {
   timestamp: number;
 }
 
+/** CRE payload shape in WS (no signatures). */
+export interface TradeCrePayload {
+  questionId?: string;
+  outcomeIndex?: number;
+  buy?: boolean;
+  quantity?: string;
+  tradeCostUsdc?: string;
+  nonce?: string;
+  deadline?: string;
+  users?: string[];
+  txHash?: string;
+  txHashes?: string[];
+  errors?: unknown[];
+}
+
 /** Server -> client: TRADE_EXECUTED payload */
 export interface TradeExecutedPayload {
+  tradeId?: string;
   marketId: string;
+  outcomeIndex?: number;
   side: "long" | "short";
   size: string;
   price: string;
   executedAt: string;
   userId?: string;
   agentId?: string;
+  /** Tx hash when CRE result available (sync or after callback). */
+  txHash?: string;
+  /** CRE execution result when available. */
+  crePayload?: TradeCrePayload;
+}
+
+/** Server -> client: ORDER_CRE_PAYLOAD (after CRE callback; merge into order by orderId). */
+export interface OrderCrePayloadPayload {
+  orderId: string;
+  marketId: string;
+  outcomeIndex?: number;
+  side?: "BID" | "ASK";
+  crePayload: TradeCrePayload;
 }
 
 /** Server -> client: AGENT_UPDATED payload (room agent:{agentId}) */
@@ -203,6 +233,7 @@ export type WsInboundMessageType =
   | "MARKET_UPDATED"
   | "ORDER_BOOK_UPDATE"
   | "TRADE_EXECUTED"
+  | "ORDER_CRE_PAYLOAD"
   | "ACTIVITY_LOG"
   | "POSITION_UPDATED"
   | "USER_ASSET_CHANGED"

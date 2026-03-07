@@ -7,12 +7,19 @@ import { addRecent } from "@/store/slices/recentSlice";
 import { useRecentTrades } from "@/lib/websocket/useLiveMarketData";
 import { LiveTimeDisplay } from "@/components/LiveTimeDisplay";
 import { formatOutcomePrice, formatOutcomeQuantity } from "@/lib/formatNumbers";
+import { getBlockExplorerTxUrl } from "@/lib/blockExplorer";
+import { getTxHashFromCrePayload } from "@/types/order.types";
 import type { RecentTradeItem } from "@/store/slices/recentTradesSlice";
 
 export interface TradesColumnProps {
   /** Max trades to show. Default 30. */
   limit?: number;
   className?: string;
+}
+
+function resolveTradeTxHash(item: RecentTradeItem): string | null {
+  if (item.txHash) return item.txHash;
+  return getTxHashFromCrePayload(item.crePayload) ?? null;
 }
 
 function TradeRow({
@@ -25,6 +32,11 @@ function TradeRow({
   dispatch: ReturnType<typeof useAppDispatch>;
 }) {
   const sideClass = item.side === "long" ? "text-success" : "text-danger";
+  const txHash = resolveTradeTxHash(item);
+  const txUrl = useMemo(
+    () => (txHash ? getBlockExplorerTxUrl(undefined, txHash) : undefined),
+    [txHash]
+  );
   return (
     <li>
       <section className="border-b border-border bg-surface p-3 transition-colors last:border-b-0 hover:bg-muted/30">
@@ -50,6 +62,17 @@ function TradeRow({
           <span className="text-muted-foreground">
             {formatOutcomePrice(item.price)} <span className="text-muted">x</span> {formatOutcomeQuantity(item.size)}
           </span>
+          {txUrl && (
+            <a
+              href={txUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-mono"
+              title="View on block explorer"
+            >
+              Tx {txHash?.slice(0, 8)}...
+            </a>
+          )}
         </div>
         <p className="mt-1 text-[10px] text-muted">
           <LiveTimeDisplay createdAt={item.executedAt} />

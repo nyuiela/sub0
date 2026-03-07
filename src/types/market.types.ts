@@ -1,3 +1,5 @@
+import type { CrePayload } from "./order.types";
+
 /**
  * Market API and WebSocket types aligned with backend (backend-overview, market.api).
  */
@@ -127,6 +129,10 @@ export interface TradeExecutedPayload {
   executedAt: string;
   userId?: string;
   agentId?: string;
+  /** Tx hash when CRE result available (sync or after callback). */
+  txHash?: string;
+  /** CRE execution result when available. */
+  crePayload?: CrePayload;
 }
 
 /** WebSocket: MARKET_STATS_UPDATED payload (volume after trades or API create/update) */

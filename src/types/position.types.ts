@@ -1,3 +1,5 @@
+import type { CrePayload } from "./order.types";
+
 /**
  * Positions API – GET /api/positions (list) and GET /api/positions/:id (detail).
  * Positions represent LONG or SHORT exposure in a market outcome.
@@ -36,6 +38,10 @@ export interface Position {
   lastReason?: string;
   /** Brief agent reason for this position (when requested with includeLatestReason). */
   tradeReason?: string;
+  /** On-chain transaction hash when available (CRE/backend). */
+  txHash?: string;
+  /** CRE payload when available; use for tx link and errors. */
+  crePayload?: CrePayload;
 }
 
 /** "main" = live; "tenderly" = simulate. Omit = main. */

@@ -1,6 +1,11 @@
 "use client";
 
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
 import { formatOutcomePrice, formatOutcomeQuantity, formatCollateral } from "@/lib/formatNumbers";
+import { getBlockExplorerTxUrl } from "@/lib/blockExplorer";
+import { getTxHashFromCrePayload } from "@/types/order.types";
+import type { CrePayload } from "@/types/order.types";
 import type {
   ActivityItem,
   ActivityTradePayload,
@@ -8,6 +13,7 @@ import type {
   ActivityNewsPayload,
   ActivityAgentPayload,
 } from "@/types/activity.types";
+import type { RootState } from "@/store";
 
 export interface ActivityTabProps {
   marketId: string;
@@ -39,7 +45,37 @@ function formatTimeAgo(iso: string): string {
   }
 }
 
-function TradeRow({ item, payload }: { item: ActivityItem; payload: ActivityTradePayload }) {
+function resolveTradeTxHash(
+  payload: ActivityTradePayload,
+  crePayloadByOrderId: Record<string, CrePayload>
+): string | null {
+  if (payload.txHash) return payload.txHash;
+  const fromPayload = getTxHashFromCrePayload(payload.crePayload);
+  if (fromPayload) return fromPayload;
+  if (payload.orderId) return getTxHashFromCrePayload(crePayloadByOrderId[payload.orderId]) ?? null;
+  return null;
+}
+
+function resolveTradeCreErrors(
+  payload: ActivityTradePayload,
+  crePayloadByOrderId: Record<string, CrePayload>
+): unknown[] {
+  const merged: CrePayload | undefined = payload.orderId
+    ? { ...payload.crePayload, ...crePayloadByOrderId[payload.orderId] }
+    : payload.crePayload;
+  const err = merged?.errors;
+  return Array.isArray(err) ? err : [];
+}
+
+function TradeRow({
+  item,
+  payload,
+  crePayloadByOrderId,
+}: {
+  item: ActivityItem;
+  payload: ActivityTradePayload;
+  crePayloadByOrderId: Record<string, CrePayload>;
+}) {
   const side = payload.side === "BID" ? "long" : "short";
   const who =
     payload.userId != null
@@ -47,6 +83,13 @@ function TradeRow({ item, payload }: { item: ActivityItem; payload: ActivityTrad
       : payload.agentId != null
         ? truncateId(payload.agentId)
         : "-";
+  const txHash = resolveTradeTxHash(payload, crePayloadByOrderId);
+  const txUrl = useMemo(
+    () => (txHash ? getBlockExplorerTxUrl(undefined, txHash) : undefined),
+    [txHash]
+  );
+  const errors = resolveTradeCreErrors(payload, crePayloadByOrderId);
+  const hasErrors = errors.length > 0;
   return (
     <tr className="border-b border-border/50 hover:bg-muted/50">
       <td className="py-2 capitalize">{item.type}</td>
@@ -56,6 +99,30 @@ function TradeRow({ item, payload }: { item: ActivityItem; payload: ActivityTrad
       <td className="py-2 text-right tabular-nums">{formatOutcomeQuantity(payload.amount)}</td>
       <td className="py-2 text-right tabular-nums">{formatOutcomePrice(payload.price)}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
+      <td className="py-2 text-right">
+        {txUrl ? (
+          <a
+            href={txUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary hover:underline font-mono text-xs"
+            title="View on block explorer"
+          >
+            Tx
+          </a>
+        ) : (
+          <span className="text-muted-foreground">-</span>
+        )}
+        {hasErrors && (
+          <span
+            className="ml-1 text-amber-600 text-xs"
+            title={errors.map((e) => String(e)).join("; ")}
+            aria-label="CRE error"
+          >
+            (error)
+          </span>
+        )}
+      </td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.createdAt)}</td>
     </tr>
   );
@@ -77,6 +144,7 @@ function PositionRow({ item, payload }: { item: ActivityItem; payload: ActivityP
       <td className="py-2 text-right tabular-nums">{formatCollateral(payload.collateralLocked)}</td>
       <td className="py-2 text-right tabular-nums">{formatOutcomePrice(payload.avgPrice)}</td>
       <td className="py-2 font-mono text-xs">{who}</td>
+      <td className="py-2 text-right">-</td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.updatedAt)}</td>
     </tr>
   );
@@ -103,6 +171,7 @@ function NewsRow({ item, payload }: { item: ActivityItem; payload: ActivityNewsP
           payload.title || "-"
         )}
       </td>
+      <td className="py-2 text-right">-</td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.createdAt)}</td>
     </tr>
   );
@@ -116,12 +185,18 @@ function AgentActivityRow({ item, payload }: { item: ActivityItem; payload: Acti
       <td className="py-2 text-right">-</td>
       <td className="py-2 text-right">-</td>
       <td className="py-2 font-mono text-xs">{truncateId(payload.agentId)}</td>
+      <td className="py-2 text-right">-</td>
       <td className="py-2 text-right text-muted-foreground">{formatTimeAgo(payload.createdAt)}</td>
     </tr>
   );
 }
 
+const ACTIVITY_COL_COUNT = 7;
+
 export function ActivityTab({ marketId, items = [] }: ActivityTabProps) {
+  const crePayloadByOrderId = useSelector(
+    (s: RootState) => s.markets.crePayloadByOrderId
+  );
   return (
     <section aria-label="Market activity">
       <div className="overflow-x-auto">
@@ -133,20 +208,29 @@ export function ActivityTab({ marketId, items = [] }: ActivityTabProps) {
               <th className="py-2 text-right font-medium">Amount</th>
               <th className="py-2 text-right font-medium">Price</th>
               <th className="py-2 text-left font-medium">Who / Link</th>
+              <th className="py-2 text-right font-medium">Tx</th>
               <th className="py-2 text-right font-medium">Time</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                <td colSpan={ACTIVITY_COL_COUNT} className="py-8 text-center text-muted-foreground">
                   No activity yet for this market.
                 </td>
               </tr>
             ) : (
               items.map((item) => {
                 const p = item.payload;
-                if (p.type === "trade") return <TradeRow key={item.id} item={item} payload={p} />;
+                if (p.type === "trade")
+                  return (
+                    <TradeRow
+                      key={item.id}
+                      item={item}
+                      payload={p}
+                      crePayloadByOrderId={crePayloadByOrderId}
+                    />
+                  );
                 if (p.type === "position") return <PositionRow key={item.id} item={item} payload={p} />;
                 if (p.type === "news") return <NewsRow key={item.id} item={item} payload={p} />;
                 if (p.type === "agent_activity") return <AgentActivityRow key={item.id} item={item} payload={p} />;
