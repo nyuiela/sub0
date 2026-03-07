@@ -189,41 +189,39 @@ function getStrategyFromAgent(agent: Agent): {
   };
 }
 
-const EMPTY_OPENCLAW: OpenClawTemplate = {
-  soul: "",
-  persona: "",
-  skill: "",
-  methodology: "",
-  failed_tests: "",
-  context: "",
-  constraints: "",
-};
-
-function parseOpenclawRaw(raw: unknown): Record<string, unknown> | null {
-  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
-    return raw as Record<string, unknown>;
-  }
-  if (typeof raw === "string" && raw.trim() !== "") {
-    try {
-      const parsed = JSON.parse(raw) as unknown;
-      return parseOpenclawRaw(parsed);
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
-
 function getOpenclawFromAgent(agent: Agent): OpenClawTemplate {
   const ms = agent.modelSettings;
-  if (!ms || typeof ms !== "object" || !("openclaw" in ms)) {
-    return EMPTY_OPENCLAW;
+  if (!ms || typeof ms !== "object") {
+    return {
+      soul: "",
+      persona: "",
+      skill: "",
+      methodology: "",
+      failed_tests: "",
+      context: "",
+      constraints: "",
+    };
   }
-  const oc = parseOpenclawRaw(ms.openclaw);
+  const ocRaw =
+    (ms as Record<string, unknown>).openclaw ??
+    (ms as Record<string, unknown>).openClaw;
+  const oc =
+    ocRaw != null && typeof ocRaw === "object" && !Array.isArray(ocRaw)
+      ? (ocRaw as Record<string, unknown>)
+      : undefined;
   if (!oc) {
-    return EMPTY_OPENCLAW;
+    return {
+      soul: "",
+      persona: "",
+      skill: "",
+      methodology: "",
+      failed_tests: "",
+      context: "",
+      constraints: "",
+    };
   }
-  const str = (v: unknown): string => (typeof v === "string" ? v : "");
+  const str = (v: unknown): string =>
+    typeof v === "string" ? v : "";
   return {
     soul: str(oc.soul),
     persona: str(oc.persona),
@@ -237,7 +235,7 @@ function getOpenclawFromAgent(agent: Agent): OpenClawTemplate {
 
 export interface SimulateConfigEditorProps {
   agent: Agent;
-  /** True while full agent (e.g. modelSettings.openclaw) is being fetched. */
+  /** When true, full agent (with openclaw) is still loading; avoid showing "No content" until loaded. */
   configLoading?: boolean;
   onAgentUpdated?: (agent: Agent) => void;
   className?: string;
@@ -263,10 +261,8 @@ export function SimulateConfigEditor({
   const [strategy, setStrategy] = useState(() => getStrategyFromAgent(agent));
 
   useEffect(() => {
-    if (!configLoading) {
-      setOpenclaw(getOpenclawFromAgent(agent));
-    }
-  }, [agent.id, agent.modelSettings, configLoading]);
+    setOpenclaw(getOpenclawFromAgent(agent));
+  }, [agent.id, agent.modelSettings]);
 
   useEffect(() => {
     const saved = getModelFromAgent(agent);
@@ -475,8 +471,8 @@ export function SimulateConfigEditor({
           OpenClaw Docs
         </h3>
         {configLoading ? (
-          <p className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
-            Loading docs…
+          <p className="rounded-lg border border-border bg-muted/30 px-3 py-6 text-center text-xs text-muted-foreground">
+            Loading config…
           </p>
         ) : (
           <OpenClawDocsEditor openclaw={openclaw} onChange={setDoc} />

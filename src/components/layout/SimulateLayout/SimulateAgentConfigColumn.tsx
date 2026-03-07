@@ -81,8 +81,6 @@ export function SimulateAgentConfigColumn({
     (state) => state.layout.simulateBalanceVersion
   );
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [configAgent, setConfigAgent] = useState<Agent | null>(null);
-  const [configAgentLoading, setConfigAgentLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [balance, setBalance] = useState<{
@@ -103,6 +101,9 @@ export function SimulateAgentConfigColumn({
     name?: string;
     blockExplorerUrl?: string;
   } | null>(null);
+  /** Full agent for config editor (includes modelSettings.openclaw); list response may omit it. */
+  const [configAgent, setConfigAgent] = useState<Agent | null>(null);
+  const [configAgentLoading, setConfigAgentLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -212,28 +213,6 @@ export function SimulateAgentConfigColumn({
   }, [selectedAgentId, simulateBalanceVersion]);
 
   useEffect(() => {
-    if (!selectedAgentId?.trim()) {
-      setConfigAgent(null);
-      return;
-    }
-    let cancelled = false;
-    setConfigAgentLoading(true);
-    getAgent(selectedAgentId)
-      .then((full) => {
-        if (!cancelled) setConfigAgent(full);
-      })
-      .catch(() => {
-        if (!cancelled) setConfigAgent(null);
-      })
-      .finally(() => {
-        if (!cancelled) setConfigAgentLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedAgentId]);
-
-  useEffect(() => {
     const next = eligibility?.nextRequestAt;
     const inCooldown =
       eligibility != null &&
@@ -271,6 +250,31 @@ export function SimulateAgentConfigColumn({
       if (intervalId != null) clearInterval(intervalId);
     };
   }, [eligibility?.nextRequestAt, eligibility?.eligible, selectedAgentId]);
+
+  useEffect(() => {
+    if (!selectedAgentId?.trim()) {
+      setConfigAgent(null);
+      setConfigAgentLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setConfigAgentLoading(true);
+    getAgent(selectedAgentId)
+      .then((a) => {
+        if (!cancelled) {
+          setConfigAgent(a);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setConfigAgent(null);
+      })
+      .finally(() => {
+        if (!cancelled) setConfigAgentLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedAgentId]);
 
   const copyWalletAddress = useCallback((address: string, label: string) => {
     if (!address?.trim()) return;
@@ -521,10 +525,10 @@ export function SimulateAgentConfigColumn({
             agent={configAgent ?? selectedAgent}
             configLoading={configAgentLoading}
             onAgentUpdated={(updated) => {
+              setConfigAgent(updated);
               setAgents((prev) =>
                 prev.map((a) => (a.id === updated.id ? updated : a))
               );
-              setConfigAgent(updated);
             }}
           />
         ) : (
