@@ -1,8 +1,36 @@
 "use client";
 
 import { useCallback, useRef, useState, useEffect } from "react";
-import { requestMarketPricing, type PricingRequest } from "@/lib/api/prices";
+import { requestMarketPricing, type PricingRequest, type PricingResponseWithQuote } from "@/lib/api/prices";
 import type { LmsrPricingUpdatePayload } from "./websocket-types";
+
+function isSyncQuoteResponse(data: PricingResponseWithQuote): data is PricingResponseWithQuote & {
+  tradeCostUsdc: string;
+  requestId: string;
+} {
+  return (
+    Boolean(data?.requestId) &&
+    typeof (data as PricingResponseWithQuote & { tradeCostUsdc?: string }).tradeCostUsdc !== "undefined"
+  );
+}
+
+function buildPayloadFromSyncResponse(
+  marketId: string,
+  data: PricingResponseWithQuote & { tradeCostUsdc: string }
+): LmsrPricingUpdatePayload {
+  return {
+    marketId,
+    questionId: data.questionId ?? "",
+    outcomeIndex: typeof data.outcomeIndex === "number" ? data.outcomeIndex : 0,
+    quantity: data.quantity ?? "0",
+    tradeCostUsdc: data.tradeCostUsdc,
+    deadline: data.deadline ?? "0",
+    nonce: data.nonce ?? "",
+    donSignature: data.donSignature ?? "",
+    requestId: data.requestId,
+    timestamp: data.timestamp ?? String(Date.now()),
+  };
+}
 
 export interface PricingResult extends LmsrPricingUpdatePayload { }
 
@@ -88,10 +116,9 @@ export function useMarketPricing(options: UseMarketPricingOptions): UseMarketPri
   const requestPricing = useCallback(
     async (params: PricingRequest): Promise<string | null> => {
       try {
-        let response;
+        let response: PricingResponseWithQuote;
 
         if (useGet) {
-          // Use GET request with query parameters
           const searchParams = new URLSearchParams({
             outcomeIndex: params.outcomeIndex.toString(),
             quantity: params.quantity,
@@ -105,34 +132,41 @@ export function useMarketPricing(options: UseMarketPricingOptions): UseMarketPri
             credentials: "include",
           });
 
-          const data = await res.json().catch(() => ({}));
+          const data = (await res.json().catch(() => ({}))) as PricingResponseWithQuote & { error?: string };
 
           if (!res.ok) {
-            throw new Error(data.error || "Pricing request failed");
+            throw new Error(data.error ?? "Pricing request failed");
           }
 
           response = data;
         } else {
-          // Use POST request with JSON body
-          response = await requestMarketPricing(marketId, params);
+          response = (await requestMarketPricing(marketId, params)) as PricingResponseWithQuote;
         }
 
-        if (!response.success) {
-          throw new Error(response.error || "Pricing request failed");
+        if (!response.success || !response.requestId) {
+          throw new Error((response as PricingResponseWithQuote & { error?: string }).error ?? "Pricing request failed");
         }
 
-        // Track pending request
-        pendingRequestsRef.current.add(response.requestId);
+        const requestId = response.requestId;
+        pendingRequestsRef.current.add(requestId);
         updatePending();
 
-        return response.requestId;
+        // Sync fallback: if backend returned full quote in response, deliver immediately
+        if (isSyncQuoteResponse(response as PricingResponseWithQuote & { tradeCostUsdc: string })) {
+          const payload = buildPayloadFromSyncResponse(marketId, response as PricingResponseWithQuote & { tradeCostUsdc: string });
+          pendingRequestsRef.current.delete(requestId);
+          updatePending();
+          onPricingUpdate?.(payload);
+        }
+
+        return requestId;
       } catch (error) {
         const err = error instanceof Error ? error : new Error("Unknown error");
         onError?.(err);
         return null;
       }
     },
-    [marketId, useGet, onError, updatePending]
+    [marketId, useGet, onError, onPricingUpdate, updatePending]
   );
 
   // Check if a request is pending

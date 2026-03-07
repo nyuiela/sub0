@@ -20,7 +20,9 @@ import {
   type EIP1193Provider,
 } from "@/lib/userTradeSignature";
 import { toast } from "sonner";
+import { Loader2, Clock, ExternalLink } from "lucide-react";
 import type { MarketPricesResponse } from "@/types/prices.types";
+import { getBlockExplorerTxUrl } from "@/lib/blockExplorer";
 import { Position } from "@/types/position.types";
 import { getMarketPrices } from "@/lib/api/prices";
 
@@ -112,7 +114,10 @@ export function MarketTradePanel({
   const account = useActiveAccount();
   const dispatch = useAppDispatch();
   const orderBook = useAppSelector((state) => selectOrderBookByMarketId(state, marketId, 0));
-  const { orderSubmitLoading, error, lastOrderSuccess } = useAppSelector((state) => state.markets);
+  const { orderSubmitLoading, error, lastOrderSuccess, lastOrderTxHash } = useAppSelector((state) => state.markets);
+  const blockExplorerUrl = typeof process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL === "string"
+    ? process.env.NEXT_PUBLIC_BLOCK_EXPLORER_URL
+    : undefined;
   const outcomesList = Array.isArray(outcomesProp) ? outcomesProp : [];
   const [yesLabel, noLabel] = parseOutcomeLabels(outcomesList);
 
@@ -134,9 +139,7 @@ export function MarketTradePanel({
 
       setIsRefreshingPrices(true);
       try {
-        const prices = await getMarketPrices(marketId, "1");
-        // Update marketPrices through parent component props
-        // For now, just update the timestamp and signature
+        await getMarketPrices(marketId, "1");
         setLastPriceUpdate(Date.now());
         setDonSignature("0x" + Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(""));
       } catch (err) {
@@ -521,18 +524,13 @@ export function MarketTradePanel({
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium text-card-foreground">Current Market Prices</p>
                 {isRefreshingPrices ? (
-                  <div className="flex items-center gap-1">
-                    <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
+                  <div className="flex items-center gap-1" role="status" aria-live="polite">
+                    <Loader2 className="h-3 w-3 animate-spin shrink-0 text-muted-foreground" aria-hidden />
                     <span className="text-xs text-muted-foreground">Updating...</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-1">
-                    <svg className="h-3 w-3 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <Clock className="h-3 w-3 shrink-0 text-muted-foreground" aria-hidden />
                     <span className="text-xs text-muted-foreground">
                       {timeUntilRefresh}s
                     </span>
@@ -715,6 +713,7 @@ export function MarketTradePanel({
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("BID", 0)}
                 aria-label={`Buy ${yesLabel}`}
+                aria-busy={orderSubmitLoading}
               >
                 Buy {yesLabel}
               </button>
@@ -724,6 +723,7 @@ export function MarketTradePanel({
                 disabled={!canTrade || orderSubmitLoading}
                 onClick={() => handleSubmit("ASK", 0)}
                 aria-label={`Sell ${yesLabel}`}
+                aria-busy={orderSubmitLoading}
               >
                 Sell {yesLabel}
               </button>
@@ -787,20 +787,59 @@ export function MarketTradePanel({
           </div>
         </details>
 
-        {lastOrderSuccess != null && (
+        {/* Single order status: loading or success in the same place */}
+        {(orderSubmitLoading || lastOrderSuccess != null) && (
           <div
-            className="flex items-center justify-between gap-2 rounded-lg bg-success/10 px-3 py-2 text-sm text-success"
+            className={`flex flex-col gap-2 rounded-lg border px-3 py-2.5 text-sm ${
+              orderSubmitLoading
+                ? "border-border bg-muted/30 text-muted-foreground"
+                : "border-success/20 bg-success/10 text-success"
+            }`}
             role="status"
+            aria-live="polite"
+            aria-label={orderSubmitLoading ? "Order submitting" : "Order result"}
           >
-            <span>{lastOrderSuccess}</span>
-            <button
-              type="button"
-              onClick={clearSuccess}
-              className="shrink-0 font-medium underline focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Dismiss success"
-            >
-              Dismiss
-            </button>
+            {orderSubmitLoading ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+                <span>Submitting order…</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between gap-2">
+                  <span>{lastOrderSuccess}</span>
+                  <button
+                    type="button"
+                    onClick={clearSuccess}
+                    className="shrink-0 font-medium underline focus:outline-none focus:ring-2 focus:ring-primary rounded"
+                    aria-label="Dismiss success"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+                {lastOrderTxHash && (
+                  <div className="flex items-center gap-1.5 pt-1 border-t border-success/20">
+                    <span className="text-xs text-muted-foreground shrink-0">Transaction:</span>
+                    {blockExplorerUrl && getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash) ? (
+                      <a
+                        href={getBlockExplorerTxUrl(blockExplorerUrl, lastOrderTxHash)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-mono text-xs text-primary hover:underline truncate max-w-full"
+                        title="View on block explorer"
+                      >
+                        {lastOrderTxHash.slice(0, 10)}…{lastOrderTxHash.slice(-8)}
+                        <ExternalLink className="h-3 w-3 shrink-0" aria-hidden />
+                      </a>
+                    ) : (
+                      <span className="font-mono text-xs truncate max-w-full" title={lastOrderTxHash}>
+                        {lastOrderTxHash.slice(0, 10)}…{lastOrderTxHash.slice(-8)}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 

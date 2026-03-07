@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getBackendBase } from "@/lib/api/backendAuth";
-import type { PricingResponse } from "@/lib/api/prices";
+import { getBackendBase, getBackendAuthHeaders } from "@/lib/api/backendAuth";
+import type { PricingResponseWithQuote } from "@/lib/api/prices";
 
 export async function GET(
   request: Request,
@@ -40,23 +40,25 @@ export async function GET(
   }
 
   const url = `${base}/api/markets/${id}/pricing?${backendParams.toString()}`;
-  
+
   try {
-    const res = await fetch(url, { 
+    const headers = await getBackendAuthHeaders();
+    const res = await fetch(url, {
       method: "GET",
-      credentials: "include" 
+      credentials: "include",
+      headers: { ...headers, "Content-Type": "application/json" },
     });
-    
-    const data = await res.json().catch(() => ({}));
-    
+
+    const data = (await res.json().catch(() => ({}))) as PricingResponseWithQuote & { error?: string };
+
     if (!res.ok) {
       return NextResponse.json(
-        (data as { error?: string }).error ?? "Pricing request failed",
+        { error: data.error ?? "Pricing request failed" },
         { status: res.status }
       );
     }
-    
-    return NextResponse.json(data as PricingResponse);
+
+    return NextResponse.json(data as PricingResponseWithQuote);
   } catch (error) {
     console.error("Pricing GET error:", error);
     return NextResponse.json(
@@ -94,10 +96,11 @@ export async function POST(
     }
 
     const url = `${base}/api/markets/${id}/pricing`;
-    
+    const headers = await getBackendAuthHeaders();
+
     const res = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { ...headers, "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
         outcomeIndex,
@@ -105,17 +108,17 @@ export async function POST(
         ...(bParameter && { bParameter }),
       }),
     });
-    
-    const data = await res.json().catch(() => ({}));
-    
+
+    const data = (await res.json().catch(() => ({}))) as PricingResponseWithQuote & { error?: string };
+
     if (!res.ok) {
       return NextResponse.json(
-        (data as { error?: string }).error ?? "Pricing request failed",
+        { error: data.error ?? "Pricing request failed" },
         { status: res.status }
       );
     }
-    
-    return NextResponse.json(data as PricingResponse);
+
+    return NextResponse.json(data as PricingResponseWithQuote);
   } catch (error) {
     console.error("Pricing POST error:", error);
     return NextResponse.json(

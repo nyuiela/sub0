@@ -12,6 +12,19 @@ export interface PricingResponse {
   error?: string;
 }
 
+/** Backend may return full quote in same response (sync). All fields optional except success/requestId. */
+export interface PricingResponseWithQuote extends PricingResponse {
+  marketId?: string;
+  questionId?: string;
+  outcomeIndex?: number;
+  quantity?: string;
+  tradeCostUsdc?: string;
+  deadline?: string;
+  nonce?: string;
+  donSignature?: string;
+  timestamp?: string;
+}
+
 export async function getMarketPrices(
   marketId: string,
   quantity?: string

@@ -23,6 +23,8 @@ export interface MarketsSliceState {
   detailLoading: boolean;
   orderSubmitLoading: boolean;
   lastOrderSuccess: string | null;
+  /** Transaction hash from last successful order when backend returns it. */
+  lastOrderTxHash: string | null;
   error: string | null;
 }
 
@@ -39,6 +41,7 @@ const initialState: MarketsSliceState = {
   detailLoading: false,
   orderSubmitLoading: false,
   lastOrderSuccess: null,
+  lastOrderTxHash: null,
   error: null,
 };
 
@@ -287,6 +290,7 @@ const marketsSlice = createSlice({
     },
     clearOrderSuccess: (state) => {
       state.lastOrderSuccess = null;
+      state.lastOrderTxHash = null;
     },
   },
   extraReducers: (builder) => {
@@ -417,44 +421,48 @@ const marketsSlice = createSlice({
         state.orderSubmitLoading = true;
         state.error = null;
         state.lastOrderSuccess = null;
+        state.lastOrderTxHash = null;
       })
       .addCase(submitOrder.fulfilled, (state, action) => {
         state.orderSubmitLoading = false;
-        
-        // Defensive check - ensure payload exists
+
         if (!action.payload) {
           console.error("submitOrder.fulfilled: payload is undefined");
           state.error = "Order response is missing";
           return;
         }
-        
-        const trades = action.payload.trades?.length ?? 0;
+
+        const payload = action.payload;
+        const trades = payload.trades?.length ?? 0;
         state.lastOrderSuccess =
           trades > 0
             ? `Order filled. ${trades} trade${trades > 1 ? "s" : ""} executed.`
             : "Order placed.";
-            
-        // Defensive check - ensure snapshot exists before setting order book
-        if (action.payload.snapshot) {
-          // Directly set the order book without using dispatch
-          const snapshot = action.payload.snapshot;
-          if (snapshot && snapshot.marketId) {
-            const { marketId, bids, asks, timestamp } = snapshot;
-            const outcomeIndex = "outcomeIndex" in snapshot ? snapshot.outcomeIndex : 0;
-            const key = `${marketId}-${outcomeIndex}`;
-            state.orderBookByMarketId[key] = {
-              marketId,
-              outcomeIndex,
-              bids,
-              asks,
-              timestamp,
-            };
-          }
+
+        const txHash =
+          payload.transactionHash ??
+          (payload.trades?.[0] as { transactionHash?: string } | undefined)?.transactionHash ??
+          null;
+        state.lastOrderTxHash = txHash ?? null;
+
+        if (payload.snapshot && payload.snapshot.marketId) {
+          const snapshot = payload.snapshot;
+          const { marketId, bids, asks, timestamp } = snapshot;
+          const outcomeIndex = "outcomeIndex" in snapshot ? snapshot.outcomeIndex : 0;
+          const key = `${marketId}-${outcomeIndex}`;
+          state.orderBookByMarketId[key] = {
+            marketId,
+            outcomeIndex,
+            bids,
+            asks,
+            timestamp,
+          };
         }
       })
       .addCase(submitOrder.rejected, (state, action) => {
         state.orderSubmitLoading = false;
         state.lastOrderSuccess = null;
+        state.lastOrderTxHash = null;
         state.error = action.payload as string;
       });
   },

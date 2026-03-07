@@ -37,6 +37,8 @@ export interface OrderResponseTrade {
   userId: string | null;
   agentId: string | null;
   executedAt: number;
+  /** On-chain transaction hash when available. */
+  transactionHash?: string;
 }
 
 export interface OrderBookLevelPayload {
@@ -57,6 +59,8 @@ export interface SubmitOrderResponse {
   orderId: string;
   trades: OrderResponseTrade[];
   snapshot: OrderResponseSnapshot;
+  /** Transaction hash when backend supports it; show in success message with explorer link. */
+  transactionHash?: string;
 }
 
 export interface OrderErrorResponse {

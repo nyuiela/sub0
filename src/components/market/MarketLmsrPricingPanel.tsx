@@ -5,6 +5,7 @@ import { useMarketSocket } from "@/lib/websocket/useMarketSocket";
 import { useMarketPricing } from "@/lib/websocket/useMarketPricing";
 import { getMarketPrices } from "@/lib/api/prices";
 import type { LmsrPricingUpdatePayload } from "@/lib/websocket/websocket-types";
+import { Loader2 } from "lucide-react";
 import { formatCollateral, USDC_DECIMALS } from "@/lib/formatNumbers";
 import type { MarketPricesResponse } from "@/types/prices.types";
 
@@ -130,34 +131,34 @@ export function MarketLmsrPricingPanel({
     onError: handleError,
   });
 
-  // Auto-fetch base prices on component mount
-  useEffect(() => {
-    const fetchBasePrices = async () => {
-      setIsLoading(true);
-      try {
-        const prices = await getMarketPrices(marketId, "1"); // Get 1:1 price
-        setBasePrices(prices);
+  const fetchQuoteAndPrices = useCallback(async () => {
+    if (!marketId) return;
+    setIsLoading(true);
+    setError(null);
+    try {
+      const prices = await getMarketPrices(marketId, "1");
+      setBasePrices(prices);
 
-        // Also request a quote for the default outcome and quantity
-        const requestId = await requestPricing({
-          outcomeIndex: selectedOutcome,
-          quantity,
-        });
+      const requestId = await requestPricing({
+        outcomeIndex: selectedOutcome,
+        quantity,
+      });
 
-        if (!requestId) {
-          setError("Failed to fetch pricing");
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch prices");
-      } finally {
-        setIsLoading(false);
+      if (!requestId) {
+        setError("Quote unavailable. Backend may not support pricing yet.");
       }
-    };
-
-    if (marketId) {
-      fetchBasePrices();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch prices or quote");
+    } finally {
+      setIsLoading(false);
     }
-  }, [marketId]);
+  }, [marketId, selectedOutcome, quantity, requestPricing]);
+
+  useEffect(() => {
+    if (marketId) {
+      fetchQuoteAndPrices();
+    }
+  }, [marketId, fetchQuoteAndPrices]);
 
   // Auto-refresh when WebSocket updates prices
   useEffect(() => {
@@ -229,12 +230,30 @@ export function MarketLmsrPricingPanel({
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex items-center justify-center py-4">
-          <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <span className="text-sm text-muted-foreground">Loading prices...</span>
+        <div
+          className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground"
+          role="status"
+          aria-live="polite"
+        >
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+          <span>Fetching quote…</span>
+        </div>
+      )}
+
+      {/* Error State with Retry */}
+      {error && !isLoading && (
+        <div
+          className="mb-3 rounded-lg border border-danger/20 bg-danger/5 px-3 py-2.5 text-sm text-danger"
+          role="alert"
+        >
+          <p className="mb-2">{error}</p>
+          <button
+            type="button"
+            onClick={() => fetchQuoteAndPrices()}
+            className="rounded-md bg-danger/10 px-2.5 py-1.5 text-xs font-medium text-danger hover:bg-danger/20 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            Retry quote
+          </button>
         </div>
       )}
 
