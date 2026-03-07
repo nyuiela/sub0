@@ -125,6 +125,14 @@ const layoutSlice = createSlice({
       state.simulationEndsAt = Date.now() + action.payload.durationMs;
       state.simulationId = action.payload.simulationId ?? null;
     },
+    extendSimulationRun: (
+      state,
+      action: { payload: { additionalDurationMinutes: number } }
+    ) => {
+      if (state.simulationEndsAt != null) {
+        state.simulationEndsAt += action.payload.additionalDurationMinutes * 60 * 1000;
+      }
+    },
     stopSimulationRun: (state) => {
       state.simulationRunningAgentId = null;
       state.simulationEndsAt = null;

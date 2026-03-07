@@ -148,6 +148,73 @@ export async function startSimulation(
   return data as SimulateStartResponse;
 }
 
+export interface SimulateQueueStatusResponse {
+  waiting: number;
+  active: number;
+  completed: number;
+  failed: number;
+}
+
+export async function getSimulateQueueStatus(): Promise<SimulateQueueStatusResponse> {
+  const res = await fetch("/api/simulate/queue-status", { credentials: "include" });
+  const data = (await res.json().catch(() => ({}))) as SimulateQueueStatusResponse & {
+    error?: string;
+  };
+  if (!res.ok) {
+    return {
+      waiting: data?.waiting ?? 0,
+      active: data?.active ?? 0,
+      completed: data?.completed ?? 0,
+      failed: data?.failed ?? 0,
+    };
+  }
+  return {
+    waiting: data?.waiting ?? 0,
+    active: data?.active ?? 0,
+    completed: data?.completed ?? 0,
+    failed: data?.failed ?? 0,
+  };
+}
+
+export interface SimulateExtendParams {
+  simulationId: string;
+  additionalDurationMinutes: number;
+  additionalMarkets: number;
+}
+
+export interface SimulateExtendResponse {
+  addedMarkets: number;
+  additionalDurationMinutes: number;
+  newTotalDurationMinutes: number;
+}
+
+/**
+ * Extend a running simulation: add time and/or markets. Charges via x402 for the increment.
+ */
+export async function extendSimulation(
+  params: SimulateExtendParams,
+  options?: { fetch?: typeof globalThis.fetch }
+): Promise<SimulateExtendResponse> {
+  const fetcher = options?.fetch ?? fetch;
+  const res = await fetcher("/api/simulate/extend", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      simulationId: params.simulationId,
+      additionalDurationMinutes: params.additionalDurationMinutes,
+      additionalMarkets: params.additionalMarkets,
+    }),
+  });
+  const data = (await res.json().catch(() => ({}))) as SimulateExtendResponse & {
+    error?: string;
+  };
+  if (!res.ok) {
+    throw new Error(data?.error ?? "Extend simulation failed");
+  }
+  return data as SimulateExtendResponse;
+}
+
 export interface SimulateStopResponse {
   ok: boolean;
   status: string;

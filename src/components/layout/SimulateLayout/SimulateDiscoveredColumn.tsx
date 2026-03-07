@@ -11,7 +11,7 @@ import {
   stopSimulationRun,
 } from "@/store/slices/layoutSlice";
 import { getEnqueuedMarkets, deleteAgentEnqueuedMarket } from "@/lib/api/agents";
-import { startSimulation, stopSimulation } from "@/lib/api/simulate";
+import { getSimulateQueueStatus, startSimulation, stopSimulation } from "@/lib/api/simulate";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
 import Countdown, { zeroPad } from "react-countdown";
@@ -106,6 +106,35 @@ function getInitialDuration(): string {
   return String(DEFAULT_DURATION_MINUTES);
 }
 
+/**
+ * Merge new page into previous list: same object ref when row unchanged so only updated rows re-render.
+ * When keepRest is true (refresh of first page), appends items from prev that are not in newPage so "load more" tail is preserved.
+ */
+function mergeEnqueuedPage(
+  prev: EnqueuedMarketItem[],
+  newPage: EnqueuedMarketItem[],
+  options?: { keepRest?: boolean }
+): EnqueuedMarketItem[] {
+  const prevByMarket = new Map(prev.map((i) => [i.marketId, i]));
+  const serverIds = new Set(newPage.map((r) => r.marketId));
+  const merged: EnqueuedMarketItem[] = [];
+  for (const row of newPage) {
+    const existing = prevByMarket.get(row.marketId);
+    const unchanged =
+      existing &&
+      existing.status === row.status &&
+      (existing.tradeReason ?? null) === (row.tradeReason ?? null) &&
+      (existing.discardReason ?? null) === (row.discardReason ?? null) &&
+      existing.updatedAt === row.updatedAt;
+    merged.push(unchanged ? existing : { ...row });
+  }
+  if (options?.keepRest) {
+    const rest = prev.filter((p) => !serverIds.has(p.marketId));
+    return [...merged, ...rest];
+  }
+  return merged;
+}
+
 /** Pricing for paid simulation (USDC). Must match backend x402/pricing.ts. */
 const SIMULATE_PRICE_BASE_USDC = 0.5;
 const SIMULATE_PRICE_PER_MARKET_USDC = 0.02;
@@ -134,6 +163,12 @@ export function SimulateDiscoveredColumn({
   const [durationInput, setDurationInput] = useState(getInitialDuration);
   const [error, setError] = useState<string | null>(null);
   const [removingMarketId, setRemovingMarketId] = useState<string | null>(null);
+  const [queueStatus, setQueueStatus] = useState<{
+    waiting: number;
+    active: number;
+    completed: number;
+    failed: number;
+  } | null>(null);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -202,7 +237,9 @@ export function SimulateDiscoveredColumn({
         if (append) {
           setItems((prev) => [...prev, ...res.data]);
         } else {
-          setItems(res.data);
+          setItems((prev) =>
+            mergeEnqueuedPage(prev, res.data, { keepRest: offset === 0 })
+          );
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load");
@@ -223,7 +260,7 @@ export function SimulateDiscoveredColumn({
       cappedMarkets?: number
     ) => {
       toast.success(
-        `Simulation started: ${enqueued} market(s) selected from date range and queued for analysis. They will appear below.`
+        `Simulation started: ${enqueued} market(s) queued for analysis. They will appear below. Ensure the agent worker is running for analysis to run.`
       );
       if (selectedAgentId) {
         const durationMs = cappedDuration * 60 * 1000;
@@ -282,6 +319,21 @@ export function SimulateDiscoveredColumn({
     }, 15000);
     return () => clearInterval(interval);
   }, [simulationRunning, selectedAgentId, fetchPage]);
+
+  useEffect(() => {
+    if (!simulationRunning) {
+      setQueueStatus(null);
+      return;
+    }
+    const fetchQueue = () => {
+      getSimulateQueueStatus()
+        .then((s) => setQueueStatus(s))
+        .catch(() => setQueueStatus(null));
+    };
+    fetchQueue();
+    const interval = setInterval(fetchQueue, 15000);
+    return () => clearInterval(interval);
+  }, [simulationRunning]);
 
   const handleLoadMore = useCallback(() => {
     if (!selectedAgentId || loadingMore || items.length >= total) return;
@@ -540,6 +592,18 @@ export function SimulateDiscoveredColumn({
         <p className="mb-2 text-xs text-muted-foreground">
           Markets selected for this simulation (from the date range). Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
         </p>
+      </div>
+      {simulationRunning && queueStatus != null && (
+        <p className="mb-2 text-xs text-muted-foreground" role="status">
+          Queue: {queueStatus.waiting} waiting, {queueStatus.active} active.
+          {queueStatus.waiting > 0 && queueStatus.active === 0 ? (
+            <> If these numbers do not change, the agent worker may not be running (start the worker process in production).</>
+          ) : (
+            <> Ensure the agent worker is running for analysis to run.</>
+          )}
+        </p>
+      )}
+      <div className="flex flex-wrap justify-between items-center gap-2">
         {items.length > 0 && (
           <div className="flex flex-wrap justify-between items-center gap-2">
             <button

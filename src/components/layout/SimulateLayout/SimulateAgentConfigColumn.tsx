@@ -75,7 +75,7 @@ export function SimulateAgentConfigColumn({
   onSelectAgent,
   className = "",
 }: SimulateAgentConfigColumnProps) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const dispatch = useAppDispatch();
   const simulateBalanceVersion = useAppSelector(
     (state) => state.layout.simulateBalanceVersion
@@ -128,12 +128,18 @@ export function SimulateAgentConfigColumn({
   const hasAutoSelectedRef = useRef(false);
 
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      setError(null);
+      return;
+    }
     if (user == null) {
       setAgents([]);
       setLoading(false);
       setError("Sign in to see your agents.");
       return;
     }
+    setError(null);
     let cancelled = false;
     getMyAgents({ limit: AGENTS_LIMIT })
       .then((res) => {
@@ -145,7 +151,7 @@ export function SimulateAgentConfigColumn({
       })
       .catch(() => {
         if (!cancelled) {
-          setError("Sign in to see your agents.");
+          setError("Failed to load agents.");
           setAgents([]);
         }
       })
@@ -155,7 +161,7 @@ export function SimulateAgentConfigColumn({
     return () => {
       cancelled = true;
     };
-  }, [user, dispatch]);
+  }, [user, authLoading, dispatch]);
 
   useEffect(() => {
     if (agents.length > 0 && selectedAgentId == null && !hasAutoSelectedRef.current) {
