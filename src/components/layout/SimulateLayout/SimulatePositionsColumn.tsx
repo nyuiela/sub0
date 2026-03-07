@@ -13,16 +13,23 @@ export interface SimulatePositionsColumnProps {
 
 const POSITION_IMAGE_SIZE = 48;
 const POSITIONS_LIMIT = 50;
+const SIMULATION_POLL_MS = 12_000;
 
 export function SimulatePositionsColumn({
   selectedAgentId,
   className = "",
 }: SimulatePositionsColumnProps) {
   const refetchTrigger = useAppSelector((state) => state.positions.refetchTrigger);
+  const simulationRunningAgentId = useAppSelector(
+    (state) => state.layout.simulationRunningAgentId
+  );
   const [positions, setPositions] = useState<Position[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const simulationRunning =
+    selectedAgentId != null && simulationRunningAgentId === selectedAgentId;
 
   const fetchPositions = useCallback(async () => {
     if (!selectedAgentId) {
@@ -55,6 +62,12 @@ export function SimulatePositionsColumn({
   useEffect(() => {
     void fetchPositions();
   }, [fetchPositions, refetchTrigger]);
+
+  useEffect(() => {
+    if (!simulationRunning || !selectedAgentId) return;
+    const interval = setInterval(() => void fetchPositions(), SIMULATION_POLL_MS);
+    return () => clearInterval(interval);
+  }, [simulationRunning, selectedAgentId, fetchPositions]);
 
   if (selectedAgentId == null) {
     return (
