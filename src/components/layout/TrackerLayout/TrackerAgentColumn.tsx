@@ -187,17 +187,17 @@ export function TrackerAgentColumn({
 
   return (
     <aside
-      className={`flex flex-col gap-4 overflow-auto ${className}`.trim()}
+      className={`flex min-w-0 flex-col gap-4 overflow-auto ${className}`.trim()}
       aria-label="Your agents"
     >
-      <section aria-label="User Agents TreeMap">
+      <section className="min-w-0" aria-label="User Agents TreeMap">
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
           User Agents TreeMap
         </h3>
         {loading && agents.length === 0 ? (
-          <div className="h-[200px] animate-pulse rounded bg-surface" />
+          <div className="h-[200px] w-full min-w-0 animate-pulse rounded bg-surface" />
         ) : agents.length > 0 ? (
-          <AgentTreemap agents={agents} simpleOnly />
+          <AgentTreemap agents={agents} className="w-full min-w-0" simpleOnly />
         ) : (
           <p className="text-sm text-muted-foreground">No agents yet.</p>
         )}

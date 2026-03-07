@@ -157,7 +157,7 @@ export function DraggableColumns() {
                 </h3>
               </header>
               <div
-                className="scrollbar-hidden flex-1 overflow-auto p-1 min-h-0"
+                className="scrollbar-hidden min-h-0 min-w-0 flex-1 overflow-auto p-1"
                 data-column-scroll
               >
                 {columnId === "new" ? (

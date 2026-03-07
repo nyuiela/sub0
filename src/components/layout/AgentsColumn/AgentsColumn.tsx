@@ -234,18 +234,18 @@ export function AgentsColumn({
 
   return (
     <article
-      className={`flex flex-col gap-3 ${className}`.trim()}
+      className={`flex min-w-0 flex-col gap-3 ${className}`.trim()}
       aria-label="Top agents"
     >
       {topForTreemap.length > 0 && (
-        <section aria-label="Agents TreeMap">
+        <section className="min-w-0" aria-label="Agents TreeMap">
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
             Agents by volume
           </h3>
           <p className="mb-2 text-[10px] text-muted-foreground">
             All agents listed. Only yours show Deposit / Get wallet.
           </p>
-          <AgentTreemap agents={topForTreemap} simpleOnly />
+          <AgentTreemap agents={topForTreemap} className="w-full min-w-0" simpleOnly />
         </section>
       )}
       {agents.length === 0 ? (

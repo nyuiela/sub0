@@ -217,21 +217,21 @@ const marketsSlice = createSlice({
   reducers: {
     setOrderBookForMarket: (state, action: { payload: OrderBookSnapshot | OrderResponseSnapshot }) => {
       const payload = action.payload;
-      
+
       // Defensive check - ensure payload exists and has required fields
       if (!payload) {
         console.error("setOrderBookForMarket: payload is undefined");
         return;
       }
-      
+
       const { marketId, bids, asks, timestamp } = payload;
-      
+
       // Defensive check - ensure marketId exists
       if (!marketId) {
         console.error("setOrderBookForMarket: marketId is undefined in payload:", payload);
         return;
       }
-      
+
       const outcomeIndex = "outcomeIndex" in payload ? payload.outcomeIndex : 0;
       const key = `${marketId}-${outcomeIndex}`;
       state.orderBookByMarketId[key] = {

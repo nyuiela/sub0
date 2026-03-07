@@ -211,7 +211,7 @@ export function TrackerLayout({ ownerId, className = "" }: TrackerLayoutProps) {
                   {TRACKER_LABELS[columnId as TrackerColumnId] ?? columnId}
                 </h3>
               </header>
-              <div className="min-h-0 flex-1 overflow-auto p-1">
+              <div className="min-h-0 min-w-0 flex-1 overflow-auto p-1">
                 {renderColumnContent(columnId)}
               </div>
             </section>

@@ -78,25 +78,25 @@ function SimpleTreemapFallback({ agents, className = "" }: { agents: Agent[]; cl
   if (total <= 0) return null;
   return (
     <section
-      className={`flex flex-wrap gap-0.5 overflow-hidden rounded ${className}`.trim()}
+      className={`flex w-full min-w-0 flex-nowrap gap-0.5 overflow-x-auto overflow-y-hidden rounded ${className}`.trim()}
       style={{ minHeight: CHART_HEIGHT_PX }}
       aria-label="Agents by volume"
     >
       {agents.map((a) => {
         const value = Math.max(0.01, (a.tradedAmount ?? 0) + (a.balance ?? 0) || 1);
-        const pct = Math.max(8, (value / total) * 100);
+        const pct = Math.max(2, (value / total) * 100);
         const pnl = typeof a.pnl === "number" ? a.pnl : 0;
         const bg =
           pnl > 0
             ? "bg-success/80"
             : pnl < 0
-              ? "bg-destructive/60"
+              ? "bg-danger/60"
               : "bg-muted";
         return (
           <div
             key={a.id}
-            className={`flex items-center justify-center rounded p-1 text-center ${bg} text-white`}
-            style={{ flex: `${pct} 1 0`, minWidth: "20%", fontSize: 10 }}
+            className={`flex min-w-0 items-center justify-center rounded p-1 text-center ${bg} text-white`}
+            style={{ flex: `${pct} 1 0`, minWidth: "2.5rem", fontSize: 10 }}
             title={`${a.name ?? a.id} | Vol: ${value.toFixed(0)} | PnL: ${pnl}`}
           >
             <span className="truncate">{a.name?.slice(0, 8) ?? a.id.slice(0, 8)}</span>
@@ -322,13 +322,14 @@ export function AgentTreemap({ agents, className = "", simpleOnly = false }: Age
 
   return (
     <section
-      className={`relative overflow-hidden rounded ${className}`.trim()}
+      className={`relative w-full min-w-0 overflow-hidden rounded ${className}`.trim()}
       aria-label="Top agents treemap by traded volume"
-      style={{ minHeight: CHART_HEIGHT_PX, height: CHART_HEIGHT_PX, minWidth: 160 }}
+      style={{ minHeight: CHART_HEIGHT_PX, height: CHART_HEIGHT_PX, minWidth: 0 }}
     >
       <div
         ref={containerRef}
-        style={{ width: "100%", height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
+        className="w-full min-w-0"
+        style={{ height: CHART_HEIGHT_PX, minHeight: CHART_HEIGHT_PX }}
       />
       {chartError != null && (
         <div className="absolute inset-0 flex flex-col gap-1 rounded bg-muted/90 p-2">
