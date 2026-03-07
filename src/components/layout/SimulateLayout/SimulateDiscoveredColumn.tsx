@@ -158,17 +158,18 @@ export function SimulateDiscoveredColumn({
   const estimatedPriceUsdc = computeSimulatePriceUsdc(maxMarketsParsed, durationParsed);
 
   const fetchPage = useCallback(
-    async (offset: number, append: boolean) => {
+    async (offset: number, append: boolean, simulationIdOverride?: string) => {
       if (!selectedAgentId) return;
       if (append) setLoadingMore(true);
       else setLoading(true);
       setError(null);
+      const simId = simulationIdOverride ?? simulationId ?? undefined;
       try {
         const res = await getEnqueuedMarkets(selectedAgentId, {
           limit: PAGE_SIZE,
           offset,
           chainKey: "tenderly",
-          simulationId: simulationId ?? undefined,
+          simulationId: simId,
         });
         setTotal(res.total);
         if (append) {
@@ -194,7 +195,9 @@ export function SimulateDiscoveredColumn({
       simulationId?: string,
       cappedMarkets?: number
     ) => {
-      toast.success(`Simulation started: ${enqueued} market(s) enqueued`);
+      toast.success(
+        `Simulation started: ${enqueued} market(s) selected from date range and queued for analysis. They will appear below.`
+      );
       if (selectedAgentId) {
         const durationMs = cappedDuration * 60 * 1000;
         const endsAt = Date.now() + durationMs;
@@ -453,9 +456,14 @@ export function SimulateDiscoveredColumn({
               placeholder="60"
             />
           </div>
-          <span className="text-xs text-muted-foreground">
-            Min Est. {estimatedPriceUsdc.toFixed(2)} USDC
-          </span>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="simulate-estimated-price" className="text-xs font-medium text-foreground">
+              {`Simulation Cost (x402):`}  
+            </label>
+            <span className="text-xs text-muted-foreground">
+              Min Est. {estimatedPriceUsdc.toFixed(2)} USDC
+            </span>
+          </div>
         </div>
 
         {simulationRunning && simulationEndsAt != null && (
@@ -503,7 +511,7 @@ export function SimulateDiscoveredColumn({
 
       <div className="flex flex-wrap justify-between items-center gap-2">
         <p className="mb-2 text-xs text-muted-foreground">
-          Markets added to this agent. Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
+          Markets selected for this simulation (from the date range). Status: PENDING until agent runs, then DISCARDED (with reason) or TRADED. List refreshes every 15s while simulation runs.
         </p>
         {items.length > 0 && (
           <div className="flex flex-wrap justify-between items-center gap-2">
@@ -537,7 +545,7 @@ export function SimulateDiscoveredColumn({
         <p className="text-sm text-muted-foreground">Loading...</p>
       ) : items.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No markets added yet. Use &quot;Add to agent&quot; in the Markets column.
+          Enter date range, number of markets, and duration above, then click Start simulation. Markets in that date range will be selected at random and listed here.
         </p>
       ) : (
         <>
