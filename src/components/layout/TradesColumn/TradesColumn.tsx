@@ -77,7 +77,7 @@ function TradeRow({
         <p className="mt-1 text-[10px] text-muted">
           <LiveTimeDisplay createdAt={item.executedAt} />
           {item.agentId != null ? (
-            <span className="ml-1"> agent {item.agentId.slice(0, 8)}...</span>
+            <span className="ml-1"> agent {txHash?.slice(0, 4)}...{txHash?.slice(-4)}</span>
           ) : null}
         </p>
       </section>
