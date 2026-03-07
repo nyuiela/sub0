@@ -17,8 +17,10 @@ export async function GET(
   const limit = searchParams.get("limit") ?? "50";
   const offset = searchParams.get("offset") ?? "0";
   const chainKey = searchParams.get("chainKey");
+  const simulationId = searchParams.get("simulationId");
   const qs = new URLSearchParams({ limit, offset });
   if (chainKey === "main" || chainKey === "tenderly") qs.set("chainKey", chainKey);
+  if (simulationId != null && simulationId !== "") qs.set("simulationId", simulationId);
   const query = qs.toString();
   const headers = await getBackendAuthHeaders();
   const res = await fetch(

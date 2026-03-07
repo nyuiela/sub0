@@ -17,6 +17,33 @@ import { toast } from "sonner";
 import Countdown, { zeroPad } from "react-countdown";
 import type { EnqueuedMarketItem } from "@/lib/api/agents";
 
+const SIMULATE_ERROR_MAX_UI_LENGTH = 140;
+
+function summarizeSimulationError(error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error ?? "");
+  if (typeof raw !== "string" || raw.length === 0) return "Start simulation failed";
+  if (typeof console !== "undefined" && console.error) console.error("[Simulate start]", error);
+
+  const textOnly = raw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const lower = textOnly.toLowerCase();
+  if (
+    lower.includes("insufficient funds") ||
+    lower.includes("exceeds the balance") ||
+    lower.includes("balance of the account") ||
+    (lower.includes("payment failed") && (lower.includes("gas") || lower.includes("value")))
+  ) {
+    return "Insufficient funds: the agent wallet does not have enough balance for this simulation. Fund the agent wallet and try again.";
+  }
+  if (lower.includes("payment failed")) {
+    return "Payment failed. Fund the agent wallet and try again.";
+  }
+  if (raw.includes("<") || raw.includes("Request Arguments") || raw.length > 200) {
+    return "Start simulation failed. Check the console for details.";
+  }
+  if (textOnly.length <= SIMULATE_ERROR_MAX_UI_LENGTH) return textOnly;
+  return `${textOnly.slice(0, SIMULATE_ERROR_MAX_UI_LENGTH - 3).trim()}...`;
+}
+
 const CountdownRenderer = ({ minutes, seconds, completed }: { minutes: number; seconds: number; completed: boolean }) => {
   if (completed) return <span className="font-bold text-danger">SIMULATION ENDED</span>;
   return (
@@ -231,7 +258,7 @@ export function SimulateDiscoveredColumn({
           })
         );
       }
-      void fetchPage(0, false);
+      void fetchPage(0, false, simulationId);
       setTimeout(() => dispatch(incrementSimulateBalanceVersion()), 4000);
     },
     [selectedAgentId, fetchPage, dispatch]
@@ -358,7 +385,7 @@ export function SimulateDiscoveredColumn({
         )
       )
       .catch((e) => {
-        const msg = e instanceof Error ? e.message : "Start simulation failed";
+        const msg = summarizeSimulationError(e);
         setError(msg);
         toast.error(msg);
       })
