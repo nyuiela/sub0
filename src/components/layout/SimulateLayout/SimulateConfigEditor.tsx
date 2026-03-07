@@ -189,33 +189,41 @@ function getStrategyFromAgent(agent: Agent): {
   };
 }
 
+const EMPTY_OPENCLAW: OpenClawTemplate = {
+  soul: "",
+  persona: "",
+  skill: "",
+  methodology: "",
+  failed_tests: "",
+  context: "",
+  constraints: "",
+};
+
+function parseOpenclawRaw(raw: unknown): Record<string, unknown> | null {
+  if (raw != null && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
+  if (typeof raw === "string" && raw.trim() !== "") {
+    try {
+      const parsed = JSON.parse(raw) as unknown;
+      return parseOpenclawRaw(parsed);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 function getOpenclawFromAgent(agent: Agent): OpenClawTemplate {
   const ms = agent.modelSettings;
   if (!ms || typeof ms !== "object" || !("openclaw" in ms)) {
-    return {
-      soul: "",
-      persona: "",
-      skill: "",
-      methodology: "",
-      failed_tests: "",
-      context: "",
-      constraints: "",
-    };
+    return EMPTY_OPENCLAW;
   }
-  const oc = ms.openclaw as Record<string, unknown> | undefined;
-  if (!oc || typeof oc !== "object") {
-    return {
-      soul: "",
-      persona: "",
-      skill: "",
-      methodology: "",
-      failed_tests: "",
-      context: "",
-      constraints: "",
-    };
+  const oc = parseOpenclawRaw(ms.openclaw);
+  if (!oc) {
+    return EMPTY_OPENCLAW;
   }
-  const str = (v: unknown): string =>
-    typeof v === "string" ? v : "";
+  const str = (v: unknown): string => (typeof v === "string" ? v : "");
   return {
     soul: str(oc.soul),
     persona: str(oc.persona),
@@ -229,12 +237,15 @@ function getOpenclawFromAgent(agent: Agent): OpenClawTemplate {
 
 export interface SimulateConfigEditorProps {
   agent: Agent;
+  /** True while full agent (e.g. modelSettings.openclaw) is being fetched. */
+  configLoading?: boolean;
   onAgentUpdated?: (agent: Agent) => void;
   className?: string;
 }
 
 export function SimulateConfigEditor({
   agent,
+  configLoading = false,
   onAgentUpdated,
   className = "",
 }: SimulateConfigEditorProps) {
@@ -252,8 +263,10 @@ export function SimulateConfigEditor({
   const [strategy, setStrategy] = useState(() => getStrategyFromAgent(agent));
 
   useEffect(() => {
-    setOpenclaw(getOpenclawFromAgent(agent));
-  }, [agent.id, agent.modelSettings]);
+    if (!configLoading) {
+      setOpenclaw(getOpenclawFromAgent(agent));
+    }
+  }, [agent.id, agent.modelSettings, configLoading]);
 
   useEffect(() => {
     const saved = getModelFromAgent(agent);
@@ -461,7 +474,13 @@ export function SimulateConfigEditor({
         >
           OpenClaw Docs
         </h3>
-        <OpenClawDocsEditor openclaw={openclaw} onChange={setDoc} />
+        {configLoading ? (
+          <p className="rounded-lg border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+            Loading docs…
+          </p>
+        ) : (
+          <OpenClawDocsEditor openclaw={openclaw} onChange={setDoc} />
+        )}
       </section>
       <footer className="mt-2">
         <button

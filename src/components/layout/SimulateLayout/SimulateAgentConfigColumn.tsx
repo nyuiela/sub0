@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { incrementSimulateBalanceVersion } from "@/store/slices/layoutSlice";
 import { setByMarketFromAgents } from "@/store/slices/marketAgentsSlice";
-import { getMyAgents } from "@/lib/api/agents";
+import { getMyAgents, getAgent } from "@/lib/api/agents";
 import { toast } from "sonner";
 import {
   getSimulateConfig,
@@ -81,6 +81,8 @@ export function SimulateAgentConfigColumn({
     (state) => state.layout.simulateBalanceVersion
   );
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [configAgent, setConfigAgent] = useState<Agent | null>(null);
+  const [configAgentLoading, setConfigAgentLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [balance, setBalance] = useState<{
@@ -208,6 +210,28 @@ export function SimulateAgentConfigColumn({
       cancelled = true;
     };
   }, [selectedAgentId, simulateBalanceVersion]);
+
+  useEffect(() => {
+    if (!selectedAgentId?.trim()) {
+      setConfigAgent(null);
+      return;
+    }
+    let cancelled = false;
+    setConfigAgentLoading(true);
+    getAgent(selectedAgentId)
+      .then((full) => {
+        if (!cancelled) setConfigAgent(full);
+      })
+      .catch(() => {
+        if (!cancelled) setConfigAgent(null);
+      })
+      .finally(() => {
+        if (!cancelled) setConfigAgentLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedAgentId]);
 
   useEffect(() => {
     const next = eligibility?.nextRequestAt;
@@ -494,11 +518,13 @@ export function SimulateAgentConfigColumn({
         </h2>
         {selectedAgent != null ? (
           <SimulateConfigEditor
-            agent={selectedAgent}
+            agent={configAgent ?? selectedAgent}
+            configLoading={configAgentLoading}
             onAgentUpdated={(updated) => {
               setAgents((prev) =>
                 prev.map((a) => (a.id === updated.id ? updated : a))
               );
+              setConfigAgent(updated);
             }}
           />
         ) : (
