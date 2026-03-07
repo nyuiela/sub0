@@ -34,6 +34,7 @@ export interface TradeListParams {
   marketId?: string;
   userId?: string;
   agentId?: string;
+  chainKey?: "main" | "tenderly";
   limit?: number;
   offset?: number;
 }
@@ -49,11 +50,12 @@ export interface TradeListResponse {
 export async function getTrades(params: TradeListParams = {}): Promise<TradeListResponse> {
   const searchParams = new URLSearchParams();
   
-  if (params.marketId) searchParams.set('marketId', params.marketId);
-  if (params.userId) searchParams.set('userId', params.userId);
-  if (params.agentId) searchParams.set('agentId', params.agentId);
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
+  if (params.marketId) searchParams.set("marketId", params.marketId);
+  if (params.userId) searchParams.set("userId", params.userId);
+  if (params.agentId) searchParams.set("agentId", params.agentId);
+  if (params.chainKey === "main" || params.chainKey === "tenderly") searchParams.set("chainKey", params.chainKey);
+  if (params.limit != null) searchParams.set("limit", params.limit.toString());
+  if (params.offset != null) searchParams.set("offset", params.offset.toString());
 
   const response = await fetch(`/api/trades?${searchParams.toString()}`);
   

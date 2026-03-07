@@ -10,7 +10,7 @@ import {
   startSimulationRun,
   stopSimulationRun,
 } from "@/store/slices/layoutSlice";
-import { getEnqueuedMarkets } from "@/lib/api/agents";
+import { getEnqueuedMarkets, deleteAgentEnqueuedMarket } from "@/lib/api/agents";
 import { startSimulation, stopSimulation } from "@/lib/api/simulate";
 import { getDiceBearAvatarUrl } from "@/lib/avatar";
 import { toast } from "sonner";
@@ -106,6 +106,7 @@ export function SimulateDiscoveredColumn({
   const [maxMarketsInput, setMaxMarketsInput] = useState(getInitialMaxMarkets);
   const [durationInput, setDurationInput] = useState(getInitialDuration);
   const [error, setError] = useState<string | null>(null);
+  const [removingMarketId, setRemovingMarketId] = useState<string | null>(null);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -167,6 +168,7 @@ export function SimulateDiscoveredColumn({
           limit: PAGE_SIZE,
           offset,
           chainKey: "tenderly",
+          simulationId: simulationId ?? undefined,
         });
         setTotal(res.total);
         if (append) {
@@ -182,7 +184,7 @@ export function SimulateDiscoveredColumn({
         setLoadingMore(false);
       }
     },
-    [selectedAgentId]
+    [selectedAgentId, simulationId]
   );
 
   const handleStartSuccess = useCallback(
@@ -255,6 +257,32 @@ export function SimulateDiscoveredColumn({
     if (!selectedAgentId || loadingMore || items.length >= total) return;
     void fetchPage(items.length, true);
   }, [selectedAgentId, loadingMore, items.length, total, fetchPage]);
+
+  const handleRemoveFromAgent = useCallback(
+    async (marketId: string) => {
+      if (!selectedAgentId || !simulationId) {
+        toast.error("Simulation context required to remove market");
+        return;
+      }
+      setRemovingMarketId(marketId);
+      try {
+        await deleteAgentEnqueuedMarket({
+          marketId,
+          agentId: selectedAgentId,
+          simulationId,
+        });
+        dispatch(incrementSimulateEnqueuedListVersion());
+        setItems((prev) => prev.filter((item) => item.marketId !== marketId));
+        setTotal((t) => Math.max(0, t - 1));
+        toast.success("Market removed from agent queue");
+      } catch {
+        toast.error("Failed to remove market from agent");
+      } finally {
+        setRemovingMarketId(null);
+      }
+    },
+    [selectedAgentId, simulationId, dispatch]
+  );
 
   const hasMore = items.length < total;
 
@@ -516,10 +544,13 @@ export function SimulateDiscoveredColumn({
           <ul className="space-y-2" role="list">
             {items.map((item: EnqueuedMarketItem) => {
               const isDiscarded = item.status === "DISCARDED";
+              const decision = item.tradeReason ?? item.discardReason ?? null;
               return (
                 <li
                   key={item.marketId}
-                  className="flex items-start gap-3 rounded border border-border bg-surface p-2"
+                  className={`flex items-start gap-3 rounded border p-2 transition-colors border-border bg-surface ${
+                    isDiscarded ? "opacity-75" : ""
+                  }`}
                 >
                   <figure className="h-12 w-12 shrink-0 overflow-hidden rounded-sm" aria-hidden>
                     <Image
@@ -543,17 +574,22 @@ export function SimulateDiscoveredColumn({
                         ? "PENDING (waiting for agent)"
                         : item.status}
                     </span>
-                    {(item.discardReason != null && item.discardReason !== "") && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.discardReason}
-                      </p>
-                    )}
-                    {(item.tradeReason != null && item.tradeReason !== "") && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {item.tradeReason}
+                    {decision != null && decision !== "" && (
+                      <p className="mt-1.5 text-xs text-foreground/90 font-medium">
+                        <span className="text-muted-foreground">Agent decision:</span>{" "}
+                        {decision}
                       </p>
                     )}
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleRemoveFromAgent(item.marketId)}
+                    disabled={removingMarketId === item.marketId}
+                    className="shrink-0 rounded border border-danger/50 bg-danger/10 px-2 py-1 text-xs font-medium text-danger transition-opacity hover:bg-danger/20 disabled:opacity-50"
+                    aria-label={`Remove ${item.marketName || item.marketId} from agent`}
+                  >
+                    {removingMarketId === item.marketId ? "Removing..." : "Remove"}
+                  </button>
                 </li>
               );
             })}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Area,
   AreaChart,
@@ -11,7 +11,6 @@ import {
   YAxis,
   ReferenceLine,
 } from "recharts";
-import { TrendingUp, Activity } from "lucide-react";
 
 export interface ProbabilityDataPoint {
   timestamp: number;
@@ -19,22 +18,15 @@ export interface ProbabilityDataPoint {
 }
 
 export interface SimulateProbabilityChartProps {
-  /** Array of probability data points */
+  /** Array of data points (timestamp, probability). Empty = placeholder. */
   data?: ProbabilityDataPoint[];
-  /** Title for the chart */
   title?: string;
-  /** Subtitle or description */
   subtitle?: string;
-  /** Color theme - matches your existing surface/foreground */
   className?: string;
-  /** Height of the chart container */
   height?: number;
-  /** Enable live simulation mode with random data updates */
-  simulateLive?: boolean;
-  /** Interval in ms for live simulation updates (default: 2000ms) */
-  simulationInterval?: number;
-  /** Current market name or label */
   marketName?: string;
+  /** Custom message when chart has no data. */
+  emptyMessage?: string;
 }
 
 interface ChartDataPoint extends ProbabilityDataPoint {
@@ -55,73 +47,22 @@ function formatPercentage(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-function generateMockData(count: number = 50): ProbabilityDataPoint[] {
-  const now = Date.now();
-  const data: ProbabilityDataPoint[] = [];
-  let currentProb = 0.5;
-
-  for (let i = count; i >= 0; i--) {
-    // Add some random walk to simulate realistic probability movement
-    const change = (Math.random() - 0.5) * 0.05;
-    currentProb = Math.max(0.05, Math.min(0.95, currentProb + change));
-
-    data.push({
-      timestamp: now - i * 2000,
-      probability: currentProb,
-    });
-  }
-
-  return data;
-}
-
 export function SimulateProbabilityChart({
-  data: initialData,
+  data: propData,
   title = "Implied Probability",
   subtitle = "Live backtest simulation",
   className = "",
   height = 280,
-  simulateLive = false,
-  simulationInterval = 2000,
   marketName,
 }: SimulateProbabilityChartProps) {
-  const [data, setData] = useState<ProbabilityDataPoint[]>(
-    initialData || generateMockData()
+  const data = useMemo(
+    () => (Array.isArray(propData) ? propData : []),
+    [propData]
   );
-  const [isSimulating, setIsSimulating] = useState(simulateLive);
 
-  // Live simulation effect
-  useEffect(() => {
-    if (!isSimulating) return;
-
-    const interval = setInterval(() => {
-      setData((prevData) => {
-        const lastPoint = prevData[prevData.length - 1];
-        const lastProb = lastPoint?.probability ?? 0.5;
-
-        // Random walk with momentum
-        const momentum = (Math.random() - 0.5) * 0.02;
-        const noise = (Math.random() - 0.5) * 0.03;
-        const change = momentum + noise;
-
-        const newProb = Math.max(0.05, Math.min(0.95, lastProb + change));
-
-        const newPoint: ProbabilityDataPoint = {
-          timestamp: Date.now(),
-          probability: newProb,
-        };
-
-        // Keep last 100 points to maintain performance
-        const newData = [...prevData.slice(-99), newPoint];
-        return newData;
-      });
-    }, simulationInterval);
-
-    return () => clearInterval(interval);
-  }, [isSimulating, simulationInterval]);
-
-  // Transform data for chart
   const chartData: ChartDataPoint[] = useMemo(() => {
-    return data.map((point) => ({
+    const points = data.length > 0 ? data : [{ timestamp: Date.now(), probability: 0.5 }];
+    return points.map((point) => ({
       ...point,
       formattedTime: formatTime(point.timestamp),
       percentage: formatPercentage(point.probability),
@@ -153,18 +94,16 @@ export function SimulateProbabilityChart({
     >
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {/* <div>
-            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-            {marketName && (
-              <p className="text-xs text-muted-foreground">{marketName}</p>
-            )}
-          </div> */}
+        <div className="flex flex-col gap-1">
+          <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
+          {marketName != null && marketName !== "" && (
+            <p className="text-xs text-muted-foreground">{marketName}</p>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          {isSimulating && (
+          {data.length > 0 && (
             <div className="flex items-center gap-1 text-xs text-success">
-              {/* <Activity className="h-3 w-3 animate-pulse" /> */}
               <span>Live</span>
             </div>
           )}
@@ -179,105 +118,94 @@ export function SimulateProbabilityChart({
         </div>
       </div>
 
-      {/* Toggle simulation button */}
-      {/* <button
-        type="button"
-        onClick={() => setIsSimulating((prev) => !prev)}
-        className="mb-3 rounded border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
-      >
-        {isSimulating ? "Pause Simulation" : "Start Live Simulation"}
-      </button> */}
+      {/* Chart - always visible, updates when data arrives */}
+      <div>
+        <ResponsiveContainer width="100%" height={height}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            >
+              <defs>
+                <linearGradient id="probabilityGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="5%"
+                    stopColor={probabilityColor}
+                    stopOpacity={0.3}
+                  />
+                  <stop
+                    offset="95%"
+                    stopColor={probabilityColor}
+                    stopOpacity={0.05}
+                  />
+                </linearGradient>
+              </defs>
 
-      {/* Subtitle */}
-      {/* <p className="mb-3 text-xs text-muted-foreground">{subtitle}</p> */}
-
-      {/* Chart */}
-      <ResponsiveContainer width="100%" height={height}>
-        <AreaChart
-          data={chartData}
-          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="probabilityGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="5%"
-                stopColor={probabilityColor}
-                stopOpacity={0.3}
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={borderColor}
+                opacity={0.5}
               />
-              <stop
-                offset="95%"
-                stopColor={probabilityColor}
-                stopOpacity={0.05}
+
+              <XAxis
+                dataKey="formattedTime"
+                tick={{ fontSize: 10, fill: mutedForegroundColor }}
+                tickLine={false}
+                axisLine={{ stroke: borderColor }}
+                minTickGap={30}
               />
-            </linearGradient>
-          </defs>
 
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke={borderColor}
-            opacity={0.5}
-          />
+              <YAxis
+                domain={[0, 1]}
+                tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
+                tick={{ fontSize: 10, fill: mutedForegroundColor }}
+                tickLine={false}
+                axisLine={{ stroke: borderColor }}
+                width={40}
+              />
 
-          <XAxis
-            dataKey="formattedTime"
-            tick={{ fontSize: 10, fill: mutedForegroundColor }}
-            tickLine={false}
-            axisLine={{ stroke: borderColor }}
-            minTickGap={30}
-          />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload || !payload.length) return null;
 
-          <YAxis
-            domain={[0, 1]}
-            tickFormatter={(value) => `${(value * 100).toFixed(0)}%`}
-            tick={{ fontSize: 10, fill: mutedForegroundColor }}
-            tickLine={false}
-            axisLine={{ stroke: borderColor }}
-            width={40}
-          />
+                  const point = payload[0]?.payload as ChartDataPoint;
+                  if (!point) return null;
 
-          <Tooltip
-            content={({ active, payload, label }) => {
-              if (!active || !payload || !payload.length) return null;
+                  return (
+                    <div className="rounded-md border border-border bg-surface p-2 shadow-lg">
+                      <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                      <p className="text-sm font-semibold" style={{ color: foregroundColor }}>
+                        Probability: {point.percentage}
+                      </p>
+                    </div>
+                  );
+                }}
+              />
 
-              const data = payload[0]?.payload as ChartDataPoint;
-              if (!data) return null;
+              <ReferenceLine
+                y={0.5}
+                stroke={mutedForegroundColor}
+                strokeDasharray="4 4"
+                strokeOpacity={0.5}
+              />
 
-              return (
-                <div className="rounded-md border border-border bg-surface p-2 shadow-lg">
-                  <p className="text-xs text-muted-foreground mb-1">{label}</p>
-                  <p className="text-sm font-semibold" style={{ color: foregroundColor }}>
-                    Probability: {data.percentage}
-                  </p>
-                </div>
-              );
-            }}
-          />
-
-          {/* 50% Reference Line */}
-          <ReferenceLine
-            y={0.5}
-            stroke={mutedForegroundColor}
-            strokeDasharray="4 4"
-            strokeOpacity={0.5}
-          />
-
-          <Area
-            type="monotone"
-            dataKey="probability"
-            stroke={probabilityColor}
-            strokeWidth={2}
-            fill={`url(#probabilityGradient)`}
-            dot={false}
-            activeDot={{
-              r: 4,
-              stroke: surfaceColor,
-              strokeWidth: 2,
-              fill: probabilityColor,
-            }}
-            animationDuration={300}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+              <Area
+                type="monotone"
+                dataKey="probability"
+                stroke={probabilityColor}
+                strokeWidth={2}
+                fill="url(#probabilityGradient)"
+                dot={false}
+                activeDot={{
+                  r: 4,
+                  stroke: surfaceColor,
+                  strokeWidth: 2,
+                  fill: probabilityColor,
+                }}
+                animationDuration={300}
+              />
+            </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
       {/* Legend / Info */}
       <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">

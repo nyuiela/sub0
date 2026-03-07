@@ -51,6 +51,7 @@ export interface SimulateLayoutProps {
 export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps) {
   const dispatch = useAppDispatch();
   const selectedAgentId = useAppSelector((state) => state.layout.selectedSimulateAgentId);
+  const simulationId = useAppSelector((state) => state.layout.simulationId);
   const onSelectAgent = useCallback(
     (agent: Agent | null) => dispatch(setSelectedSimulateAgentId(agent?.id ?? null)),
     [dispatch]
@@ -158,6 +159,7 @@ export function SimulateLayout({ ownerId, className = "" }: SimulateLayoutProps)
         return (
           <SimulateProbabilityChartColumn
             selectedAgentId={selectedAgentId}
+            simulationId={simulationId}
             className="h-full"
           />
         );

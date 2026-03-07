@@ -14,6 +14,8 @@ export interface LayoutSliceState {
   selectedTrackerAgentId: string | null;
   /** Agent id selected in Simulate tab for sandbox testing. */
   selectedSimulateAgentId: string | null;
+  /** Market id selected in Simulate Discovery for order book / detail. */
+  selectedSimulateMarketId: string | null;
   /** Incremented when user adds a market to agent so Discovery refetches. */
   simulateEnqueuedListVersion: number;
   /** Incremented after Run analysis so Simulate balance/eligibility refetch (DB stays in sync with Tenderly). */
@@ -40,6 +42,7 @@ const initialState: LayoutSliceState = {
   columnSizePrefs: initialSizePrefs(),
   selectedTrackerAgentId: null,
   selectedSimulateAgentId: null,
+  selectedSimulateMarketId: null,
   simulateEnqueuedListVersion: 0,
   simulateBalanceVersion: 0,
   simulationRunningAgentId: null,
@@ -103,6 +106,9 @@ const layoutSlice = createSlice({
     setSelectedSimulateAgentId: (state, action: { payload: string | null }) => {
       state.selectedSimulateAgentId = action.payload;
     },
+    setSelectedSimulateMarketId: (state, action: { payload: string | null }) => {
+      state.selectedSimulateMarketId = action.payload;
+    },
     incrementSimulateEnqueuedListVersion: (state) => {
       state.simulateEnqueuedListVersion += 1;
     },
@@ -136,6 +142,7 @@ export const {
   resetColumnOrder,
   setSelectedTrackerAgentId,
   setSelectedSimulateAgentId,
+  setSelectedSimulateMarketId,
   incrementSimulateEnqueuedListVersion,
   incrementSimulateBalanceVersion,
   startSimulationRun,
