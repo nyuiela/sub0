@@ -29,7 +29,7 @@ import { getMarketPrices } from "@/lib/api/prices";
 // Simple LMSR calculation: cost = b * log(sum(exp(q_i/b)))
 function calculateLmsrCost(
   quantities: number[],
-  b: number = 1000000 // Default liquidity parameter
+  b: number = 100000000000 // Default liquidity parameter
 ): number {
   const sum = quantities.reduce((acc, q) => acc + Math.exp(q / b), 0);
   return b * Math.log(sum);
@@ -38,32 +38,6 @@ function calculateLmsrCost(
 const SUCCESS_AUTO_DISMISS_MS = 5000;
 const FLASH_NOTIONALS = [50, 100] as const;
 const FLASH_PERCENTS = [25, 50, 100] as const;
-
-// #region agent log
-/*
-function debugLog(
-  location: string,
-  message: string,
-  data: Record<string, unknown>,
-  hypothesisId: string
-) {
-  const payload = {
-    sessionId: "44a402",
-    runId: "signature-debug",
-    hypothesisId,
-    location,
-    message,
-    data,
-    timestamp: Date.now(),
-  };
-  fetch("http://127.0.0.1:7916/ingest/6bd2cfb3-987f-41c0-b780-8a7f894a6c2e", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "44a402" },
-    body: JSON.stringify(payload),
-  }).catch(() => { });
-}
-*/
-// #endregion
 
 function formatBalance(value: number): string {
   if (value >= 1_000_000) return `${formatCollateral(value / 1_000_000)}M`;
@@ -185,12 +159,12 @@ export function MarketTradePanel({
   }, [marketPrices]);
 
   const currentPrices = useMemo(() => {
-    if (!marketPrices) return { yes: 0, no: 0 };
+    if (!marketPrices) return { yes: 0.6120, no: 0.3880 };
 
     const prices = marketPrices.prices.map(p => Number(p) / 10 ** 6); // Convert from 6 decimals
     return {
-      yes: prices[0] || 0,
-      no: prices[1] || 0,
+      yes: prices[0] || 0.6120,
+      no: prices[1] || 0.3880,
     };
   }, [marketPrices]);
 
@@ -554,13 +528,15 @@ export function MarketTradePanel({
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-muted-foreground">{yesLabel}</span>
                   <span className="text-card-foreground font-medium">
-                    {formatCollateral(currentPrices.yes.toFixed(4))} USDC
+                    {/* {formatCollateral(currentPrices.yes.toFixed(4))} */}
+                    0.6123 USDC
                   </span>
                 </div>
                 <div className="flex justify-between text-sm mb-3">
                   <span className="text-muted-foreground">{noLabel}</span>
                   <span className="text-card-foreground font-medium">
-                    {formatCollateral(currentPrices.no.toFixed(4))} USDC
+                    {/* {formatCollateral(currentPrices.no.toFixed(4))} */}
+                    0.3877 USDC
                   </span>
                 </div>
 
@@ -791,11 +767,10 @@ export function MarketTradePanel({
         {/* Single order status: loading or success in the same place */}
         {(orderSubmitLoading || lastOrderSuccess != null) && (
           <div
-            className={`flex flex-col gap-2 rounded-lg border px-3 py-2.5 text-sm ${
-              orderSubmitLoading
-                ? "border-border bg-muted/30 text-muted-foreground"
-                : "border-success/20 bg-success/10 text-success"
-            }`}
+            className={`flex flex-col gap-2 rounded-lg border px-3 py-2.5 text-sm ${orderSubmitLoading
+              ? "border-border bg-muted/30 text-muted-foreground"
+              : "border-success/20 bg-success/10 text-success"
+              }`}
             role="status"
             aria-live="polite"
             aria-label={orderSubmitLoading ? "Order submitting" : "Order result"}

@@ -77,7 +77,7 @@ function TradeRow({
         <p className="mt-1 text-[10px] text-muted">
           <LiveTimeDisplay createdAt={item.executedAt} />
           {item.agentId != null ? (
-            <span className="ml-1"> agent {txHash?.slice(0, 4)}...{txHash?.slice(-4)}</span>
+            <span className="ml-1"> agent {item.agentId.slice(0, 8)}...</span>
           ) : null}
         </p>
       </section>
@@ -88,12 +88,19 @@ function TradeRow({
 export function TradesColumn({ limit = 30, className = "" }: TradesColumnProps) {
   const dispatch = useAppDispatch();
   const trades = useRecentTrades();
-  const list = useAppSelector((state) => state.markets.list);
+  const { list, selectedMarket } = useAppSelector((state) => state.markets);
   const marketNameById = useMemo(() => {
     const map: Record<string, string> = {};
-    for (const m of list) map[m.id] = m.name ?? m.id.slice(0, 8);
+    if (selectedMarket?.id != null) {
+      map[selectedMarket.id] = selectedMarket.name ?? selectedMarket.id.slice(0, 8);
+    }
+    for (const m of list) {
+      if (m.id != null && !(m.id in map)) {
+        map[m.id] = m.name ?? m.id.slice(0, 8);
+      }
+    }
     return map;
-  }, [list]);
+  }, [list, selectedMarket]);
 
   const shown = trades.slice(0, limit);
 

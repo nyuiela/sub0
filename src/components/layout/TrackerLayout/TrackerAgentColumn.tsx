@@ -192,14 +192,19 @@ export function TrackerAgentColumn({
     >
       <section className="min-w-0" aria-label="User Agents TreeMap">
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-          User Agents TreeMap
+          Agents by strategy &amp; volume
         </h3>
+        <p className="mb-2 text-[10px] text-muted-foreground">
+          Size: volume. Color: ROI. Hover for details.
+        </p>
         {loading && agents.length === 0 ? (
           <div className="h-[200px] w-full min-w-0 animate-pulse rounded bg-surface" />
-        ) : agents.length > 0 ? (
-          <AgentTreemap agents={agents} className="w-full min-w-0" simpleOnly />
         ) : (
-          <p className="text-sm text-muted-foreground">No agents yet.</p>
+          <AgentTreemap
+            agents={agents}
+            className="w-full min-w-0"
+            useMockWhenEmpty
+          />
         )}
       </section>
 

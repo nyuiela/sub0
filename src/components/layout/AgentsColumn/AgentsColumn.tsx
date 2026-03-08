@@ -237,17 +237,19 @@ export function AgentsColumn({
       className={`flex min-w-0 flex-col gap-3 ${className}`.trim()}
       aria-label="Top agents"
     >
-      {topForTreemap.length > 0 && (
-        <section className="min-w-0" aria-label="Agents TreeMap">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-            Agents by volume
-          </h3>
-          <p className="mb-2 text-[10px] text-muted-foreground">
-            All agents listed. Only yours show Deposit / Get wallet.
-          </p>
-          <AgentTreemap agents={topForTreemap} className="w-full min-w-0" simpleOnly />
-        </section>
-      )}
+      <section className="min-w-0" aria-label="Agents TreeMap">
+        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+          Agents by strategy &amp; volume
+        </h3>
+        <p className="mb-2 text-[10px] text-muted-foreground">
+          Size: volume. Color: ROI (green = positive, red = negative). Only yours show Deposit / Get wallet.
+        </p>
+        <AgentTreemap
+          agents={topForTreemap}
+          className="w-full min-w-0"
+          useMockWhenEmpty
+        />
+      </section>
       {agents.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           No agents yet. Create one in Settings to see it here.
