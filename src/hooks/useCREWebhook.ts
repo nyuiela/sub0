@@ -35,7 +35,7 @@ export interface UseCREWebhookOptions {
 function extractCREPayload(message: unknown): CREWebhookEvent | null {
   if (typeof message !== "object" || message === null) return null;
   const msg = message as Record<string, unknown>;
-  if (msg.type !== "MARKET_UPDATE") return null;
+  if (msg.type !== "REGISTRY_SYNC_UPDATE") return null;
   const payload = msg.payload as Record<string, unknown> | undefined;
   if (!payload || payload.source !== "webhookBridge") return null;
   if (typeof payload.eventType !== "string") return null;
